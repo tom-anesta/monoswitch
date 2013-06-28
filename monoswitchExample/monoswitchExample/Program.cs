@@ -10,7 +10,7 @@ namespace monoswitchExample
         /// </summary>
         static void Main(string[] args)
         {
-            using (Game1 game = new Game1())
+            using (exampleGame game = new exampleGame())
             {
                 game.Run();
             }

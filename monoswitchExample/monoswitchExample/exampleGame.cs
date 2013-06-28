@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 #endregion
 
-namespace GameStateManagement
+namespace monoswitchExample
 {
     /// <summary>
     /// Sample showing how to manage different game states, with transitions
@@ -20,7 +20,7 @@ namespace GameStateManagement
     /// menu. This main game class is extremely simple: all the interesting
     /// stuff happens in the ScreenManager component.
     /// </summary>
-    public class GameStateManagementGame : Microsoft.Xna.Framework.Game
+    public class exampleGame : Microsoft.Xna.Framework.Game
     {
         #region Fields
 
