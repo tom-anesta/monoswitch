@@ -14,7 +14,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 #endregion
 
-namespace GameStateManagement
+namespace monoswitchExample
 {
     /// <summary>
     /// The background screen sits behind all the other menu screens.

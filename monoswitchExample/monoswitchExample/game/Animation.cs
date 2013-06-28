@@ -5,120 +5,223 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Shooter
+namespace monoswitchExample
 {
     class Animation
     {
+        #region members
 
-        // The image representing the collection of images used for animation
-        Texture2D spriteStrip;
+            #region public
 
-        // The scale used to display the sprite strip
-        float scale;
+            #endregion
 
-        // The time since we last updated the frame
-        int elapsedTime;
+            #region protected
 
-        // The time we display a frame until the next one
-        int frameTime;
+                // Width of a given frame
+                protected int m_frameWidth;
 
-        // The number of frames that the animation contains
-        int frameCount;
+                // Height of a given frame
+                protected int m_frameHeight;
 
-        // The index of the current frame we are displaying
-        int currentFrame;
+                // The state of the Animation
+                protected bool m_active;
 
-        // The color of the frame we will be displaying
-        Color color;
+                // Determines if the animation will keep playing or deactivate after one run
+                protected bool m_looping;
 
-        // The area of the image strip we want to display
-        Rectangle sourceRect = new Rectangle();
+                // Width of a given frame
+                protected Vector2 m_position;
 
-        // The area where we want to display the image strip in the game
-        Rectangle destinationRect = new Rectangle();
+                // The image representing the collection of images used for animation
+                Texture2D m_spriteStrip;
 
-        // Width of a given frame
-        public int FrameWidth;
+                // The scale used to display the sprite strip
+                float m_scale;
 
-        // Height of a given frame
-        public int FrameHeight;
+                // The time since we last updated the frame
+                int m_elapsedTime;
 
-        // The state of the Animation
-        public bool Active;
+                // The time we display a frame until the next one
+                int m_frameTime;
 
-        // Determines if the animation will keep playing or deactivate after one run
-        public bool Looping;
+                // The number of frames that the animation contains
+                int m_frameCount;
 
-        // Width of a given frame
-        public Vector2 Position;
+                // The index of the current frame we are displaying
+                int m_currentFrame;
 
-        public void Initialize(Texture2D texture, Vector2 position, int frameWidth, int frameHeight, int frameCount, int frametime, Color color, float scale, bool looping)
-        {
-            // Keep a local copy of the values passed in
-            this.color = color;
-            this.FrameWidth = frameWidth;
-            this.FrameHeight = frameHeight;
-            this.frameCount = frameCount;
-            this.frameTime = frametime;
-            this.scale = scale;
+                // The color of the frame we will be displaying
+                Color m_color;
 
-            this.Looping = looping;
-            this.Position = position;
-            this.spriteStrip = texture;
+                // The area of the image strip we want to display
+                Rectangle m_sourceRect = new Rectangle();
 
-            // Set the time to zero
-            elapsedTime = 0;
-            currentFrame = 0;
+                // The area where we want to display the image strip in the game
+                Rectangle m_destinationRect = new Rectangle();
 
-            // Set the Animation to active by default
-            Active = true;
-        }
-        public void Update(GameTime gameTime)
-        {
-            // Do not update the game if we are not active
-            if (Active == false)
-                return;
 
-            // Update the elapsed time
-            elapsedTime += (int)gameTime.ElapsedGameTime.TotalMilliseconds;
+            #endregion
 
-            // If the elapsed time is larger than the frame time
-            // we need to switch frames
-            if (elapsedTime > frameTime)
-            {
-                // Move to the next frame
-                currentFrame++;
+            #region private
 
-                // If the currentFrame is equal to frameCount reset currentFrame to zero
-                if (currentFrame == frameCount)
+            #endregion
+
+        #endregion
+
+        #region properties
+
+            #region public
+
+                public int frameHeight
                 {
-                    currentFrame = 0;
-                    // If we are not looping deactivate the animation
-                    if (Looping == false)
-                        Active = false;
+                    get
+                    {
+                        return this.m_frameHeight;
+                    }
+                    set
+                    {
+                        return;
+                    }
                 }
 
-                // Reset the elapsed time to zero
-                elapsedTime = 0;
-            }
+                public int frameWidth
+                {
+                    get
+                    {
+                        return this.m_frameWidth;
+                    }
+                    set
+                    {
+                        return;
+                    }
+                }
 
-            // Grab the correct frame in the image strip by multiplying the currentFrame index by the frame width
-            sourceRect = new Rectangle(currentFrame * FrameWidth, 0, FrameWidth, FrameHeight);
+                public Vector2 position
+                {
+                    get
+                    {
+                        return this.m_position;
+                    }
+                    set
+                    {
+                        this.m_position = value;
+                    }
+                }
 
-            // decide where it goes
-            destinationRect = new Rectangle((int)Position.X - (int)(FrameWidth * scale) / 2,
-            (int)Position.Y - (int)(FrameHeight * scale) / 2,
-            (int)(FrameWidth * scale),
-            (int)(FrameHeight * scale));
-        }
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            // Only draw the animation when we are active
-            if (Active)
-            {
-                spriteBatch.Draw(spriteStrip, destinationRect, sourceRect, color);
-            }
-        }
+            #endregion
+
+            #region protected
+
+            #endregion
+
+            #region private
+
+            #endregion
+
+        #endregion
+
+        #region events
+
+            #region public
+
+            #endregion
+
+            #region protected
+
+            #endregion
+
+            #region private
+
+            #endregion
+
+        #endregion
+
+        #region methods
+
+            #region public
+
+                public void Initialize(Texture2D texture, Vector2 position, int frameWidth, int frameHeight, int frameCount, int frametime, Color color, float scale, bool looping)
+                {
+                    // Keep a local copy of the values passed in
+                    this.m_color = color;
+                    this.m_frameWidth = frameWidth;
+                    this.m_frameHeight = frameHeight;
+                    this.m_frameCount = frameCount;
+                    this.m_frameTime = frametime;
+                    this.m_scale = scale;
+
+                    this.m_looping = looping;
+                    this.m_position = position;
+                    this.m_spriteStrip = texture;
+
+                    // Set the time to zero
+                    this.m_elapsedTime = 0;
+                    this.m_currentFrame = 0;
+
+                    // Set the Animation to active by default
+                    this.m_active = true;
+                }
+
+                public void Update(GameTime gameTime)
+                {
+                    // Do not update the game if we are not active
+                    if (this.m_active == false)
+                        return;
+
+                    // Update the elapsed time
+                    this.m_elapsedTime += (int)gameTime.ElapsedGameTime.TotalMilliseconds;
+
+                    // If the elapsed time is larger than the frame time
+                    // we need to switch frames
+                    if (this.m_elapsedTime > this.m_frameTime)
+                    {
+                        // Move to the next frame
+                        this.m_currentFrame++;
+
+                        // If the currentFrame is equal to frameCount reset currentFrame to zero
+                        if (this.m_currentFrame == this.m_frameCount)
+                        {
+                            this.m_currentFrame = 0;
+                            // If we are not looping deactivate the animation
+                            if (this.m_looping == false)
+                                this.m_active = false;
+                        }
+
+                        // Reset the elapsed time to zero
+                        this.m_elapsedTime = 0;
+                    }
+
+                    // Grab the correct frame in the image strip by multiplying the currentFrame index by the frame width
+                    this.m_sourceRect = new Rectangle(this.m_currentFrame * this.m_frameWidth, 0, this.m_frameWidth, this.m_frameHeight);
+
+                    // decide where it goes
+                    this.m_destinationRect = new Rectangle((int)this.m_position.X - (int)(this.m_frameWidth * m_scale) / 2,
+                    (int)this.m_position.Y - (int)(this.m_frameHeight * m_scale) / 2,
+                    (int)(this.m_frameWidth * this.m_scale),
+                    (int)(this.m_frameHeight * this.m_scale));
+                }
+                public void Draw(SpriteBatch spriteBatch)
+                {
+                    // Only draw the animation when we are active
+                    if (this.m_active)
+                    {
+                        spriteBatch.Draw(this.m_spriteStrip, this.m_destinationRect, this.m_sourceRect, this.m_color);
+                    }
+                }
+
+
+
+            #endregion
+
+            #region protected
+
+            #endregion
+
+            #region private
+
+            #endregion
+
+       #endregion
 
     }
 }

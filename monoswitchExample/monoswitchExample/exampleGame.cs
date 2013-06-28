@@ -22,95 +22,132 @@ namespace monoswitchExample
     /// </summary>
     public class exampleGame : Microsoft.Xna.Framework.Game
     {
-        #region Fields
 
-        GraphicsDeviceManager graphics;
-        ScreenManager screenManager;
+        #region members
 
+            #region public
 
-        // By preloading any assets used by UI rendering, we avoid framerate glitches
-        // when they suddenly need to be loaded in the middle of a menu transition.
-        static readonly string[] preloadAssets =
-        {
-            "gradient",
-        };
+                // By preloading any assets used by UI rendering, we avoid framerate glitches
+                // when they suddenly need to be loaded in the middle of a menu transition.
+                public static readonly string[] preloadAssets =
+                {
+                    "gradient",
+                };
 
+            #endregion
+
+            #region protected
+
+                protected GraphicsDeviceManager graphics;
+                protected ScreenManager screenManager;
+
+            #endregion
+
+            #region private
+
+            #endregion
         
         #endregion
 
-        #region Initialization
+        #region properties
 
+            #region public
 
-        /// <summary>
-        /// The main game constructor.
-        /// </summary>
-        public GameStateManagementGame()
-        {
-            Content.RootDirectory = "Content";
+            #endregion
 
-            graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 853;
-            graphics.PreferredBackBufferHeight = 480;
+            #region protected
 
-            // Create the screen manager component.
-            screenManager = new ScreenManager(this);
+            #endregion
 
-            Components.Add(screenManager);
+            #region private
 
-            // Activate the first screens.
-            screenManager.AddScreen(new BackgroundScreen(), null);
-            screenManager.AddScreen(new MainMenuScreen(), null);
-        }
-
-
-        /// <summary>
-        /// Loads graphics content.
-        /// </summary>
-        protected override void LoadContent()
-        {
-            foreach (string asset in preloadAssets)
-            {
-                Content.Load<object>(asset);
-            }
-        }
-
+            #endregion
 
         #endregion
 
-        #region Draw
+        #region events
 
+            #region public
 
-        /// <summary>
-        /// This is called when the game should draw itself.
-        /// </summary>
-        protected override void Draw(GameTime gameTime)
-        {
-            graphics.GraphicsDevice.Clear(Color.Black);
+            #endregion
 
-            // The real drawing happens inside the screen manager component.
-            base.Draw(gameTime);
-        }
+            #region protected
 
+            #endregion
+
+            #region private
+
+            #endregion
 
         #endregion
+
+        #region functions
+
+            #region public
+
+                /// <summary>
+                /// The main game constructor.
+                /// </summary>
+                public exampleGame()
+                {
+                    Content.RootDirectory = "Content";
+
+                    graphics = new GraphicsDeviceManager(this);
+                    graphics.PreferredBackBufferWidth = 853;
+                    graphics.PreferredBackBufferHeight = 480;
+
+                    // Create the screen manager component.
+                    screenManager = new ScreenManager(this);
+
+                    Components.Add(screenManager);
+
+                    // Activate the first screens.
+                    screenManager.AddScreen(new BackgroundScreen(), null);
+                    screenManager.AddScreen(new MainMenuScreen(), null);
+                }
+
+            #endregion
+
+            #region protected
+
+                /// <summary>
+                /// Loads graphics content.
+                /// </summary>
+                protected override void LoadContent()
+                {
+                    foreach (string asset in preloadAssets)
+                    {
+                        Content.Load<object>(asset);
+                    }
+                }
+
+                /// <summary>
+                /// This is called when the game should draw itself.
+                /// </summary>
+                protected override void Draw(GameTime gameTime)
+                {
+                    graphics.GraphicsDevice.Clear(Color.Black);
+
+                    // The real drawing happens inside the screen manager component.
+                    base.Draw(gameTime);
+                }
+
+            #endregion
+
+            #region private
+
+            #endregion
+
+        #endregion
+
+  
+
+        
+
+        
+
+
     }
 
 
-    #region Entry Point
-
-    /// <summary>
-    /// The main entry point for the application.
-    /// </summary>
-    static class Program
-    {
-        static void Main()
-        {
-            using (GameStateManagementGame game = new GameStateManagementGame())
-            {
-                game.Run();
-            }
-        }
-    }
-
-    #endregion
 }

@@ -5,60 +5,124 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Shooter
+namespace monoswitchExample
 {
     class Player
     {
-        
 
-        // Position of the Player relative to the upper left side of the screen
-        public Vector2 Position;
+        #region members
 
-        // State of the player
-        public bool Active;
+            #region public
 
-        // Amount of hit points that player has
-        public int Health;
+            #endregion
 
-        // Animation representing the player
-        public Animation PlayerAnimation;
+            #region protected
 
-        // Get the width of the player ship
-        public int Width
-        {
-            get { return PlayerAnimation.FrameWidth; }
-        }
+                // Position of the Player relative to the upper left side of the screen
+                protected Vector2 m_position;
 
-        // Get the height of the player ship
-        public int Height
-        {
-            get { return PlayerAnimation.FrameHeight; }
-        }
+                // State of the player
+                protected bool m_active;
 
-        public void Initialize(Animation animation, Vector2 position)
-        {
-            PlayerAnimation = animation;
+                // Amount of hit points that player has
+                protected int m_health;
 
-            // Set the starting position of the player around the middle of the screen and to the back
-            Position = position;
+                // Animation representing the player
+                protected Animation m_playerAnimation;
 
-            // Set the player to be active
-            Active = true;
+            #endregion
 
-            // Set the player health
-            Health = 100;
-        }
+            #region private
 
-        public void Update(GameTime gameTime)
-        {
-            PlayerAnimation.Position = Position;
-            PlayerAnimation.Update(gameTime);
-        }
+            #endregion
 
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            PlayerAnimation.Draw(spriteBatch);
-        }
+        #endregion
+
+        #region properties
+
+            #region public
+
+                // Get the width of the player ship
+                public int Width
+                {
+                    get { return this.m_playerAnimation.frameWidth; }
+                }
+
+                // Get the height of the player ship
+                public int Height
+                {
+                    get { return this.m_playerAnimation.frameHeight; }
+                }
+
+            #endregion
+
+            #region protected
+
+            #endregion
+
+            #region private
+
+            #endregion
+
+        #endregion
+
+        #region events
+
+            #region public
+
+            #endregion
+
+            #region protected
+
+            #endregion
+
+            #region private
+
+            #endregion
+
+        #endregion
+
+        #region functions
+
+            #region public
+
+                public void Initialize(Animation animation, Vector2 position)
+                {
+                    this.m_playerAnimation = animation;
+
+                    // Set the starting position of the player around the middle of the screen and to the back
+                    this.m_position = position;
+
+                    // Set the player to be active
+                    this.m_active = true;
+
+                    // Set the player health
+                    this.m_health = 100;
+                }
+
+                public void Update(GameTime gameTime)
+                {
+                    this.m_playerAnimation.position = Position;
+                    this.m_playerAnimation.Update(gameTime);
+                }
+
+                public void Draw(SpriteBatch spriteBatch)
+                {
+                    this.m_playerAnimation.Draw(spriteBatch);
+                }
+
+            #endregion
+
+            #region protected
+
+            #endregion
+
+            #region private
+
+            #endregion
+
+        #endregion
+
 
     }
 }

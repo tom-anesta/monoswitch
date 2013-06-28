@@ -113,7 +113,7 @@
   <ItemGroup>
     <Compile Include="exampleGame.cs" />
     <Compile Include="game\Animation.cs" />
-    <Compile Include="game\enemy.cs" />
+    <Compile Include="game\star.cs" />
     <Compile Include="game\parallaxingbackground.cs" />
     <Compile Include="game\Player.cs" />
     <Compile Include="game\Projectile.cs" />
