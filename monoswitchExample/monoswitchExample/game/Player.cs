@@ -102,7 +102,7 @@ namespace monoswitchExample
 
                 public void Update(GameTime gameTime)
                 {
-                    this.m_playerAnimation.position = Position;
+                    this.m_playerAnimation.position = this.m_position;
                     this.m_playerAnimation.Update(gameTime);
                 }
 

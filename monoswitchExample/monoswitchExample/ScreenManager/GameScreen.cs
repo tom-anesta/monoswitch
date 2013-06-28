@@ -183,7 +183,7 @@ namespace monoswitchExample
                 /// this menu is given control over all subsequent screens, so other gamepads
                 /// are inactive until the controlling player returns to the main menu.
                 /// </summary>
-                public PlayerIndex? ControllingPlayer
+                public PlayerIndex? controllingPlayer
                 {
                     get { return this.m_controllingPlayer; }
                     internal set { this.m_controllingPlayer = value; }

@@ -31,132 +31,164 @@ namespace monoswitchExample
     /// </summary>
     class LoadingScreen : GameScreen
     {
-        #region Fields
+        #region members
 
-        bool loadingIsSlow;
-        bool otherScreensAreGone;
+            #region public
 
-        GameScreen[] screensToLoad;
+            #endregion
 
-        #endregion
+            #region protected
 
-        #region Initialization
+                protected bool m_loadingIsSlow;
+                protected bool m_otherScreensAreGone;
+                protected GameScreen[] m_screensToLoad;
 
+            #endregion
 
-        /// <summary>
-        /// The constructor is private: loading screens should
-        /// be activated via the static Load method instead.
-        /// </summary>
-        private LoadingScreen(ScreenManager screenManager, bool loadingIsSlow,
-                              GameScreen[] screensToLoad)
-        {
-            this.loadingIsSlow = loadingIsSlow;
-            this.screensToLoad = screensToLoad;
+            #region private
 
-            TransitionOnTime = TimeSpan.FromSeconds(0.5);
-        }
-
-
-        /// <summary>
-        /// Activates the loading screen.
-        /// </summary>
-        public static void Load(ScreenManager screenManager, bool loadingIsSlow,
-                                PlayerIndex? controllingPlayer,
-                                params GameScreen[] screensToLoad)
-        {
-            // Tell all the current screens to transition off.
-            foreach (GameScreen screen in screenManager.GetScreens())
-                screen.ExitScreen();
-
-            // Create and activate the loading screen.
-            LoadingScreen loadingScreen = new LoadingScreen(screenManager,
-                                                            loadingIsSlow,
-                                                            screensToLoad);
-
-            screenManager.AddScreen(loadingScreen, controllingPlayer);
-        }
-
+            #endregion
 
         #endregion
 
-        #region Update and Draw
+        #region properties
 
+            #region public
 
-        /// <summary>
-        /// Updates the loading screen.
-        /// </summary>
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus,
-                                                       bool coveredByOtherScreen)
-        {
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+            #endregion
 
-            // If all the previous screens have finished transitioning
-            // off, it is time to actually perform the load.
-            if (otherScreensAreGone)
-            {
-                ScreenManager.RemoveScreen(this);
+            #region protected
 
-                foreach (GameScreen screen in screensToLoad)
+            #endregion
+
+            #region private
+
+            #endregion
+
+        #endregion
+
+        #region events
+
+            #region public
+
+            #endregion
+
+            #region protected
+
+            #endregion
+
+            #region private
+
+            #endregion
+
+        #endregion
+
+        #region functions
+
+            #region public
+
+                /// <summary>
+                /// Activates the loading screen.
+                /// </summary>
+                public static void Load(ScreenManager screenManager, bool loadingIsSlow,
+                                        PlayerIndex? controllingPlayer,
+                                        params GameScreen[] screensToLoad)
                 {
-                    if (screen != null)
+                    // Tell all the current screens to transition off.
+                    foreach (GameScreen screen in screenManager.GetScreens())
                     {
-                        ScreenManager.AddScreen(screen, ControllingPlayer);
+                        screen.ExitScreen();
+                    }
+                    // Create and activate the loading screen.
+                    LoadingScreen loadingScreen = new LoadingScreen(screenManager, loadingIsSlow, screensToLoad);
+                    screenManager.AddScreen(loadingScreen, controllingPlayer);
+                }
+
+                /// <summary>
+                /// Updates the loading screen.
+                /// </summary>
+                public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+                {
+                    base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+                    // If all the previous screens have finished transitioning
+                    // off, it is time to actually perform the load.
+                    if (this.m_otherScreensAreGone)
+                    {
+                        ScreenManager.RemoveScreen(this);
+                        foreach (GameScreen screen in this.m_screensToLoad)
+                        {
+                            if (screen != null)
+                            {
+                                ScreenManager.AddScreen(screen, this.controllingPlayer);
+                            }
+                        }
+                        // Once the load has finished, we use ResetElapsedTime to tell
+                        // the  game timing mechanism that we have just finished a very
+                        // long frame, and that it should not try to catch up.
+                        ScreenManager.Game.ResetElapsedTime();
                     }
                 }
 
-                // Once the load has finished, we use ResetElapsedTime to tell
-                // the  game timing mechanism that we have just finished a very
-                // long frame, and that it should not try to catch up.
-                ScreenManager.Game.ResetElapsedTime();
-            }
-        }
+                /// <summary>
+                /// Draws the loading screen.
+                /// </summary>
+                public override void Draw(GameTime gameTime)
+                {
+                    // If we are the only active screen, that means all the previous screens
+                    // must have finished transitioning off. We check for this in the Draw
+                    // method, rather than in Update, because it isn't enough just for the
+                    // screens to be gone: in order for the transition to look good we must
+                    // have actually drawn a frame without them before we perform the load.
+                    if ((ScreenState == ScreenState.Active) && (ScreenManager.GetScreens().Length == 1))
+                    {
+                        this.m_otherScreensAreGone = true;
+                    }
+                    // The gameplay screen takes a while to load, so we display a loading
+                    // message while that is going on, but the menus load very quickly, and
+                    // it would look silly if we flashed this up for just a fraction of a
+                    // second while returning from the game to the menus. This parameter
+                    // tells us how long the loading is going to take, so we know whether
+                    // to bother drawing the message.
+                    if (this.m_loadingIsSlow)
+                    {
+                        SpriteBatch spriteBatch = ScreenManager.spriteBatch;
+                        SpriteFont font = ScreenManager.font;
+                        const string message = "Loading...";
+                        // Center the text in the viewport.
+                        Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
+                        Vector2 viewportSize = new Vector2(viewport.Width, viewport.Height);
+                        Vector2 textSize = font.MeasureString(message);
+                        Vector2 textPosition = (viewportSize - textSize) / 2;
+                        Color color = Color.White * TransitionAlpha;
+                        // Draw the text.
+                        spriteBatch.Begin();
+                        spriteBatch.DrawString(font, message, textPosition, color);
+                        spriteBatch.End();
+                    }
+                }
 
+            #endregion
 
-        /// <summary>
-        /// Draws the loading screen.
-        /// </summary>
-        public override void Draw(GameTime gameTime)
-        {
-            // If we are the only active screen, that means all the previous screens
-            // must have finished transitioning off. We check for this in the Draw
-            // method, rather than in Update, because it isn't enough just for the
-            // screens to be gone: in order for the transition to look good we must
-            // have actually drawn a frame without them before we perform the load.
-            if ((ScreenState == ScreenState.Active) &&
-                (ScreenManager.GetScreens().Length == 1))
-            {
-                otherScreensAreGone = true;
-            }
+            #region protected
 
-            // The gameplay screen takes a while to load, so we display a loading
-            // message while that is going on, but the menus load very quickly, and
-            // it would look silly if we flashed this up for just a fraction of a
-            // second while returning from the game to the menus. This parameter
-            // tells us how long the loading is going to take, so we know whether
-            // to bother drawing the message.
-            if (loadingIsSlow)
-            {
-                SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-                SpriteFont font = ScreenManager.Font;
+            #endregion
 
-                const string message = "Loading...";
+            #region private
 
-                // Center the text in the viewport.
-                Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
-                Vector2 viewportSize = new Vector2(viewport.Width, viewport.Height);
-                Vector2 textSize = font.MeasureString(message);
-                Vector2 textPosition = (viewportSize - textSize) / 2;
+                /// <summary>
+                /// The constructor is private: loading screens should
+                /// be activated via the static Load method instead.
+                /// </summary>
+                private LoadingScreen(ScreenManager screenManager, bool loadingIsSlow, GameScreen[] screensToLoad)
+                {
+                    this.m_loadingIsSlow = loadingIsSlow;
+                    this.m_screensToLoad = screensToLoad;
+                    this.transitionOnTime = TimeSpan.FromSeconds(0.5);
+                }
 
-                Color color = Color.White * TransitionAlpha;
-
-                // Draw the text.
-                spriteBatch.Begin();
-                spriteBatch.DrawString(font, message, textPosition, color);
-                spriteBatch.End();
-            }
-        }
-
+            #endregion
 
         #endregion
+
     }
 }

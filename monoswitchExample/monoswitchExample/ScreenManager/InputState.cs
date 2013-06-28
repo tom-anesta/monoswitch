@@ -29,6 +29,7 @@ namespace monoswitchExample
             #region public
 
                 public const int MaxInputs = 4;
+                
 
                 //public TouchCollection TouchState;
 
@@ -38,13 +39,11 @@ namespace monoswitchExample
 
             #region protected
 
-                protected readonly KeyboardState[] CurrentKeyboardStates;
-                protected readonly GamePadState[] CurrentGamePadStates;
-
-                protected readonly KeyboardState[] LastKeyboardStates;
-                protected readonly GamePadState[] LastGamePadStates;
-
-                protected readonly bool[] GamePadWasConnected;
+                protected readonly KeyboardState[] m_currentKeyboardStates;
+                protected readonly GamePadState[] m_currentGamePadStates;
+                protected readonly KeyboardState[] m_lastKeyboardStates;
+                protected readonly GamePadState[] m_lastGamePadStates;
+                protected readonly bool[] m_gamePadWasConnected;
 
             #endregion
 
@@ -57,6 +56,7 @@ namespace monoswitchExample
         #region properties
 
             #region public
+
 
             #endregion
 
@@ -73,6 +73,42 @@ namespace monoswitchExample
         #region events
 
             #region public
+
+                public KeyboardState[] currentKeyboardStates
+                {
+                    get
+                    {
+                        return this.m_currentKeyboardStates;
+                    }
+                }
+                public GamePadState[] currentGamePadStates
+                {
+                    get
+                    {
+                        return this.m_currentGamePadStates;
+                    }
+                }
+                public KeyboardState[] lastKeyBoardStates
+                {
+                    get
+                    {
+                        return this.m_lastKeyboardStates;
+                    }
+                }
+                public GamePadState[] lastGamePadStates
+                {
+                    get
+                    {
+                        return this.m_lastGamePadStates;
+                    }
+                }
+                public bool[] gamePadWasConnected
+                {
+                    get
+                    {
+                        return this.m_gamePadWasConnected;
+                    }
+                }
 
             #endregion
 
@@ -95,13 +131,11 @@ namespace monoswitchExample
                 /// </summary>
                 public InputState()
                 {
-                    CurrentKeyboardStates = new KeyboardState[MaxInputs];
-                    CurrentGamePadStates = new GamePadState[MaxInputs];
-
-                    LastKeyboardStates = new KeyboardState[MaxInputs];
-                    LastGamePadStates = new GamePadState[MaxInputs];
-
-                    GamePadWasConnected = new bool[MaxInputs];
+                    this.m_currentKeyboardStates = new KeyboardState[MaxInputs];
+                    this.m_currentGamePadStates = new GamePadState[MaxInputs];
+                    this.m_lastKeyboardStates = new KeyboardState[MaxInputs];
+                    this.m_lastGamePadStates = new GamePadState[MaxInputs];
+                    this.m_gamePadWasConnected = new bool[MaxInputs];
                 }
 
                 /// <summary>
@@ -111,17 +145,17 @@ namespace monoswitchExample
                 {
                     for (int i = 0; i < MaxInputs; i++)
                     {
-                        LastKeyboardStates[i] = CurrentKeyboardStates[i];
-                        LastGamePadStates[i] = CurrentGamePadStates[i];
+                        this.m_lastKeyboardStates[i] = this.m_currentKeyboardStates[i];
+                        this.m_lastGamePadStates[i] = this.m_currentGamePadStates[i];
 
-                        CurrentKeyboardStates[i] = Keyboard.GetState((PlayerIndex)i);
-                        CurrentGamePadStates[i] = GamePad.GetState((PlayerIndex)i);
+                        this.m_currentKeyboardStates[i] = Keyboard.GetState((PlayerIndex)i);
+                        this.m_currentGamePadStates[i] = GamePad.GetState((PlayerIndex)i);
 
                         // Keep track of whether a gamepad has ever been
                         // connected, so we can detect if it is unplugged.
-                        if (CurrentGamePadStates[i].IsConnected)
+                        if (this.m_currentGamePadStates[i].IsConnected)
                         {
-                            GamePadWasConnected[i] = true;
+                            this.m_gamePadWasConnected[i] = true;
                         }
                     }
 
@@ -149,11 +183,8 @@ namespace monoswitchExample
                     {
                         // Read input from the specified player.
                         playerIndex = controllingPlayer.Value;
-
                         int i = (int)playerIndex;
-
-                        return (CurrentKeyboardStates[i].IsKeyDown(key) &&
-                                LastKeyboardStates[i].IsKeyUp(key));
+                        return (this.m_currentKeyboardStates[i].IsKeyDown(key) && this.m_lastKeyboardStates[i].IsKeyUp(key));
                     }
                     else
                     {
@@ -175,7 +206,7 @@ namespace monoswitchExample
                         // Read input from the specified player.
                         playerIndex = controllingPlayer.Value;
                         int i = (int)playerIndex;
-                        return (CurrentGamePadStates[i].IsButtonDown(button) && LastGamePadStates[i].IsButtonUp(button));
+                        return (this.m_currentGamePadStates[i].IsButtonDown(button) && this.m_lastGamePadStates[i].IsButtonUp(button));
                     }
                     else
                     {

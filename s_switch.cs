@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Ruminate.GUI.Framework;
 using Ruminate.GUI.Content;
+using Microsoft.Xna.Framework.Graphics;
 
 //authors note: 
 //as toggle button was a sealed class in the ruminate framework, 
@@ -204,6 +205,22 @@ namespace monoswitch
             #region public
 
             //CONSTRUCTOR
+
+            public s_switch()
+            {
+                this.Area = new Rectangle(0, 0, 0, 0);
+                this.label = label;
+                this.textPadding = 0;
+                //set events
+                this.OnToggle += this.pressSwitch;
+                this.OffToggle += this.unpressSwitch;
+                //set monoswitchstuff
+                this.m_switchedOn = false;
+                this.m_scanningRate = s_switch.DEFAULT_SCANNING_RATE;
+                this.m_controllers = new List<char>();
+                this.m_commited = false;
+            }
+
             
             /// <summary>
             /// Creates a new button at the location specified. The button defaults to
@@ -262,7 +279,7 @@ namespace monoswitch
 
             protected override void Attach()
             {
-                var minWidth = (int)this.RenderRule.Font.MeasureString(this.label).X + (2 * this.RenderRule.Edge);
+                int minWidth = (int)this.RenderRule.Font.MeasureString(this.label).X + (2 * this.RenderRule.Edge);
                 if (this.textPadding > 0)
                 {
                     this.Area = new Rectangle(this.Area.X, this.Area.Y, minWidth + (this.textPadding * 2), this.RenderRule.Height);

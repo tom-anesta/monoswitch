@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input.Touch;
+using Microsoft.Xna.Framework.Input;
 #endregion
 
 namespace monoswitchExample
@@ -203,7 +203,7 @@ namespace monoswitchExample
             /// </summary>
             public void AddScreen(GameScreen screen, PlayerIndex? controllingPlayer)
             {
-                screen.ControllingPlayer = controllingPlayer;
+                screen.controllingPlayer = controllingPlayer;
                 screen.ScreenManager = this;
                 screen.IsExiting = false;
                 // If we have a graphics device, tell the screen to load content.
