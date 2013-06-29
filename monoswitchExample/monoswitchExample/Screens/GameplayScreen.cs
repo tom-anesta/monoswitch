@@ -91,6 +91,9 @@ namespace monoswitchExample
 
             #region private
 
+                //hackyness.
+                private bool m_inited;
+
             #endregion
 
         #endregion
@@ -138,6 +141,7 @@ namespace monoswitchExample
                 {
                     this.m_transitionOnTime = TimeSpan.FromSeconds(1.5);
                     this.m_transitionOffTime = TimeSpan.FromSeconds(0.5);
+                    this.m_inited = false;
                 }
 
                 /// <summary>
@@ -145,6 +149,10 @@ namespace monoswitchExample
                 /// </summary>
                 public override void LoadContent()
                 {
+                    if (!this.m_inited)
+                    {
+                        this.Initialize();
+                    }
                     if (this.m_content == null)
                     {
                         this.m_content = new ContentManager(ScreenManager.Game.Services, "Content");
@@ -355,8 +363,7 @@ namespace monoswitchExample
                     // Our player and enemy are both actually just text strings.
                     SpriteBatch spriteBatch = ScreenManager.spriteBatch;
                     spriteBatch.Begin();
-
-
+                    this.m_player.Draw(spriteBatch);
                     spriteBatch.End();
                     // If the game is transitioning on or off, fade it out to black.
                     if (this.m_transitionPosition > 0 || this.m_pauseAlpha > 0)
