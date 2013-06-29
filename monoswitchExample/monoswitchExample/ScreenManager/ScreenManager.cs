@@ -192,6 +192,7 @@ namespace monoswitchExample
                         if (!screen.IsPopup)
                             coveredByOtherScreen = true;
                     }
+                    
                 }
                 // Print debug trace?
                 if (this.m_traceEnabled)

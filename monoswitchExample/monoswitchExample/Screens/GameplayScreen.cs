@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -34,12 +35,57 @@ namespace monoswitchExample
 
             #region protected
 
+                //gamestatemanagement obsolete variables
+                //protected Vector2 m_enemyPosition = new Vector2(100, 100);
+                //protected Vector2 m_playerPosition = new Vector2(100, 100);
+
+                //statemanagement
                 protected ContentManager m_content;
                 protected SpriteFont m_gameFont;
-                protected Vector2 m_playerPosition = new Vector2(100, 100);
-                protected Vector2 m_enemyPosition = new Vector2(100, 100);
                 protected Random m_random = new Random();
                 protected float m_pauseAlpha;
+
+                //game objects
+
+                //obsolete variables
+                /*
+                // Keyboard states used to determine key presses
+                //KeyboardState currentKeyboardState;
+                //KeyboardState previousKeyboardState;
+                // Gamepad states used to determine button presses
+                //GamePadState currentGamePadState;
+                //GamePadState previousGamePadState;
+                // A movement speed for the player
+                //float playerMoveSpeed;
+                // Image used to display the static background
+                //Texture2D mainBackground;
+                // Parallaxing Layers
+                //parallaxingbackground bgLayer1;
+                //parallaxingbackground bgLayer2;
+                // Enemies
+                // The rate at which the enemies appear
+                //TimeSpan enemySpawnTime;
+                //TimeSpan previousSpawnTime;
+                //Texture2D projectileTexture;
+                //List<Projectile> projectiles;
+                // The rate of fire of the player laser
+                //TimeSpan fireTime;
+                //TimeSpan previousFireTime;
+                //Texture2D explosionTexture;
+                //List<Animation> explosions;
+                // The sound that is played when a laser is fired
+                //SoundEffect laserSound;
+                // The sound used when the player or an enemy dies
+                //SoundEffect explosionSound;
+                // The music played during gameplay
+                //Song gameplayMusic;
+                //Number that holds the player score
+                */
+        
+                protected int m_score;
+                protected Texture2D m_starTexture;
+                protected List<star> m_stars;
+                protected Player m_player;
 
             #endregion
 
@@ -104,6 +150,13 @@ namespace monoswitchExample
                         this.m_content = new ContentManager(ScreenManager.Game.Services, "Content");
                     }
                     this.m_gameFont = this.m_content.Load<SpriteFont>("gamefont");
+                    // Load the player resources
+                    Animation playerAnimation = new Animation();
+                    Texture2D playerTexture = this.m_content.Load<Texture2D>("shipAnimation");
+                    playerAnimation.Initialize(playerTexture, Vector2.Zero, 115, 69, 8, 30, Color.White, 1f, true);
+                    Vector2 playerPosition = new Vector2(this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.X+this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width/2, this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Y + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 2);
+                    this.m_player.Initialize(playerAnimation, playerPosition);
+                    m_starTexture = this.m_content.Load<Texture2D>("mineAnimation");
                     // A real game would probably have more content than this sample, so
                     // it would take longer to load. We simulate that by delaying for a
                     // while, giving you a chance to admire the beautiful loading screen.
@@ -113,6 +166,8 @@ namespace monoswitchExample
                     // it should not try to catch up.
                     ScreenManager.Game.ResetElapsedTime();
                 }
+
+                
 
                 /// <summary>
                 /// Unload graphics content used by the game.
@@ -139,18 +194,12 @@ namespace monoswitchExample
                     {
                         this.m_pauseAlpha = Math.Max(this.m_pauseAlpha - 1f / 32, 0);
                     }
-                    if (this.IsActive)
-                    {
-                        // Apply some random jitter to make the enemy move around.
-                        const float randomization = 10;
-                        this.m_enemyPosition.X += (float)(this.m_random.NextDouble() - 0.5) * randomization;
-                        this.m_enemyPosition.Y += (float)(this.m_random.NextDouble() - 0.5) * randomization;
-                        // Apply a stabilizing force to stop the enemy moving off the screen.
-                        Vector2 targetPosition = new Vector2(ScreenManager.GraphicsDevice.Viewport.Width / 2 - this.m_gameFont.MeasureString("Insert Gameplay Here").X / 2, 200);
-                        this.m_enemyPosition = Vector2.Lerp(this.m_enemyPosition, targetPosition, 0.05f);
-                        // TODO: this game isn't very fun! You could probably improve
-                        // it by inserting something more interesting in this space :-)
-                    }
+
+                    UpdatePlayer(gameTime);
+                    UpdateStars(gameTime);
+                    // Update the collision
+                    UpdateCollision();
+
                 }
 
                 /// <summary>
@@ -159,6 +208,8 @@ namespace monoswitchExample
                 /// </summary>
                 public override void HandleInput(InputState input)
                 {
+
+
                     if (input == null)
                     {
                         throw new ArgumentNullException("input");
@@ -203,9 +254,96 @@ namespace monoswitchExample
                         {
                             movement.Normalize();
                         }
-                        this.m_playerPosition += movement * 2;
+                        //this.m_player.Position += movement * 2;
                     }
                 }
+
+                private void UpdatePlayer(GameTime gameTime)
+                {
+                    this.m_player.Update(gameTime);
+                    if (this.m_player.health <= 0)
+                    {
+                        this.m_player.health = 100;
+                        this.m_score = 0;
+                    }
+                }
+
+                private void UpdateStars(GameTime gameTime)
+                {
+                    // Update the Enemies
+                    for (int i = this.m_stars.Count - 1; i >= 0; i--)
+                    {
+                        this.m_stars[i].Update(gameTime);
+
+                        if (this.m_stars[i].active == false)
+                        {
+                            // If not active and health <= 0
+                            if (this.m_stars[i].health <= 0)
+                            {
+                                //Add to the player's score
+                                this.m_score += this.m_stars[i].value;
+                            }
+                            this.m_stars.RemoveAt(i);
+                        }
+                    }
+                }
+
+                private void UpdateCollision()
+                {
+                    // Use the Rectangle's built-in intersect function to 
+                    // determine if two objects are overlapping
+                    Rectangle rectanglePlayer;
+                    Rectangle rectangleOutPlayer = new Rectangle();
+                    Rectangle rectangleStar;
+                    Rectangle rectangleOutStar = new Rectangle();
+                    // Only create the rectangle once for the player
+                    rectanglePlayer = new Rectangle((int)this.m_player.position.X, (int)this.m_player.position.Y, this.m_player.Width, this.m_player.Height);
+                    if (this.m_player.isOutOfBounds)
+                    {
+                        rectangleOutPlayer = new Rectangle();//fill in the stuff later
+                    }
+                    //unless the player is farther out
+                    /*
+                    //do outside collision detection here
+                    */
+                    // Do the collision between the player and the enemies
+                    for (int i = 0; i < this.m_stars.Count; i++)
+                    {
+                        rectangleStar = new Rectangle((int)this.m_stars[i].position.X,
+                        (int)this.m_stars[i].position.Y, this.m_stars[i].Width, this.m_stars[i].Height);
+
+                        // Determine if the two objects collided with each
+                        // other
+                        if (rectanglePlayer.Intersects(rectangleStar) || (this.m_player.isOutOfBounds && rectangleOutPlayer.Intersects(rectangleStar)))
+                        {
+                            // Since the enemy collided with the player
+                            // destroy it
+                            this.m_stars[i].health = 0;
+                            // If the player health is less than zero we died
+                            if (this.m_player.health <= 0)
+                            {
+                                this.m_player.active = false;
+                            }
+                        }
+                        else if (this.m_stars[i].isOutOfBounds)
+                        {
+                            rectangleOutStar = new Rectangle();//fill in the stuff later
+                            if (rectanglePlayer.Intersects(rectangleOutStar) || (this.m_player.isOutOfBounds && rectanglePlayer.Intersects(rectangleOutStar)))
+                            {
+                                // Since the enemy collided with the player
+                                // destroy it
+                                this.m_stars[i].health = 0;
+                                // If the player health is less than zero we died
+                                if (this.m_player.health <= 0)
+                                {
+                                    this.m_player.active = false;
+                                }
+                            }
+                        }
+
+                    }
+                }
+                
 
                 /// <summary>
                 /// Draws the gameplay screen.
@@ -217,8 +355,8 @@ namespace monoswitchExample
                     // Our player and enemy are both actually just text strings.
                     SpriteBatch spriteBatch = ScreenManager.spriteBatch;
                     spriteBatch.Begin();
-                    spriteBatch.DrawString(this.m_gameFont, "// TODO", this.m_playerPosition, Color.Green);
-                    spriteBatch.DrawString(this.m_gameFont, "Insert Gameplay Here", this.m_enemyPosition, Color.DarkRed);
+
+
                     spriteBatch.End();
                     // If the game is transitioning on or off, fade it out to black.
                     if (this.m_transitionPosition > 0 || this.m_pauseAlpha > 0)
@@ -231,6 +369,19 @@ namespace monoswitchExample
             #endregion
 
             #region protected
+
+                protected void Initialize()
+                {
+                    //Set player's score to zero
+                    this.m_score = 0;
+                    this.m_player = new Player();
+                    // Initialize the enemies list
+                    this.m_stars = new List<star>();
+                    // Initialize our random number generator
+                    this.m_random = new Random();
+
+                    //base.Initialize();
+                }
 
             #endregion
 
