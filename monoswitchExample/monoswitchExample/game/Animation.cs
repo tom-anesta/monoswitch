@@ -200,12 +200,12 @@ namespace monoswitchExample
                     (int)(this.m_frameWidth * this.m_scale),
                     (int)(this.m_frameHeight * this.m_scale));
                 }
-                public void Draw(SpriteBatch spriteBatch)
+                public void Draw(SpriteBatch spriteBatch, float r_value = 0f)
                 {
                     // Only draw the animation when we are active
                     if (this.m_active)
                     {
-                        spriteBatch.Draw(this.m_spriteStrip, this.m_destinationRect, this.m_sourceRect, this.m_color);
+                        spriteBatch.Draw(this.m_spriteStrip, this.m_destinationRect, this.m_sourceRect, this.m_color, r_value, new Vector2(this.frameWidth, this.frameHeight), SpriteEffects.None, 0);
                     }
                 }
 

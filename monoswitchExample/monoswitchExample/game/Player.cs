@@ -4,9 +4,18 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+
+using System.Diagnostics;
 
 namespace monoswitchExample
 {
+
+    public enum directions
+    {
+        right, upright, up, upleft, left, downleft, down, downright, none
+    }
+
     class Player
     {
 
@@ -28,6 +37,10 @@ namespace monoswitchExample
                 // Animation representing the player
                 protected Animation m_playerAnimation;
                 protected Animation m_altPlayerAnimation;//the position outside of the screen
+                //what direction is the player facing?
+                protected directions m_playerDirection;
+                protected directions m_pendingDirection;//what direction is the player going to be going in next?
+                protected float m_rotationAngle;//http://msdn.microsoft.com/en-us/library/bb203869.aspx
 
             #endregion
 
@@ -46,7 +59,6 @@ namespace monoswitchExample
                 {
                     get { return this.m_playerAnimation.frameWidth; }
                 }
-
                 // Get the height of the player ship
                 public int Height
                 {
@@ -93,6 +105,22 @@ namespace monoswitchExample
                     }
                 }
 
+                public Rectangle colRect
+                {
+                    get
+                    {
+                        return new Rectangle();
+                    }
+                }
+
+                public Rectangle altColRect
+                {
+                    get
+                    {
+                        return new Rectangle();
+                    }
+                }
+
             #endregion
 
             #region protected
@@ -127,8 +155,6 @@ namespace monoswitchExample
 
                 public void Initialize(Animation animation, Vector2 position)
                 {
-                    
-
                     // Set the starting position of the player around the middle of the screen and to the back
                     this.m_position = position;
                     this.m_altPosition = Vector2.Zero;
@@ -138,6 +164,8 @@ namespace monoswitchExample
                     this.m_active = true;
                     // Set the player health
                     this.m_health = 100;
+                    this.m_playerDirection = directions.right;
+                    this.m_rotationAngle = 0;
                 }
 
                 public void Update(GameTime gameTime)
@@ -148,6 +176,41 @@ namespace monoswitchExample
                         this.m_altPlayerAnimation.position = this.m_altPosition;
                     }
                     this.m_playerAnimation.Update(gameTime);
+                    if (this.m_pendingDirection != directions.none)
+                    {
+                        this.m_playerDirection = this.m_pendingDirection;
+                        int switchVal = (int)this.m_playerDirection;
+                        switch (switchVal)
+                        {
+                            case 0:
+                                this.m_rotationAngle = 0;
+                                break;
+                            case 1:
+                                this.m_rotationAngle = MathHelper.Pi * 2 * 0.125f;
+                                break;
+                            case 2:
+                                this.m_rotationAngle = MathHelper.Pi * 2 * 0.25f;
+                                break;
+                            case 3:
+                                this.m_rotationAngle = MathHelper.Pi * 2 * 0.375f;
+                                break;
+                            case 4:
+                                this.m_rotationAngle = MathHelper.Pi * 2 * 0.5f;
+                                break;
+                            case 5:
+                                this.m_rotationAngle = MathHelper.Pi * 2 * 0.625f;
+                                break;
+                            case 6:
+                                this.m_rotationAngle = MathHelper.Pi * 2 * 0.75f;
+                                break;
+                            case 7:
+                                this.m_rotationAngle = MathHelper.Pi * 2 * 0.875f;
+                                break;
+                            default:
+                                this.m_rotationAngle = 0;
+                                break;
+                        }
+                    }
                 }
 
                 public void Draw(SpriteBatch spriteBatch)
@@ -155,8 +218,110 @@ namespace monoswitchExample
                     this.m_playerAnimation.Draw(spriteBatch);
                     if (this.m_altPlayerAnimation != null)
                     {
-                        this.m_playerAnimation.Draw(spriteBatch);
+                        this.m_playerAnimation.Draw(spriteBatch, this.m_rotationAngle);
                     }
+                }
+
+                public void HandleInput(KeyboardState k_state, GamePadState g_state, bool g_connected)
+                {
+                    int hval = 1;
+                    int vval = 1;
+
+                    // Otherwise move the player position.
+                    Vector2 movement = Vector2.Zero;
+                    if (k_state != null)
+                    {
+                        if (k_state.IsKeyDown(Keys.Left) && !k_state.IsKeyDown(Keys.Right))
+                        {
+                            hval = 0;
+                        }
+                        if (k_state.IsKeyDown(Keys.Right) && !k_state.IsKeyDown(Keys.Left))
+                        {
+                            hval = 2;
+                        }
+                        if (k_state.IsKeyDown(Keys.Up) && !k_state.IsKeyDown(Keys.Down))
+                        {
+                            vval = 2;
+                        }
+                        if (k_state.IsKeyDown(Keys.Down) && !k_state.IsKeyDown(Keys.Up))
+                        {
+                            vval = 0;
+                        }
+                    }
+                    if (g_state != null && g_connected && k_state == null)
+                    {
+                        Vector2 thumbstick = g_state.ThumbSticks.Left;
+                        movement.X += thumbstick.X;
+                        movement.Y += thumbstick.Y;
+                        if (movement.Length() > 1)
+                        {
+                            movement.Normalize();
+                        }
+                        if(hval == 1)
+                        {
+                            if(movement.X < 0)
+                            {
+                                hval = 0;
+                            }
+                            else if(movement.X > 0)
+                            {
+                                hval = 2;
+                            }
+                        }
+                        if(vval == 1)
+                        {
+                            if(movement.Y > 0)
+                            {
+                                vval = 2;
+                            }
+                            else if(movement.Y < 0)
+                            {
+                                vval = 0;
+                            }
+                        }
+                        //now handle the coming position command
+                        if(hval == 2 && vval == 1)
+                        {
+                            this.m_pendingDirection = directions.right;
+                        }
+                        else if (hval == 2 && vval == 2)
+                        {
+                            this.m_pendingDirection = directions.upright;
+                        }
+                        else if (hval == 1 && vval == 2)
+                        {
+                            this.m_pendingDirection = directions.up;
+                        }
+                        else if (hval == 0 && vval == 2)
+                        {
+                            this.m_pendingDirection = directions.upleft;
+                        }
+                        else if (hval == 0 && vval == 1)
+                        {
+                            this.m_pendingDirection = directions.left;
+                        }
+                        else if (hval == 0 && vval == 0)
+                        {
+                            this.m_pendingDirection = directions.downleft;
+                        }
+                        else if (hval == 1 && vval == 0)
+                        {
+                            this.m_pendingDirection = directions.down;
+                        }
+                        else if (hval == 2 && vval == 0)
+                        {
+                            this.m_pendingDirection = directions.downright;
+                        }
+                        else
+                        {
+                            this.m_pendingDirection = directions.none;
+                        }
+                    }
+                    else if(k_state == null)
+                    {
+                        throw new ArgumentNullException("input");
+                    }
+
                 }
 
             #endregion

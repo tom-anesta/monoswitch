@@ -216,8 +216,6 @@ namespace monoswitchExample
                 /// </summary>
                 public override void HandleInput(InputState input)
                 {
-
-
                     if (input == null)
                     {
                         throw new ArgumentNullException("input");
@@ -237,32 +235,8 @@ namespace monoswitchExample
                     }
                     else
                     {
-                        // Otherwise move the player position.
-                        Vector2 movement = Vector2.Zero;
-                        if (keyboardState.IsKeyDown(Keys.Left))
-                        {
-                            movement.X--;
-                        }
-                        if (keyboardState.IsKeyDown(Keys.Right))
-                        {
-                            movement.X++;
-                        }
-                        if (keyboardState.IsKeyDown(Keys.Up))
-                        {
-                            movement.Y--;
-                        }
-                        if (keyboardState.IsKeyDown(Keys.Down))
-                        {
-                            movement.Y++;
-                        }
-                        Vector2 thumbstick = gamePadState.ThumbSticks.Left;
-                        movement.X += thumbstick.X;
-                        movement.Y -= thumbstick.Y;
-                        if (movement.Length() > 1)
-                        {
-                            movement.Normalize();
-                        }
-                        //this.m_player.Position += movement * 2;
+                        //have the player handle input
+                        this.m_player.HandleInput(input.currentKeyboardStates[playerIndex], input.currentGamePadStates[playerIndex], (!gamePadDisconnected && gamePadState.IsConnected));
                     }
                 }
 

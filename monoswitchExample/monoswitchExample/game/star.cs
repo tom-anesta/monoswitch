@@ -90,6 +90,22 @@ namespace monoswitchExample
                     }
                 }
 
+                public Rectangle colRect
+                {
+                    get
+                    {
+                        return new Rectangle();
+                    }
+                }
+
+                public Rectangle altColRect
+                {
+                    get
+                    {
+                        return new Rectangle();
+                    }
+                }
+
             #endregion
 
             #region protected
