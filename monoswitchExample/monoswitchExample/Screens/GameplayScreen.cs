@@ -163,6 +163,9 @@ namespace monoswitchExample
                     Texture2D playerTexture = this.m_content.Load<Texture2D>("shipAnimation");
                     playerAnimation.Initialize(playerTexture, Vector2.Zero, 115, 69, 8, 30, Color.White, 1f, true);
                     Vector2 playerPosition = new Vector2(this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.X+this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width/2, this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Y + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 2);
+                    //  - playerAnimation.frameWidth/2
+                    // - playerAnimation.frameHeight /2
+
                     this.m_player.Initialize(playerAnimation, playerPosition);
                     m_starTexture = this.m_content.Load<Texture2D>("mineAnimation");
                     // A real game would probably have more content than this sample, so
