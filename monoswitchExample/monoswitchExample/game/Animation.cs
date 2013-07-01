@@ -44,7 +44,7 @@ namespace monoswitchExample
                 // The area of the image strip we want to display
                 Rectangle m_sourceRect = new Rectangle();
                 // The area where we want to display the image strip in the game
-                Rectangle m_destinationRect = new Rectangle();
+                //Rectangle m_destinationRect = new Rectangle();
 
 
             #endregion
@@ -58,6 +58,14 @@ namespace monoswitchExample
         #region properties
 
             #region public
+
+                public bool active
+                {
+                    get
+                    {
+                        return this.m_active;
+                    }
+                }
 
                 public int frameHeight
                 {
@@ -176,17 +184,15 @@ namespace monoswitchExample
                     this.m_frameCount = frameCount;
                     this.m_frameTime = frametime;
                     this.m_scale = scale;
-
                     this.m_looping = looping;
                     this.m_position = position;
                     this.m_spriteStrip = texture;
-
                     // Set the time to zero
                     this.m_elapsedTime = 0;
                     this.m_currentFrame = 0;
-
                     // Set the Animation to active by default
                     this.m_active = true;
+                    this.m_sourceRect = new Rectangle(this.m_currentFrame * this.m_frameWidth, 0, this.m_frameWidth, this.m_frameHeight);
                 }
 
                 public void Update(GameTime gameTime)
@@ -194,10 +200,8 @@ namespace monoswitchExample
                     // Do not update the game if we are not active
                     if (this.m_active == false)
                         return;
-
                     // Update the elapsed time
                     this.m_elapsedTime += (int)gameTime.ElapsedGameTime.TotalMilliseconds;
-
                     // If the elapsed time is larger than the frame time
                     // we need to switch frames
                     if (this.m_elapsedTime > this.m_frameTime)
@@ -211,35 +215,23 @@ namespace monoswitchExample
                             // If we are not looping deactivate the animation
                             if (this.m_looping == false)
                             {
-                                Console.WriteLine("becoming inactive");
                                 this.m_active = false;
                             }
                         }
                         // Reset the elapsed time to zero
                         this.m_elapsedTime = 0;
                     }
-
                     // Grab the correct frame in the image strip by multiplying the currentFrame index by the frame width
-                    this.m_sourceRect = new Rectangle(this.m_currentFrame * this.m_frameWidth, 0, this.m_frameWidth, this.m_frameHeight);
                     // decide where it goes
-                    this.m_destinationRect = new Rectangle((int)this.m_position.X - (int)(this.m_frameWidth * m_scale) / 2,
-                    (int)this.m_position.Y - (int)(this.m_frameHeight * m_scale) / 2,
-                    (int)(this.m_frameWidth * this.m_scale),
-                    (int)(this.m_frameHeight * this.m_scale));
+                    //this.m_destinationRect = new Rectangle((int)this.m_position.X - (int)(this.m_frameWidth * m_scale) / 2, (int)this.m_position.Y - (int)(this.m_frameHeight * m_scale) / 2, (int)(this.m_frameWidth * this.m_scale), (int)(this.m_frameHeight * this.m_scale));
                 }
 
-                public void Draw(SpriteBatch spriteBatch, float r_value = 0f)
+                public void Draw(SpriteBatch spriteBatch, float r_value = 0f, float ldep = 0f, bool valid = true)
                 {
                     // Only draw the animation when we are active
-                    if (this.m_active)
+                    if (this.m_active == true)
                     {
-                        Console.WriteLine(this.m_scale);
-                        spriteBatch.Draw(this.m_spriteStrip, this.m_position, this.m_sourceRect, this.m_color, -r_value, new Vector2(this.frameWidth / 2, this.frameHeight / 2), this.m_scale, SpriteEffects.None, 0f);
-                        Console.WriteLine("drawing animation: " + " x= " + this.m_position.X + ", y= " + this.m_position.Y);
-                    }
-                    else
-                    {
-                        Console.WriteLine("not active");
+                        spriteBatch.Draw(this.m_spriteStrip, this.m_position, this.m_sourceRect, this.m_color, -r_value, new Vector2(this.frameWidth / 2, this.frameHeight / 2), this.m_scale, SpriteEffects.None, ldep);
                     }
                 }
 

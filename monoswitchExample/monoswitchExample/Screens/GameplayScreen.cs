@@ -165,7 +165,6 @@ namespace monoswitchExample
                     Vector2 playerPosition = new Vector2(this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.X+this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width/2, this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Y + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 2);
                     //  - playerAnimation.frameWidth/2
                     // - playerAnimation.frameHeight /2
-
                     this.m_player.Initialize(playerAnimation, playerPosition, this.ScreenManager.GraphicsDevice.Viewport);
                     m_starTexture = this.m_content.Load<Texture2D>("mineAnimation");
                     // A real game would probably have more content than this sample, so
@@ -339,8 +338,15 @@ namespace monoswitchExample
                     ScreenManager.GraphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
                     // Our player and enemy are both actually just text strings.
                     SpriteBatch spriteBatch = ScreenManager.spriteBatch;
-                    spriteBatch.Begin();
+                    //spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied);
+                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
+                    //spriteBatch.Begin();
                     this.m_player.Draw(spriteBatch);
+                    //this.m_player.mainAnimation.Draw(spriteBatch, this.m_player.rotation, 0f);
+                    //if (this.m_player.altAnimation != null)
+                    //{
+                    //    this.m_player.altAnimation.Draw(spriteBatch, this.m_player.rotation, 0f);
+                    //}
                     spriteBatch.End();
                     // If the game is transitioning on or off, fade it out to black.
                     if (this.m_transitionPosition > 0 || this.m_pauseAlpha > 0)

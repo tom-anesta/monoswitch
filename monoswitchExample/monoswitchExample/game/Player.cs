@@ -133,6 +133,30 @@ namespace monoswitchExample
                     }
                 }
 
+                public Animation mainAnimation
+                {
+                    get
+                    {
+                        return this.m_playerAnimation;
+                    }
+                }
+
+                public Animation altAnimation
+                {
+                    get
+                    {
+                        return this.m_altPlayerAnimation;
+                    }
+                }
+
+                public float rotation
+                {
+                    get
+                    {
+                        return this.m_rotationAngle;
+                    }
+                }
+
             #endregion
 
             #region protected
@@ -276,6 +300,30 @@ namespace monoswitchExample
                                 break;
                         }
                         this.m_position += offset * (this.m_speed * gameTime.ElapsedGameTime.Milliseconds / 1000f);
+                        //check if we are fully out of bounds to reset
+                        if (this.m_position.X > this.m_port.X + this.m_port.TitleSafeArea.Width || this.m_position.X < this.m_port.X || this.m_position.Y > this.m_port.Y + this.m_port.TitleSafeArea.Height || this.m_position.Y < this.m_port.Y)
+                        {
+                            float locx = this.m_position.X;
+                            float locy = this.m_position.Y;
+                            if (this.m_position.X > this.m_port.X + this.m_port.TitleSafeArea.Width)
+                            {
+                                locx -= this.m_port.TitleSafeArea.Width;
+                            }
+                            else if (this.m_position.X < this.m_port.X)
+                            {
+                                locx += this.m_port.TitleSafeArea.Width;
+                            }
+                            if (this.m_position.Y > this.m_port.Y + this.m_port.TitleSafeArea.Height)
+                            {
+                                locy -= this.m_port.TitleSafeArea.Height;
+                            }
+                            else if (this.m_position.Y < this.m_port.Y)
+                            {
+                                locy += this.m_port.TitleSafeArea.Height;
+                            }
+                            this.m_position = new Vector2(locx, locy);
+                            Console.WriteLine("setting location to x: " + this.m_position.X + ", y: " + this.m_position.Y);
+                        }
                         //Console.WriteLine("rotation is " + this.m_rotationAngle);
                     }
                     this.m_playerAnimation.position = this.m_position;
@@ -284,39 +332,39 @@ namespace monoswitchExample
                     this.m_altPosition = outVect;
                     if(this.m_altPlayerAnimation == null && isOutBool)
                     {
-                        Console.WriteLine("receiving new animation");
-                        Console.WriteLine("the standard position is " + "x: " + this.m_position.X + ", y: " + this.m_position.Y);
-                        Console.WriteLine("the alternate position is " + " x: " + this.m_altPosition.X + ", y: " + this.m_altPosition.Y);
+                        //Console.WriteLine("receiving new animation");
+                        //Console.WriteLine("the standard position is " + "x: " + this.m_position.X + ", y: " + this.m_position.Y);
+                        //Console.WriteLine("the alternate position is " + " x: " + this.m_altPosition.X + ", y: " + this.m_altPosition.Y);
                         this.m_altPlayerAnimation = new Animation();
-                        this.m_playerAnimation.Initialize(this.m_playerAnimation.spriteStrip, this.m_altPosition, this.m_playerAnimation.frameWidth, this.m_playerAnimation.frameHeight, this.m_playerAnimation.frameCount, this.m_playerAnimation.frameTime, this.m_playerAnimation.color, this.m_playerAnimation.scale, true);
+                        this.m_altPlayerAnimation.Initialize(this.m_playerAnimation.spriteStrip, this.m_altPosition, this.m_playerAnimation.frameWidth, this.m_playerAnimation.frameHeight, this.m_playerAnimation.frameCount, this.m_playerAnimation.frameTime, this.m_playerAnimation.color, this.m_playerAnimation.scale, true);
                     }
                     else if (isOutBool)
                     {
-                        Console.WriteLine("continuing alt animation");
                         this.m_altPosition = outVect;
                         this.m_altPlayerAnimation.position = this.m_altPosition;
                         this.m_altPlayerAnimation.Update(gameTime);
+                        //Console.WriteLine("continuing alt animation at x: " + this.m_altPlayerAnimation.position.X + ", y: " + this.m_altPlayerAnimation.position.Y);
+                        //Console.WriteLine("active state is " + this.m_altPlayerAnimation.active);
                     }
                     else
                     {
                         if (this.m_altPlayerAnimation != null)
                         {
-                            Console.WriteLine("leaving new animation");
+                            //Console.WriteLine("leaving alt animation");
+                            this.m_altPosition = Vector2.Zero;
+                            this.m_altPlayerAnimation = null;
                         }
-                        this.m_altPosition = Vector2.Zero;
-                        this.m_altPlayerAnimation = null;
                     }
                 }
 
                 public void Draw(SpriteBatch spriteBatch)
                 {
-                    //this.m_playerAnimation.Draw(spriteBatch);
-                    this.m_playerAnimation.Draw(spriteBatch, this.m_rotationAngle);
+                    this.m_playerAnimation.Draw(spriteBatch, this.m_rotationAngle, 0.2f);
                     if (this.iOOB)
                     {
-                        //Console.WriteLine("drawing alt animation: " + " x= " + this.m_altPlayerAnimation.position.X + ", y= " + this.m_altPlayerAnimation.position.Y);
-                        this.m_altPlayerAnimation.Draw(spriteBatch, this.m_rotationAngle);
+                        this.m_altPlayerAnimation.Draw(spriteBatch, this.m_rotationAngle, 0.1f);
                     }
+                    
                 }
 
                 public void HandleInput(KeyboardState k_state, GamePadState g_state, bool g_connected)
@@ -418,9 +466,6 @@ namespace monoswitchExample
                     {
                         this.m_pendingDirection = directions.none;
                     }
-
-                    //Console.WriteLine("pending direction is " + this.m_pendingDirection.ToString());
-
                 }
 
             #endregion
@@ -428,7 +473,7 @@ namespace monoswitchExample
             #region protected
 
                 protected bool isOutOfBounds(Viewport port, out Vector2 outVect)
-                {
+                {//this function is a little bit clunky.  we could be looking for ways to improve this if we get more time
                     float bound = (float)Math.Sqrt(Math.Pow((double)this.Height, 2) + Math.Pow((double)this.Width, 2));
                     float greater = Math.Max(this.Height/2, this.Width/2);
                     float xloc = 0f;
@@ -475,8 +520,7 @@ namespace monoswitchExample
                         outVect = Vector2.Zero;
                     }
                     return isout;
-                }
-                
+                }        
 
             #endregion
 
