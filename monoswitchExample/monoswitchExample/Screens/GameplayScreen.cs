@@ -166,7 +166,7 @@ namespace monoswitchExample
                     //  - playerAnimation.frameWidth/2
                     // - playerAnimation.frameHeight /2
 
-                    this.m_player.Initialize(playerAnimation, playerPosition);
+                    this.m_player.Initialize(playerAnimation, playerPosition, this.ScreenManager.GraphicsDevice.Viewport);
                     m_starTexture = this.m_content.Load<Texture2D>("mineAnimation");
                     // A real game would probably have more content than this sample, so
                     // it would take longer to load. We simulate that by delaying for a
@@ -283,7 +283,7 @@ namespace monoswitchExample
                     Rectangle rectangleOutStar = new Rectangle();
                     // Only create the rectangle once for the player
                     rectanglePlayer = new Rectangle((int)this.m_player.position.X, (int)this.m_player.position.Y, this.m_player.Width, this.m_player.Height);
-                    if (this.m_player.isOutOfBounds)
+                    if (this.m_player.iOOB)
                     {
                         rectangleOutPlayer = new Rectangle();//fill in the stuff later
                     }
@@ -299,7 +299,7 @@ namespace monoswitchExample
 
                         // Determine if the two objects collided with each
                         // other
-                        if (rectanglePlayer.Intersects(rectangleStar) || (this.m_player.isOutOfBounds && rectangleOutPlayer.Intersects(rectangleStar)))
+                        if (rectanglePlayer.Intersects(rectangleStar) || (this.m_player.iOOB && rectangleOutPlayer.Intersects(rectangleStar)))
                         {
                             // Since the enemy collided with the player
                             // destroy it
@@ -313,7 +313,7 @@ namespace monoswitchExample
                         else if (this.m_stars[i].isOutOfBounds)
                         {
                             rectangleOutStar = new Rectangle();//fill in the stuff later
-                            if (rectanglePlayer.Intersects(rectangleOutStar) || (this.m_player.isOutOfBounds && rectanglePlayer.Intersects(rectangleOutStar)))
+                            if (rectanglePlayer.Intersects(rectangleOutStar) || (this.m_player.iOOB && rectanglePlayer.Intersects(rectangleOutStar)))
                             {
                                 // Since the enemy collided with the player
                                 // destroy it

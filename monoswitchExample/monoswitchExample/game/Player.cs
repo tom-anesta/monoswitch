@@ -44,6 +44,7 @@ namespace monoswitchExample
                 protected directions m_pendingDirection;//what direction is the player going to be going in next?
                 protected float m_rotationAngle;//http://msdn.microsoft.com/en-us/library/bb203869.aspx
                 protected float m_speed;
+                protected Viewport m_port;
 
             #endregion
 
@@ -88,7 +89,7 @@ namespace monoswitchExample
                     }
                 }
 
-                public bool isOutOfBounds
+                public bool iOOB
                 {
                     get
                     {
@@ -164,15 +165,22 @@ namespace monoswitchExample
 
             #region public
 
-                public void Initialize(Animation animation, Vector2 position)
+                public void Initialize(Animation animation, Vector2 position, Viewport port)
                 {
                     this.m_speed = Player.DEFAULT_SPEED;
+                    this.m_port = port;
                     // Set the starting position of the player around the middle of the screen and to the back
                     this.m_position = position;
                     this.m_altPosition = Vector2.Zero;
                     this.m_playerAnimation = animation;
                     this.m_playerAnimation.position = this.m_position;
-                    this.m_altPlayerAnimation = null;
+                    Vector2 altpos;
+                    if (this.isOutOfBounds(this.m_port, out altpos))
+                    {
+                        this.m_altPosition = altpos;
+                        this.m_altPlayerAnimation = new Animation();
+                        this.m_altPlayerAnimation.Initialize(this.m_playerAnimation.spriteStrip, this.m_altPosition, this.m_playerAnimation.frameWidth, this.m_playerAnimation.frameHeight, this.m_playerAnimation.frameCount, this.m_playerAnimation.frameTime, this.m_playerAnimation.color, this.m_playerAnimation.scale, true);
+                    }
                     // Set the player to be active
                     this.m_active = true;
                     // Set the player health
@@ -183,7 +191,6 @@ namespace monoswitchExample
 
                 public void Update(GameTime gameTime)
                 {
-                    
                     this.m_playerAnimation.Update(gameTime);
                     if (this.m_pendingDirection != directions.none)
                     {
@@ -271,11 +278,33 @@ namespace monoswitchExample
                         this.m_position += offset * (this.m_speed * gameTime.ElapsedGameTime.Milliseconds / 1000f);
                         //Console.WriteLine("rotation is " + this.m_rotationAngle);
                     }
-
                     this.m_playerAnimation.position = this.m_position;
-                    if (this.m_altPlayerAnimation != null)
+                    Vector2 outVect;
+                    bool isOutBool = this.isOutOfBounds(this.m_port, out outVect);
+                    this.m_altPosition = outVect;
+                    if(this.m_altPlayerAnimation == null && isOutBool)
                     {
+                        Console.WriteLine("receiving new animation");
+                        Console.WriteLine("the standard position is " + "x: " + this.m_position.X + ", y: " + this.m_position.Y);
+                        Console.WriteLine("the alternate position is " + " x: " + this.m_altPosition.X + ", y: " + this.m_altPosition.Y);
+                        this.m_altPlayerAnimation = new Animation();
+                        this.m_playerAnimation.Initialize(this.m_playerAnimation.spriteStrip, this.m_altPosition, this.m_playerAnimation.frameWidth, this.m_playerAnimation.frameHeight, this.m_playerAnimation.frameCount, this.m_playerAnimation.frameTime, this.m_playerAnimation.color, this.m_playerAnimation.scale, true);
+                    }
+                    else if (isOutBool)
+                    {
+                        Console.WriteLine("continuing alt animation");
+                        this.m_altPosition = outVect;
                         this.m_altPlayerAnimation.position = this.m_altPosition;
+                        this.m_altPlayerAnimation.Update(gameTime);
+                    }
+                    else
+                    {
+                        if (this.m_altPlayerAnimation != null)
+                        {
+                            Console.WriteLine("leaving new animation");
+                        }
+                        this.m_altPosition = Vector2.Zero;
+                        this.m_altPlayerAnimation = null;
                     }
                 }
 
@@ -283,8 +312,9 @@ namespace monoswitchExample
                 {
                     //this.m_playerAnimation.Draw(spriteBatch);
                     this.m_playerAnimation.Draw(spriteBatch, this.m_rotationAngle);
-                    if (this.m_altPlayerAnimation != null)
+                    if (this.iOOB)
                     {
+                        //Console.WriteLine("drawing alt animation: " + " x= " + this.m_altPlayerAnimation.position.X + ", y= " + this.m_altPlayerAnimation.position.Y);
                         this.m_altPlayerAnimation.Draw(spriteBatch, this.m_rotationAngle);
                     }
                 }
@@ -396,6 +426,57 @@ namespace monoswitchExample
             #endregion
 
             #region protected
+
+                protected bool isOutOfBounds(Viewport port, out Vector2 outVect)
+                {
+                    float bound = (float)Math.Sqrt(Math.Pow((double)this.Height, 2) + Math.Pow((double)this.Width, 2));
+                    float greater = Math.Max(this.Height/2, this.Width/2);
+                    float xloc = 0f;
+                    float yloc = 0f;
+                    bool isout = false;
+                    if ( (this.m_position.X + greater + bound) > (port.X + port.TitleSafeArea.Width) || (this.m_position.X + greater - bound) < port.X)
+                    {//then out
+                        if (this.m_position.X > port.X + port.TitleSafeArea.Width / 2)
+                        {
+                            xloc = this.m_position.X - port.TitleSafeArea.Width;
+                        }
+                        else
+                        {
+                            xloc = this.m_position.X + port.TitleSafeArea.Width;
+                        }
+                        isout = true;
+                    }
+                    else
+                    {
+                        xloc = this.m_position.X;
+                    }
+                    if ( (this.m_position.Y + greater - bound) < port.Y || (this.m_position.Y + greater + bound) > (port.Y + port.TitleSafeArea.Height) )
+                    {
+                        if (this.m_position.Y < port.Y + port.TitleSafeArea.Height / 2)
+                        {
+                            yloc = this.m_position.Y + port.TitleSafeArea.Height;
+                        }
+                        else
+                        {
+                            yloc = this.m_position.Y - port.TitleSafeArea.Height;
+                        }
+                        isout = true;
+                    }
+                    else
+                    {
+                        yloc = this.m_position.Y;
+                    }
+                    if (isout)
+                    {
+                        outVect = new Vector2(xloc, yloc);
+                    }
+                    else
+                    {
+                        outVect = Vector2.Zero;
+                    }
+                    return isout;
+                }
+                
 
             #endregion
 
