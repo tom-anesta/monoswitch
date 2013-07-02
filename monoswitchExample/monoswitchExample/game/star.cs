@@ -34,6 +34,7 @@ namespace monoswitchExample
                 // The speed at which the star moves
                 //float m_moveSpeed;
                 protected int m_radius;
+                protected Viewport m_port;
 
             #endregion
 
@@ -56,6 +57,14 @@ namespace monoswitchExample
                     set
                     {
                         this.m_active = value;
+                    }
+                }
+
+                public bool iOOB
+                {
+                    get
+                    {
+                        return (this.m_altStarAnimation != null);
                     }
                 }
 
@@ -87,13 +96,6 @@ namespace monoswitchExample
                     }
                 }
 
-                public bool isOutOfBounds
-                {
-                    get
-                    {
-                        return (this.m_altStarAnimation != null);
-                    }
-                }
 
                 public Rectangle colRect
                 {
@@ -163,14 +165,23 @@ namespace monoswitchExample
 
             #region public
 
-                public void Initialize(Animation animation, Vector2 position)
+                public void Initialize(Animation animation, Vector2 position, Viewport port)
                 {
                     // Set the position of the enemy
                     this.m_position = position;
+                    this.m_port = port;
                     this.m_altPosition = Vector2.Zero;//non-nullable
                     // Load the enemy ship texture
                     this.m_starAnimation = animation;
                     this.m_altStarAnimation = null;
+                    Vector2 altpos;
+                    if (this.isOutOfBounds(this.m_port, out altpos))
+                    {
+                        this.m_altPosition = altpos;
+                        this.m_altStarAnimation = new Animation();
+                        this.m_altStarAnimation.Initialize(this.m_starAnimation.spriteStrip, this.m_altPosition, this.m_starAnimation.frameWidth, this.m_starAnimation.frameHeight, this.m_starAnimation.frameCount, this.m_starAnimation.frameTime, this.m_starAnimation.color, this.m_starAnimation.scale, true);
+                    }
+
                     // We initialize the enemy to be active so it will be update in the game
                     this.m_active = true;
                     // Set the health of the enemy
@@ -182,6 +193,8 @@ namespace monoswitchExample
                     // Set the score value of the enemy
                     this.m_value = 100;
                     this.m_radius = (int)(Math.Sqrt(Math.Pow(this.Height, 2) + Math.Pow(this.Width, 2)) / 2);
+
+
                 }
 
                 public void Update(GameTime gameTime)
@@ -190,7 +203,7 @@ namespace monoswitchExample
                     this.m_starAnimation.position = this.m_position;
                     // Update Animation
                     this.m_starAnimation.Update(gameTime);
-                    if (this.m_altStarAnimation != null)
+                    if (this.iOOB)
                     {
                         this.m_altStarAnimation.Update(gameTime);
                     }
@@ -200,15 +213,65 @@ namespace monoswitchExample
                 {
                     // Draw the animation
                     this.m_starAnimation.Draw(spriteBatch);
-                    if (this.m_altStarAnimation != null)
+                    if (this.iOOB)
                     {
-                        this.m_starAnimation.Draw(spriteBatch);
+                        this.m_altStarAnimation.Draw(spriteBatch);
                     }
                 }
 
             #endregion
 
             #region protected
+
+                protected bool isOutOfBounds(Viewport port, out Vector2 outVect)
+                {//this function is a little bit clunky.  we could be looking for ways to improve this if we get more time
+                    float bound = (float)Math.Sqrt(Math.Pow((double)this.Height, 2) + Math.Pow((double)this.Width, 2));
+                    float greater = Math.Max(this.Height / 2, this.Width / 2);
+                    float xloc = 0f;
+                    float yloc = 0f;
+                    bool isout = false;
+                    if ((this.m_position.X + greater + bound) > (port.X + port.TitleSafeArea.Width) || (this.m_position.X + greater - bound) < port.X)
+                    {//then out
+                        if (this.m_position.X > port.X + port.TitleSafeArea.Width / 2)
+                        {
+                            xloc = this.m_position.X - port.TitleSafeArea.Width;
+                        }
+                        else
+                        {
+                            xloc = this.m_position.X + port.TitleSafeArea.Width;
+                        }
+                        isout = true;
+                    }
+                    else
+                    {
+                        xloc = this.m_position.X;
+                    }
+                    if ((this.m_position.Y + greater - bound) < port.Y || (this.m_position.Y + greater + bound) > (port.Y + port.TitleSafeArea.Height))
+                    {
+                        if (this.m_position.Y < port.Y + port.TitleSafeArea.Height / 2)
+                        {
+                            yloc = this.m_position.Y + port.TitleSafeArea.Height;
+                        }
+                        else
+                        {
+                            yloc = this.m_position.Y - port.TitleSafeArea.Height;
+                        }
+                        isout = true;
+                    }
+                    else
+                    {
+                        yloc = this.m_position.Y;
+                    }
+                    if (isout)
+                    {
+                        outVect = new Vector2(xloc, yloc);
+                    }
+                    else
+                    {
+                        outVect = Vector2.Zero;
+                    }
+                    return isout;
+                }        
 
             #endregion
 

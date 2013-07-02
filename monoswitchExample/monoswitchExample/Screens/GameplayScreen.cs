@@ -348,7 +348,7 @@ namespace monoswitchExample
                     Vector2 loc = new Vector2(xloc, yloc);
                     Animation anim = new Animation();
                     anim.Initialize(this.m_starTexture, loc, 47, 61, 8, 30,Color.White, 1f, true);
-                    sVal.Initialize(anim, loc);
+                    sVal.Initialize(anim, loc, this.ScreenManager.GraphicsDevice.Viewport);
                     foreach (star sVal2 in this.m_stars)
                     {
                         if(safeCircleIntersects(sVal2, sVal))
