@@ -24,6 +24,7 @@ namespace monoswitchExample
             #region public
 
                 public const float DEFAULT_SPEED = 70.0f;
+                public const float DEFAULT_RADIUS = 70.0f;
 
             #endregion
 
@@ -40,11 +41,12 @@ namespace monoswitchExample
                 protected Animation m_playerAnimation;
                 protected Animation m_altPlayerAnimation;//the position outside of the screen
                 //what direction is the player facing?
-                protected directions m_playerDirection;
+                protected directions m_playerDirection;//what direction is the player going in?
                 protected directions m_pendingDirection;//what direction is the player going to be going in next?
                 protected float m_rotationAngle;//http://msdn.microsoft.com/en-us/library/bb203869.aspx
-                protected float m_speed;
+                protected float m_speed;//what is the speed the player can go at?
                 protected Viewport m_port;
+                protected float m_radius;
 
             #endregion
 
@@ -157,6 +159,14 @@ namespace monoswitchExample
                     }
                 }
 
+                public float radius
+                {
+                    get
+                    {
+                        return this.m_radius;
+                    }
+                }
+
             #endregion
 
             #region protected
@@ -198,6 +208,7 @@ namespace monoswitchExample
                     this.m_altPosition = Vector2.Zero;
                     this.m_playerAnimation = animation;
                     this.m_playerAnimation.position = this.m_position;
+                    
                     Vector2 altpos;
                     if (this.isOutOfBounds(this.m_port, out altpos))
                     {
@@ -211,6 +222,7 @@ namespace monoswitchExample
                     this.m_health = 100;
                     this.m_playerDirection = directions.right;
                     this.m_rotationAngle = 0;
+                    this.m_radius = (int) (Math.Sqrt(Math.Pow(this.Height, 2) + Math.Pow(this.Width, 2)) / 2);
                 }
 
                 public void Update(GameTime gameTime)

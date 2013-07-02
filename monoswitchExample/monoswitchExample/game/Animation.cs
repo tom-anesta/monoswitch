@@ -65,6 +65,10 @@ namespace monoswitchExample
                     {
                         return this.m_active;
                     }
+                    set
+                    {
+                        this.m_active = value;
+                    }
                 }
 
                 public int frameHeight
@@ -199,7 +203,10 @@ namespace monoswitchExample
                 {
                     // Do not update the game if we are not active
                     if (this.m_active == false)
+                    {
+                        Console.WriteLine("animation is not active");
                         return;
+                    }
                     // Update the elapsed time
                     this.m_elapsedTime += (int)gameTime.ElapsedGameTime.TotalMilliseconds;
                     // If the elapsed time is larger than the frame time
@@ -222,6 +229,7 @@ namespace monoswitchExample
                         this.m_elapsedTime = 0;
                     }
                     // Grab the correct frame in the image strip by multiplying the currentFrame index by the frame width
+                    this.m_sourceRect = new Rectangle(this.m_currentFrame * this.m_frameWidth, 0, this.m_frameWidth, this.m_frameHeight);
                     // decide where it goes
                     //this.m_destinationRect = new Rectangle((int)this.m_position.X - (int)(this.m_frameWidth * m_scale) / 2, (int)this.m_position.Y - (int)(this.m_frameHeight * m_scale) / 2, (int)(this.m_frameWidth * this.m_scale), (int)(this.m_frameHeight * this.m_scale));
                 }

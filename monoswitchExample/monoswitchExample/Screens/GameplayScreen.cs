@@ -31,6 +31,8 @@ namespace monoswitchExample
 
             #region public
 
+                public const int MAX_STARS = 3;
+
             #endregion
 
             #region protected
@@ -84,6 +86,7 @@ namespace monoswitchExample
         
                 protected int m_score;
                 protected Texture2D m_starTexture;
+                //protected Animation m_starAnimation;
                 protected List<star> m_stars;
                 protected Player m_player;
 
@@ -166,7 +169,9 @@ namespace monoswitchExample
                     //  - playerAnimation.frameWidth/2
                     // - playerAnimation.frameHeight /2
                     this.m_player.Initialize(playerAnimation, playerPosition, this.ScreenManager.GraphicsDevice.Viewport);
-                    m_starTexture = this.m_content.Load<Texture2D>("mineAnimation");
+                    this.m_starTexture = this.m_content.Load<Texture2D>("mineAnimation");
+                    this.repopulateStars();
+                    //this.m_starAnimation = new Animation();
                     // A real game would probably have more content than this sample, so
                     // it would take longer to load. We simulate that by delaying for a
                     // while, giving you a chance to admire the beautiful loading screen.
@@ -204,7 +209,6 @@ namespace monoswitchExample
                     {
                         this.m_pauseAlpha = Math.Max(this.m_pauseAlpha - 1f / 32, 0);
                     }
-
                     UpdatePlayer(gameTime);
                     UpdateStars(gameTime);
                     // Update the collision
@@ -254,6 +258,7 @@ namespace monoswitchExample
 
                 private void UpdateStars(GameTime gameTime)
                 {
+                    this.repopulateStars();//get more stars
                     // Update the Enemies
                     for (int i = this.m_stars.Count - 1; i >= 0; i--)
                     {
@@ -327,8 +332,6 @@ namespace monoswitchExample
 
                     }
                 }
-                
-
                 /// <summary>
                 /// Draws the gameplay screen.
                 /// </summary>
@@ -338,15 +341,13 @@ namespace monoswitchExample
                     ScreenManager.GraphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
                     // Our player and enemy are both actually just text strings.
                     SpriteBatch spriteBatch = ScreenManager.spriteBatch;
-                    //spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied);
-                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
-                    //spriteBatch.Begin();
+                    //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
+                    spriteBatch.Begin();
                     this.m_player.Draw(spriteBatch);
-                    //this.m_player.mainAnimation.Draw(spriteBatch, this.m_player.rotation, 0f);
-                    //if (this.m_player.altAnimation != null)
-                    //{
-                    //    this.m_player.altAnimation.Draw(spriteBatch, this.m_player.rotation, 0f);
-                    //}
+                    foreach (star sVal in this.m_stars)//draw the stars
+                    {
+                        sVal.Draw(spriteBatch);
+                    }
                     spriteBatch.End();
                     // If the game is transitioning on or off, fade it out to black.
                     if (this.m_transitionPosition > 0 || this.m_pauseAlpha > 0)
@@ -369,9 +370,217 @@ namespace monoswitchExample
                     this.m_stars = new List<star>();
                     // Initialize our random number generator
                     this.m_random = new Random();
-
                     //base.Initialize();
                 }
+
+                protected void repopulateStars()
+                {
+                    while (this.m_stars.Count < GameplayScreen.MAX_STARS)
+                    {
+                        star sVal = new star();
+                        while (!this.reroll(ref sVal))
+                        {
+                        }
+                        this.m_stars.Add(sVal);
+                    }
+                }
+
+                protected bool reroll(ref star sVal)
+                {
+                    float xloc = this.m_random.Next(this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width) + this.ScreenManager.GraphicsDevice.Viewport.X;
+                    float yloc = this.m_random.Next(this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height) + this.ScreenManager.GraphicsDevice.Viewport.Y;
+                    Vector2 loc = new Vector2(xloc, yloc);
+                    Animation anim = new Animation();
+                    anim.Initialize(this.m_starTexture, loc, 47, 61, 8, 30,Color.White, 1f, true);
+                    sVal.Initialize(anim, loc);
+                    foreach (star sVal2 in this.m_stars)
+                    {
+                        if(safeCircleIntersects(sVal2, sVal))
+                        {
+                            return false;
+                        }
+                    }
+                    if (safeCircleIntersects(sVal, this.m_player))
+                    {
+                        return false;
+                    }
+                    return true;
+                }
+
+                protected bool safeCircleIntersects(star sVal1, star sVal2)
+                {
+                    return this.circleIntersects(sVal1, sVal2, 1.2f);
+                }
+
+                protected bool safeCircleIntersects(star sVal1, Player pVal1)
+                {
+                    return this.circleIntersects(sVal1, pVal1, 1.2f);
+                }
+
+                protected bool closeCircleIntersects(star sVal1, star sVal2)
+                {
+                    return this.circleIntersects(sVal1, sVal2, 0.65f);
+                }
+
+                protected bool closeCircleIntersects(star sVal1, Player pVal1)
+                {
+                    return this.circleIntersects(sVal1, pVal1, 0.65f);
+                }
+
+                protected bool circleIntersects(star sVal1, star sVal2, float scale)
+                {
+                    //float midX = this.ScreenManager.GraphicsDevice.Viewport.X + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width / 2;
+                    float midX = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width / 2;
+                    //float midY = this.ScreenManager.GraphicsDevice.Viewport.Y + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 2;
+                    float midY = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 2;
+                    float dif = Math.Abs(sVal1.radius * scale) + Math.Abs(sVal2.radius * scale);
+                    float standardX1 = sVal1.position.X - this.ScreenManager.GraphicsDevice.Viewport.X;
+                    float standardX2 = sVal2.position.X - this.ScreenManager.GraphicsDevice.Viewport.X;
+                    float standardY1 = sVal1.position.Y - this.ScreenManager.GraphicsDevice.Viewport.Y;
+                    float standardY2 = sVal2.position.Y - this.ScreenManager.GraphicsDevice.Viewport.Y;
+                    float altX1;
+                    float altX2;
+                    float altY1;
+                    float altY2;
+                    if(standardX1 < midX)
+                    {
+                        altX1 = standardX1 + this.ScreenManager.GraphicsDevice.Viewport.Width;
+                    }
+                    else
+                    {
+                        altX1 = standardX1 - this.ScreenManager.GraphicsDevice.Viewport.Width;
+                    }
+                    if(standardX2 < midX)
+                    {
+                        altX2 = standardX2 + this.ScreenManager.GraphicsDevice.Viewport.Width;
+                    }
+                    else
+                    {
+                        altX2 = standardX2 - this.ScreenManager.GraphicsDevice.Viewport.Width;
+                    }
+                    if(standardY1 < midY)
+                    {
+                        altY1 = standardY1 + this.ScreenManager.GraphicsDevice.Viewport.Height;
+                    }
+                    else
+                    {
+                        altY1 = standardY1 - this.ScreenManager.GraphicsDevice.Viewport.Height;
+                    }
+                    if(standardY2 < midY)
+                    {
+                        altY2 = standardY2 + this.ScreenManager.GraphicsDevice.Viewport.Height;
+                    }
+                    else
+                    {
+                        altY2 = standardY2 - this.ScreenManager.GraphicsDevice.Viewport.Height;
+                    }
+                    float tbase = 0f;
+                    float taltitude = 0f;
+                    float hyp = 0f;
+                    //compare standard 1 to standard 2
+                    tbase = standardX1-standardX2;
+                    taltitude = standardY1-standardY2;
+                    hyp = (float)Math.Sqrt(Math.Pow(tbase, 2) + Math.Pow(taltitude, 2));
+                    if (hyp < dif)
+                    {
+                        return true;
+                    }
+                    //compare standard 1 to alt 2
+                    tbase = standardX1 - altX2;
+                    taltitude = standardY1 - altY2;
+                    hyp = (float)Math.Sqrt(Math.Pow(tbase, 2) + Math.Pow(taltitude, 2));
+                    if (hyp < dif)
+                    {
+                        return true;
+                    }
+                    //compare alt 1 to standard 2
+                    tbase = altX1 - standardX2;
+                    taltitude = altY1 - standardY2;
+                    hyp = (float)Math.Sqrt(Math.Pow(tbase, 2) + Math.Pow(taltitude, 2));
+                    if (hyp < dif)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+
+                protected bool circleIntersects(star sVal1, Player pVal1, float scale)
+                {
+                    //float midX = this.ScreenManager.GraphicsDevice.Viewport.X + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width / 2;
+                    float midX = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width / 2;
+                    //float midY = this.ScreenManager.GraphicsDevice.Viewport.Y + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 2;
+                    float midY = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 2;
+                    float dif = Math.Abs(sVal1.radius * scale) + Math.Abs(pVal1.radius * scale);
+                    float standardX1 = sVal1.position.X - this.ScreenManager.GraphicsDevice.Viewport.X;
+                    float standardX2 = pVal1.position.X - this.ScreenManager.GraphicsDevice.Viewport.X;
+                    float standardY1 = pVal1.position.Y - this.ScreenManager.GraphicsDevice.Viewport.Y;
+                    float standardY2 = pVal1.position.Y - this.ScreenManager.GraphicsDevice.Viewport.Y;
+                    float altX1;
+                    float altX2;
+                    float altY1;
+                    float altY2;
+                    if (standardX1 < midX)
+                    {
+                        altX1 = standardX1 + this.ScreenManager.GraphicsDevice.Viewport.Width;
+                    }
+                    else
+                    {
+                        altX1 = standardX1 - this.ScreenManager.GraphicsDevice.Viewport.Width;
+                    }
+                    if (standardX2 < midX)
+                    {
+                        altX2 = standardX2 + this.ScreenManager.GraphicsDevice.Viewport.Width;
+                    }
+                    else
+                    {
+                        altX2 = standardX2 - this.ScreenManager.GraphicsDevice.Viewport.Width;
+                    }
+                    if (standardY1 < midY)
+                    {
+                        altY1 = standardY1 + this.ScreenManager.GraphicsDevice.Viewport.Height;
+                    }
+                    else
+                    {
+                        altY1 = standardY1 - this.ScreenManager.GraphicsDevice.Viewport.Height;
+                    }
+                    if (standardY2 < midY)
+                    {
+                        altY2 = standardY2 + this.ScreenManager.GraphicsDevice.Viewport.Height;
+                    }
+                    else
+                    {
+                        altY2 = standardY2 - this.ScreenManager.GraphicsDevice.Viewport.Height;
+                    }
+                    float tbase = 0f;
+                    float taltitude = 0f;
+                    float hyp = 0f;
+                    //compare standard 1 to standard 2
+                    tbase = standardX1 - standardX2;
+                    taltitude = standardY1 - standardY2;
+                    hyp = (float)Math.Sqrt(Math.Pow(tbase, 2) + Math.Pow(taltitude, 2));
+                    if (hyp < dif)
+                    {
+                        return true;
+                    }
+                    //compare standard 1 to alt 2
+                    tbase = standardX1 - altX2;
+                    taltitude = standardY1 - altY2;
+                    hyp = (float)Math.Sqrt(Math.Pow(tbase, 2) + Math.Pow(taltitude, 2));
+                    if (hyp < dif)
+                    {
+                        return true;
+                    }
+                    //compare alt 1 to standard 2
+                    tbase = altX1 - standardX2;
+                    taltitude = altY1 - standardY2;
+                    hyp = (float)Math.Sqrt(Math.Pow(tbase, 2) + Math.Pow(taltitude, 2));
+                    if (hyp < dif)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+
 
             #endregion
 

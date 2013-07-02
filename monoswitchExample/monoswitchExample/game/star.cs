@@ -33,6 +33,7 @@ namespace monoswitchExample
                 protected int m_value;
                 // The speed at which the star moves
                 //float m_moveSpeed;
+                protected int m_radius;
 
             #endregion
 
@@ -106,6 +107,14 @@ namespace monoswitchExample
                     }
                 }
 
+                public float radius
+                {
+                    get
+                    {
+                        return this.m_radius;
+                    }
+                }
+
             #endregion
 
             #region protected
@@ -149,6 +158,7 @@ namespace monoswitchExample
         #region functions
 
             #region public
+
                 public void Initialize(Animation animation, Vector2 position)
                 {
                     // Set the position of the enemy
@@ -167,6 +177,7 @@ namespace monoswitchExample
                     //this.m_moveSpeed = 6f;
                     // Set the score value of the enemy
                     this.m_value = 100;
+                    this.m_radius = (int)(Math.Sqrt(Math.Pow(this.Height, 2) + Math.Pow(this.Width, 2)) / 2);
                 }
 
                 public void Update(GameTime gameTime)
