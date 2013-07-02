@@ -84,7 +84,7 @@ namespace monoswitchExample.game
             #region public
 
                 //constructor
-                public gameTimer()  
+                public gameTimer()
                 {  
                     this.isActive = false;  
                     this.isComplete = false;  
@@ -96,7 +96,7 @@ namespace monoswitchExample.game
                 public void set(GameTime gameTime, int seconds)
                 {
                     this.startCount = gameTime.TotalGameTime.Seconds;
-                    this.endCount = this.startCount + seconds;
+                    this.endCount = seconds;//this.startCount + seconds;
                     this.isActive = true;
                     this.displayValue = this.endCount.ToString();
                 }
@@ -111,7 +111,6 @@ namespace monoswitchExample.game
                         }
                     }
                 }
-
                 public Boolean checkTimer(GameTime gameTime)
                 {
                     if (this.isComplete == false)

@@ -147,6 +147,7 @@ namespace monoswitchExample
                     this.m_transitionOnTime = TimeSpan.FromSeconds(1.5);
                     this.m_transitionOffTime = TimeSpan.FromSeconds(0.5);
                     this.m_inited = false;
+                    this.m_timer = null;
                 }
 
                 /// <summary>
@@ -202,7 +203,6 @@ namespace monoswitchExample
                 /// </summary>
                 public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
                 {
-                    
                     base.Update(gameTime, otherScreenHasFocus, false);
                     // Gradually fade in or out depending on whether we are covered by the pause screen.
                     if (coveredByOtherScreen)
