@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 
 using System.Diagnostics;
 
-namespace monoswitchExample
+namespace monoswitchExample.game
 {
 
     public enum directions

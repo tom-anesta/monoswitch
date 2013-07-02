@@ -15,6 +15,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using monoswitchExample.game;
 #endregion
 
 namespace monoswitchExample
@@ -86,9 +87,10 @@ namespace monoswitchExample
         
                 protected int m_score;
                 protected Texture2D m_starTexture;
-                //protected Animation m_starAnimation;
                 protected List<star> m_stars;
                 protected Player m_player;
+                //the timer
+                protected gameTimer m_timer;
 
             #endregion
 
@@ -171,6 +173,7 @@ namespace monoswitchExample
                     this.m_player.Initialize(playerAnimation, playerPosition, this.ScreenManager.GraphicsDevice.Viewport);
                     this.m_starTexture = this.m_content.Load<Texture2D>("mineAnimation");
                     this.repopulateStars();
+                    this.m_timer = null;
                     //this.m_starAnimation = new Animation();
                     // A real game would probably have more content than this sample, so
                     // it would take longer to load. We simulate that by delaying for a
@@ -199,6 +202,7 @@ namespace monoswitchExample
                 /// </summary>
                 public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
                 {
+                    
                     base.Update(gameTime, otherScreenHasFocus, false);
                     // Gradually fade in or out depending on whether we are covered by the pause screen.
                     if (coveredByOtherScreen)
@@ -213,8 +217,20 @@ namespace monoswitchExample
                     UpdateStars(gameTime);
                     // Update the collision
                     UpdateCollision();
+                    if (this.m_timer == null)
+                    {
+                        this.m_timer = new gameTimer();
+                        this.m_timer.set(gameTime, 12);
+                        //add your event handler
+                        this.m_timer.timerComplete += this.respondTimerComplete;
+                    }
+                    else
+                    {
+                        this.m_timer.Update(gameTime);
+                    }
 
                 }
+
 
                 /// <summary>
                 /// Lets the game respond to player input. Unlike the Update method,
@@ -304,13 +320,21 @@ namespace monoswitchExample
                     {
                         sVal.Draw(spriteBatch);
                     }
+                    //draw your timer
+                    if (this.m_timer != null && this.m_timer.isActive)
+                    {
+                        spriteBatch.DrawString(this.m_gameFont, this.m_timer.displayValue, new Vector2(this.ScreenManager.GraphicsDevice.Viewport.X, this.ScreenManager.GraphicsDevice.Viewport.Y), Color.Red);
+                    }
                     spriteBatch.End();
                     // If the game is transitioning on or off, fade it out to black.
+
+
                     if (this.m_transitionPosition > 0 || this.m_pauseAlpha > 0)
                     {
                         float alpha = MathHelper.Lerp(1f - TransitionAlpha, 1f, this.m_pauseAlpha / 2);
                         ScreenManager.FadeBackBufferToBlack(alpha);
                     }
+                    
                 }
 
             #endregion
@@ -571,6 +595,13 @@ namespace monoswitchExample
                         return true;
                     }
                     return false;
+                }
+
+                protected void respondTimerComplete(object sender, EventArgs e)
+                {
+                    ScreenManager.AddScreen(new BackgroundScreen(), this.controllingPlayer);
+                    ScreenManager.AddScreen(new MainMenuScreen(), this.controllingPlayer);
+                    this.ExitScreen();
                 }
 
 

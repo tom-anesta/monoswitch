@@ -2,7 +2,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace monoswitchExample
+
+
+namespace monoswitchExample.game
 {
     class star
     {
@@ -14,7 +16,6 @@ namespace monoswitchExample
             #endregion
 
             #region protected
-
                 
                 // The position of the star relative to the top left corner of thescreen
                 protected Vector2 m_position;
