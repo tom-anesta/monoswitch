@@ -204,7 +204,7 @@ namespace monoswitchExample
                     // Do not update the game if we are not active
                     if (this.m_active == false)
                     {
-                        Console.WriteLine("animation is not active");
+                        //Console.WriteLine("animation is not active");
                         return;
                     }
                     // Update the elapsed time
@@ -247,8 +247,6 @@ namespace monoswitchExample
                 {
                     return;
                 }
-
-
 
             #endregion
 

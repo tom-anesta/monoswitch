@@ -53,6 +53,10 @@ namespace monoswitchExample
                     {
                         return this.m_active;
                     }
+                    set
+                    {
+                        this.m_active = value;
+                    }
                 }
 
                 public int value

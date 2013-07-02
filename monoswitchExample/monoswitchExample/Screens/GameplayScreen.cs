@@ -258,12 +258,11 @@ namespace monoswitchExample
 
                 private void UpdateStars(GameTime gameTime)
                 {
-                    this.repopulateStars();//get more stars
-                    // Update the Enemies
+                    
+                    // Update the stars
                     for (int i = this.m_stars.Count - 1; i >= 0; i--)
                     {
                         this.m_stars[i].Update(gameTime);
-
                         if (this.m_stars[i].active == false)
                         {
                             // If not active and health <= 0
@@ -275,61 +274,18 @@ namespace monoswitchExample
                             this.m_stars.RemoveAt(i);
                         }
                     }
+                    this.repopulateStars();//get more stars
                 }
 
                 private void UpdateCollision()
                 {
-                    // Use the Rectangle's built-in intersect function to 
-                    // determine if two objects are overlapping
-                    Rectangle rectanglePlayer;
-                    Rectangle rectangleOutPlayer = new Rectangle();
-                    Rectangle rectangleStar;
-                    Rectangle rectangleOutStar = new Rectangle();
-                    // Only create the rectangle once for the player
-                    rectanglePlayer = new Rectangle((int)this.m_player.position.X, (int)this.m_player.position.Y, this.m_player.Width, this.m_player.Height);
-                    if (this.m_player.iOOB)
-                    {
-                        rectangleOutPlayer = new Rectangle();//fill in the stuff later
-                    }
-                    //unless the player is farther out
-                    /*
-                    //do outside collision detection here
-                    */
-                    // Do the collision between the player and the enemies
+                    // Do the collision between the player and the stars
                     for (int i = 0; i < this.m_stars.Count; i++)
                     {
-                        rectangleStar = new Rectangle((int)this.m_stars[i].position.X,
-                        (int)this.m_stars[i].position.Y, this.m_stars[i].Width, this.m_stars[i].Height);
-
-                        // Determine if the two objects collided with each
-                        // other
-                        if (rectanglePlayer.Intersects(rectangleStar) || (this.m_player.iOOB && rectangleOutPlayer.Intersects(rectangleStar)))
+                        if (closeCircleIntersects(this.m_stars[i], this.m_player))
                         {
-                            // Since the enemy collided with the player
-                            // destroy it
-                            this.m_stars[i].health = 0;
-                            // If the player health is less than zero we died
-                            if (this.m_player.health <= 0)
-                            {
-                                this.m_player.active = false;
-                            }
+                            this.m_stars[i].active = false;
                         }
-                        else if (this.m_stars[i].isOutOfBounds)
-                        {
-                            rectangleOutStar = new Rectangle();//fill in the stuff later
-                            if (rectanglePlayer.Intersects(rectangleOutStar) || (this.m_player.iOOB && rectanglePlayer.Intersects(rectangleOutStar)))
-                            {
-                                // Since the enemy collided with the player
-                                // destroy it
-                                this.m_stars[i].health = 0;
-                                // If the player health is less than zero we died
-                                if (this.m_player.health <= 0)
-                                {
-                                    this.m_player.active = false;
-                                }
-                            }
-                        }
-
                     }
                 }
                 /// <summary>
