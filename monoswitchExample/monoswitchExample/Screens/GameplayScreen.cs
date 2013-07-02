@@ -386,9 +386,11 @@ namespace monoswitchExample
                 protected bool circleIntersects(star sVal1, star sVal2, float scale)
                 {
                     //float midX = this.ScreenManager.GraphicsDevice.Viewport.X + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width / 2;
-                    float midX = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width / 2;
+                    float eighthX = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width / 8;
+                    float eighth8X = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width - eighthX;
                     //float midY = this.ScreenManager.GraphicsDevice.Viewport.Y + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 2;
-                    float midY = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 2;
+                    float eighthY = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 8;
+                    float eighth8Y = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height - eighthY;
                     float dif = Math.Abs(sVal1.radius * scale) + Math.Abs(sVal2.radius * scale);
                     float standardX1 = sVal1.position.X - this.ScreenManager.GraphicsDevice.Viewport.X;
                     float standardX2 = sVal2.position.X - this.ScreenManager.GraphicsDevice.Viewport.X;
@@ -398,37 +400,53 @@ namespace monoswitchExample
                     float altX2;
                     float altY1;
                     float altY2;
-                    if(standardX1 < midX)
+                    if(standardX1 < eighthX)
                     {
                         altX1 = standardX1 + this.ScreenManager.GraphicsDevice.Viewport.Width;
                     }
-                    else
+                    else if (standardX1 > eighth8X)
                     {
                         altX1 = standardX1 - this.ScreenManager.GraphicsDevice.Viewport.Width;
                     }
-                    if(standardX2 < midX)
+                    else
+                    {
+                        altX1 = standardX1;
+                    }
+                    if(standardX2 < eighthX)
                     {
                         altX2 = standardX2 + this.ScreenManager.GraphicsDevice.Viewport.Width;
                     }
-                    else
+                    else if (standardX2 > eighth8X)
                     {
                         altX2 = standardX2 - this.ScreenManager.GraphicsDevice.Viewport.Width;
                     }
-                    if(standardY1 < midY)
+                    else
+                    {
+                        altX2 = standardX2;
+                    }
+                    if(standardY1 < eighthY)
                     {
                         altY1 = standardY1 + this.ScreenManager.GraphicsDevice.Viewport.Height;
                     }
-                    else
+                    else if (standardY1 > eighth8Y)
                     {
                         altY1 = standardY1 - this.ScreenManager.GraphicsDevice.Viewport.Height;
                     }
-                    if(standardY2 < midY)
+                    else
+                    {
+                        altY1 = standardY1;
+                    }
+                    if(standardY2 < eighthY)
                     {
                         altY2 = standardY2 + this.ScreenManager.GraphicsDevice.Viewport.Height;
                     }
-                    else
+                    else if (standardY2 > eighth8Y)
                     {
                         altY2 = standardY2 - this.ScreenManager.GraphicsDevice.Viewport.Height;
+                    }
+                    else
+                    {
+                        altY2 = standardY2;
                     }
                     float tbase = 0f;
                     float taltitude = 0f;
@@ -463,49 +481,67 @@ namespace monoswitchExample
                 protected bool circleIntersects(star sVal1, Player pVal1, float scale)
                 {
                     //float midX = this.ScreenManager.GraphicsDevice.Viewport.X + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width / 2;
-                    float midX = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width / 2;
+                    float eighthX = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width / 8;
+                    float eighth8X = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width - eighthX;
                     //float midY = this.ScreenManager.GraphicsDevice.Viewport.Y + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 2;
-                    float midY = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 2;
+                    float eighthY = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 8;
+                    float eighth8Y = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height - eighthY;
                     float dif = Math.Abs(sVal1.radius * scale) + Math.Abs(pVal1.radius * scale);
                     float standardX1 = sVal1.position.X - this.ScreenManager.GraphicsDevice.Viewport.X;
                     float standardX2 = pVal1.position.X - this.ScreenManager.GraphicsDevice.Viewport.X;
-                    float standardY1 = pVal1.position.Y - this.ScreenManager.GraphicsDevice.Viewport.Y;
+                    float standardY1 = sVal1.position.Y - this.ScreenManager.GraphicsDevice.Viewport.Y;
                     float standardY2 = pVal1.position.Y - this.ScreenManager.GraphicsDevice.Viewport.Y;
                     float altX1;
                     float altX2;
                     float altY1;
                     float altY2;
-                    if (standardX1 < midX)
+                    if (standardX1 < eighthX)
                     {
                         altX1 = standardX1 + this.ScreenManager.GraphicsDevice.Viewport.Width;
                     }
-                    else
+                    else if (standardX1 > eighth8X)
                     {
                         altX1 = standardX1 - this.ScreenManager.GraphicsDevice.Viewport.Width;
                     }
-                    if (standardX2 < midX)
+                    else
+                    {
+                        altX1 = standardX1;
+                    }
+                    if (standardX2 < eighthX)
                     {
                         altX2 = standardX2 + this.ScreenManager.GraphicsDevice.Viewport.Width;
                     }
-                    else
+                    else if (standardX2 > eighth8X)
                     {
                         altX2 = standardX2 - this.ScreenManager.GraphicsDevice.Viewport.Width;
                     }
-                    if (standardY1 < midY)
+                    else
+                    {
+                        altX2 = standardX2;
+                    }
+                    if (standardY1 < eighthY)
                     {
                         altY1 = standardY1 + this.ScreenManager.GraphicsDevice.Viewport.Height;
                     }
-                    else
+                    else if (standardY1 > eighth8Y)
                     {
                         altY1 = standardY1 - this.ScreenManager.GraphicsDevice.Viewport.Height;
                     }
-                    if (standardY2 < midY)
+                    else
+                    {
+                        altY1 = standardY1;
+                    }
+                    if (standardY2 < eighthY)
                     {
                         altY2 = standardY2 + this.ScreenManager.GraphicsDevice.Viewport.Height;
                     }
-                    else
+                    else if (standardY2 > eighth8Y)
                     {
                         altY2 = standardY2 - this.ScreenManager.GraphicsDevice.Viewport.Height;
+                    }
+                    else
+                    {
+                        altY2 = standardY2;
                     }
                     float tbase = 0f;
                     float taltitude = 0f;
