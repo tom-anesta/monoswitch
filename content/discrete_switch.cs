@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace monoswitch
+namespace monoswitch.content
 {
-    class composite_switch: s_switch
+    class discrete_switch : s_switch
     {
-
         #region members
 
             #region public
@@ -53,6 +52,7 @@ namespace monoswitch
             //UPDATE         
 
             //OTHER PUBLIC FUNCTIONS
+
 
             #endregion
 

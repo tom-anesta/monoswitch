@@ -7,6 +7,7 @@ using Microsoft.Xna;
 using Ruminate.GUI;
 using Ruminate.GUI.Content;
 using Ruminate.GUI.Framework;
+using monoswitch.content;
 
 namespace monoswitch
 {

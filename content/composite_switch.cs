@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace monoswitch
+namespace monoswitch.content
 {
-    class discretecomposite_switch: composite_switch
+    class composite_switch: s_switch
     {
 
         #region members

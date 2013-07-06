@@ -13,9 +13,8 @@ using Microsoft.Xna.Framework.Graphics;
 //this class reproduces code from toggle button as opposed to extending it
 
 
-namespace monoswitch
+namespace monoswitch.content
 {
-
 
     public delegate void switchEvent(s_switch sender);
     public delegate void monoSwitchKeyEvent(List<Keys> kList, List<KeyState> sList);

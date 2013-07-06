@@ -36,6 +36,7 @@
       <HintPath>..\..\..\..\..\..\..\Program Files\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Osiris.Content.Pipeline">
       <HintPath>dependencies\Osiris.Content.Pipeline.dll</HintPath>
     </Reference>
@@ -54,13 +55,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="composite_switch.cs" />
-    <Compile Include="discretecomposite_switch.cs" />
-    <Compile Include="discrete_switch.cs" />
+    <Compile Include="content\composite_switch.cs" />
+    <Compile Include="content\discretecomposite_switch.cs" />
+    <Compile Include="content\discrete_switch.cs" />
     <Compile Include="nl_SelectionSet.cs" />
     <Compile Include="selectionSet.cs" />
     <Compile Include="switchNode.cs" />
-    <Compile Include="s_switch.cs" />
+    <Compile Include="content\s_switch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
