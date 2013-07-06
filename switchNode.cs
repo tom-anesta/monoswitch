@@ -5,7 +5,7 @@ using System.Text;
 
 namespace monoswitch
 {
-    class switchNode
+    public class switchNode
     {
 
         #region members

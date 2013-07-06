@@ -276,7 +276,7 @@ namespace monoswitch
                     this.m_cutoffTime = 0;
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
-                    if (selectionSet.isValidList(p_intendedNodes))
+                    if (this.isValidList(p_intendedNodes))
                     {
                         this.m_beginnings.Add(p_intendedNodes[0]);
                         this.m_endings.Add(p_intendedNodes[p_intendedNodes.Length - 1]);
@@ -306,7 +306,7 @@ namespace monoswitch
                     this.m_cutoffTime = 0;
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
-                    if (selectionSet.isValidList(p_intendedNodes))
+                    if (this.isValidList(p_intendedNodes))
                     {
                         this.m_beginnings.Add(p_intendedNodes[0]);
                         this.m_endings.Add(p_intendedNodes[p_intendedNodes.Length - 1]);
@@ -410,7 +410,7 @@ namespace monoswitch
                     this.Start();
                 }
 
-                public virtual static bool isValidList(switchNode[] testList, int endStartsNI = 0, int beginEndsI = 0)//override in subclasses with graph algorithms
+                public virtual bool isValidList(switchNode[] testList, int endStartsNI = 0, int beginEndsI = 0)//override in subclasses with graph algorithms
                 {
                     if (testList == null || testList.Length < 1)
                     {
@@ -456,7 +456,7 @@ namespace monoswitch
                     return false;
                 }
 
-                public virtual static switchNode[] nodes_From_BandE(List<switchNode> begin, List<switchNode> end)//modify in inheriting classes
+                public virtual switchNode[] nodes_From_BandE(List<switchNode> begin, List<switchNode> end)//modify in inheriting classes
                 {//like is valid list, but it takes the beginning and the end instead of starting with a list
                     if (begin == null || end == null || begin.Count < 1 || end.Count < 1 || begin[0] == null || end[0] == null || begin.Count > 1 || end.Count > 1)
                     {
@@ -535,7 +535,7 @@ namespace monoswitch
                     }
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
-                    if (selectionSet.isValidList(p_intendedNodes))
+                    if (this.isValidList(p_intendedNodes))
                     {
                         this.m_beginnings.Add(p_intendedNodes[0]);
                         this.m_endings.Add(p_intendedNodes[p_intendedNodes.Length - 1]);
@@ -560,7 +560,7 @@ namespace monoswitch
                     }
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
-                    if (selectionSet.isValidList(p_intendedNodes))
+                    if (this.isValidList(p_intendedNodes))
                     {
                         this.m_beginnings.Add(p_intendedNodes[0]);
                         this.m_endings.Add(p_intendedNodes[p_intendedNodes.Length - 1]);
