@@ -10,7 +10,6 @@ using System.Diagnostics;
 
 namespace monoswitchExample.game
 {
-
     public enum directions
     {
         right, upright, up, upleft, left, downleft, down, downright, none

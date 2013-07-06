@@ -129,7 +129,6 @@ namespace monoswitchExample.game
                                 this.displayValue = "0";
                                 if (timerComplete != null)
                                 {
-                                    //Console.WriteLine("timer complete");
                                     this.timerComplete(this, new EventArgs());
                                 }
                             }
@@ -139,7 +138,6 @@ namespace monoswitchExample.game
                     {
                         this.displayValue = "0";
                     }
-                    
                     return this.isComplete;
                 }
 

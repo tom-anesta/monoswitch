@@ -15,6 +15,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace monoswitch
 {
+
+
+    public delegate void switchEvent(s_switch sender);
+    public delegate void monoSwitchKeyEvent(List<Keys> kList, List<KeyState> sList);
+
     public class s_switch: Ruminate.GUI.Framework.WidgetBase<Ruminate.GUI.Content.ButtonRenderRule>//standard switch.
     {//reproduce functionality of toggle button
         #region members
@@ -23,21 +28,16 @@ namespace monoswitch
 
                 //static const
 
-                public const uint DEFAULT_SCANNING_RATE = 666;
-
                 //enums
 
-                //delegates
 
             #endregion
 
             #region protected
 
-                protected uint m_scanningRate;
-                //private uint m_discreteTime;//the amount of time that you should hold a discrete timer
-                protected List<char> m_controllers;
+                protected TimeSpan m_scanningRate;
+                protected List<Keys> m_controllers;
                 protected Boolean m_commited;
-
                 //based off toggle button
                 protected bool m_switchedOn;
                 protected int m_textPadding;
@@ -65,7 +65,6 @@ namespace monoswitch
                     get { return RenderRule.Label; }
                     set { RenderRule.Label = value; }
                 }
-
                 /// <summary>
                 /// The gap between the text and the edge of the button.
                 /// </summary>
@@ -88,7 +87,8 @@ namespace monoswitch
                 
                 public int width
                 {
-                    get {
+                    get
+                    {
                         return this.m_width;
                     }
                     set
@@ -98,64 +98,39 @@ namespace monoswitch
                     }
                 }
 
-                public uint scanningRate
+                public TimeSpan scanningRate
                 {
                     get
                     {
                         return this.m_scanningRate;
                     }
-                    set
-                    {
-
-                    }
+                    //set
+                    //{
+                    //
+                    //}
                 }
 
-                public char controller
+                public Keys controller
                 {
                     get
                     {
                         if(this.m_controllers.Count == 0)
                         {
-                            return new char();
+                            return Keys.F9;
                         }
                         return this.m_controllers[0];
                     }
                 }
-
                 public Boolean commited
                 {
                     get
                     {
                         return this.m_commited;
                     }
-                    set
-                    {
-                        return;//read only
-                    }
                 }
-
-                /// <summary>
-                /// Event fired when the button is pressed.
-                /// </summary>
-                public WidgetEvent OnToggle
-                {
-                    get;
-                    set;
-                }
-
-                /// <summary>
-                /// Event fired when the button is released.
-                /// </summary>
-                public WidgetEvent OffToggle
-                {
-                    get;
-                    set;
-                }
-        
                 /// <summary>
                 /// Returns true when the button is pressed and false when
-                /// released. Changing the value fires the OnToggle/OffToggle
-                /// events.
+                /// released.
                 /// </summary>
                 public bool switchedOn
                 {
@@ -163,30 +138,28 @@ namespace monoswitch
                     {
                         return m_switchedOn;
                     }
-                    set
-                    {
-                        m_switchedOn = value;//set it first as our events will depend on this state
-                        if (value != m_switchedOn)
-                        {
-                            if (value)
-                            {
-                                if (OnToggle != null)
-                                {
-                                    OnToggle(this);
-                                    RenderRule.Mode = ButtonRenderRule.RenderMode.Pressed;
-                                }
-                            }
-                            else
-                            {
-                                if (OffToggle != null)
-                                {
-                                    OffToggle(this);
-                                    RenderRule.Mode = ButtonRenderRule.RenderMode.Default;
-                                }
-                            }
-                        }
-                    }
                 }
+                
+
+            #endregion
+
+            #region protected
+
+            #endregion
+
+            #region private
+
+            #endregion
+
+        #endregion
+
+        #region events
+
+            #region public
+
+                public event switchEvent OnToggle;
+                public event switchEvent OffToggle;
+                
 
             #endregion
 
@@ -203,9 +176,7 @@ namespace monoswitch
         #region methods
 
             #region public
-
             //CONSTRUCTOR
-
             public s_switch()
             {
                 this.Area = new Rectangle(0, 0, 0, 0);
@@ -216,12 +187,32 @@ namespace monoswitch
                 this.OffToggle += this.unpressSwitch;
                 //set monoswitchstuff
                 this.m_switchedOn = false;
-                this.m_scanningRate = s_switch.DEFAULT_SCANNING_RATE;
-                this.m_controllers = new List<char>();
+                this.m_scanningRate = new TimeSpan(0, 0, 0, 0, 0);
+                this.m_controllers = new List<Keys>();
                 this.m_commited = false;
             }
 
-            
+            public s_switch(Keys controllerValue) : this()
+            {
+                this.m_controllers.Add(controllerValue);
+            }
+
+            public s_switch(int scanR) : this()
+            {
+                this.m_scanningRate = new TimeSpan(0, 0, 0, 0, Math.Abs(scanR));
+            }
+
+            public s_switch(TimeSpan scanR) : this()
+            {
+                this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
+            }
+
+            public s_switch(Keys controllerValue, int scanR) : this()
+            {
+                this.m_scanningRate = new TimeSpan(0, 0, 0, 0, Math.Abs(scanR));
+                this.m_controllers.Add(controllerValue);
+            }
+
             /// <summary>
             /// Creates a new button at the location specified. The button defaults to
             /// the height of the RenderRule and width of the label.
@@ -235,14 +226,13 @@ namespace monoswitch
                 this.Area = new Rectangle(x, y, 0, 0);
                 this.label = label;
                 this.textPadding = padding;
-
                 //set events
                 this.OnToggle += this.pressSwitch;
                 this.OffToggle += this.unpressSwitch;
-
+                //set switch important variables
                 this.m_switchedOn = false;
-                this.m_scanningRate = 0;
-                this.m_controllers = new List<char>();
+                this.m_scanningRate = new TimeSpan(0, 0, 0, 0, 0);
+                this.m_controllers = new List<Keys>();
                 this.m_commited = false;
             }
             /// <summary>
@@ -260,15 +250,14 @@ namespace monoswitch
                 this.label = label;
 
                 //set events
-                this.OnToggle += this.unpressSwitch;
+                this.OnToggle += this.pressSwitch;
                 this.OffToggle += this.unpressSwitch;
 
                 this.m_switchedOn = false;
-                this.m_scanningRate = 0;
-                this.m_controllers = new List<char>();
+                this.m_scanningRate = new TimeSpan(0, 0, 0, 0, 0);
+                this.m_controllers = new List<Keys>();
                 this.m_commited = false;
             }
-            
 
             //INITIALIZATION FUNCTIONS
 
@@ -276,7 +265,6 @@ namespace monoswitch
             {
                 return new ButtonRenderRule();
             }
-
             protected override void Attach()
             {
                 int minWidth = (int)this.RenderRule.Font.MeasureString(this.label).X + (2 * this.RenderRule.Edge);
@@ -289,7 +277,6 @@ namespace monoswitch
                     this.Area = new Rectangle(this.Area.X, this.Area.Y, (minWidth > this.width) ? minWidth : this.width, this.RenderRule.Height);
                 }
             }
-
             //ends initialization
             public Boolean commit()
             {
@@ -301,20 +288,30 @@ namespace monoswitch
                 this.m_commited = true;
                 return this.m_commited;
             }
-
             //UPDATE
-
             protected override void Update()
-            {
-            }
-            
+            {//do nothing in gui update
 
+            }
             //OTHER PUBLIC FUNCTIONS
             //switch the device
-
             public void toggleSwitch()
             {
-                this.m_switchedOn = !(this.m_switchedOn);//reverse the condition
+                m_switchedOn = !m_switchedOn;//set it first as our events will depend on this state
+                if (m_switchedOn)
+                {
+                    if (OnToggle != null)
+                    {
+                        OnToggle(this);
+                    }
+                }
+                else
+                {
+                    if (OffToggle != null)
+                    {
+                        OffToggle(this);
+                    }
+                }
             }
 
             public void highlight()
@@ -324,7 +321,6 @@ namespace monoswitch
                     RenderRule.Mode = ButtonRenderRule.RenderMode.Hover;
                 }
             }
-
             public void deHighlight()
             {
                 if (!this.switchedOn)
@@ -341,23 +337,17 @@ namespace monoswitch
 
             #region private
 
-            private void pressSwitch(Widget widge)
+            private void pressSwitch(s_switch widge)
             {
-                if (widge is s_switch)
-                {
-                    (widge as s_switch).RenderRule.Mode = ButtonRenderRule.RenderMode.Pressed;
-                }
+                    widge.RenderRule.Mode = ButtonRenderRule.RenderMode.Pressed;
             }
 
-            private void unpressSwitch(Widget widge)
+            private void unpressSwitch(s_switch widge)
             {
-                if (widge is s_switch)
-                {
-                    if (!(widge as s_switch).switchedOn)
+                    if (!widge.switchedOn)
                     {
-                        (widge as s_switch).RenderRule.Mode = ButtonRenderRule.RenderMode.Default;
+                        widge.RenderRule.Mode = ButtonRenderRule.RenderMode.Default;
                     }
-                }
             }
 
             #endregion
@@ -370,17 +360,6 @@ namespace monoswitch
 
                 protected override void MouseClick(MouseEventArgs e)
                 {
-                    /*
-                    IsToggled = !IsToggled;
-                    if (!IsToggled)
-                    {
-                        RenderRule.Mode = IsHover ? ButtonRenderRule.RenderMode.Hover : ButtonRenderRule.RenderMode.Default;
-                    }
-                    else
-                    {
-                        RenderRule.Mode = ButtonRenderRule.RenderMode.Pressed;
-                    }
-                    */
                     //we do not want this object to respond to the mouse
                 }
 
