@@ -58,6 +58,7 @@
     <Compile Include="content\composite_switch.cs" />
     <Compile Include="content\discretecomposite_switch.cs" />
     <Compile Include="content\discrete_switch.cs" />
+    <Compile Include="msInputManager.cs" />
     <Compile Include="nl_SelectionSet.cs" />
     <Compile Include="selectionSet.cs" />
     <Compile Include="switchNode.cs" />

@@ -357,30 +357,36 @@ namespace monoswitch.content
 
             #region public
 
-                protected override void MouseClick(MouseEventArgs e)
+                /*
+                protected internal override void EnterPressed()
                 {
-                    //we do not want this object to respond to the mouse
+                }
+                protected internal override void ExitPressed()
+                {
+                }
+                */
+
+                protected internal new virtual void EnterHover()
+                {
+                    this.highlight();
                 }
 
-                protected override void EnterPressed()
+                protected internal new virtual void ExitHover()
                 {
-                    //we do not want this object to respond to the mouse
+                    this.deHighlight();
                 }
 
-                protected override void ExitPressed()
+                protected internal new virtual void KeyUp(KeyEventArgs e)
                 {
-                    //we do not want this object to respond to the mouse
+
                 }
 
-                protected override void EnterHover()
+                protected internal new virtual void KeyDown(KeyEventArgs e)
                 {
-                    //we do not want this object to respond to the mouse
+
                 }
 
-                protected override void ExitHover()
-                {
-                    //we do not want this object to respond to the mouse
-                }
+                
 
             #endregion
 
@@ -394,6 +400,8 @@ namespace monoswitch.content
 
         #endregion
 
+
+                
     }
 
 }

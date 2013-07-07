@@ -6,6 +6,7 @@ using Ruminate.GUI.Framework;
 using Ruminate.GUI.Content;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna;
+using Microsoft.Xna.Framework.Input;
 using monoswitch.content;
 
 namespace monoswitch
@@ -24,7 +25,6 @@ namespace monoswitch
                 public const int DEFAULT_PREF_ENDINGS = 1;//the default number of preferred endings
                 public const int DEFAULT_MAX_WIDTH = 300;//the default maximum width
                 public const int DEFAULT_MAX_HEIGHT = 300;//the default maximum height
-                
 
             #endregion
 
@@ -33,9 +33,9 @@ namespace monoswitch
                 //time related
                 protected TimeSpan m_scanningRate;
                 protected TimeSpan m_timeToAdvance;
+                protected TimeSpan m_refractoryPeriod;
+                protected TimeSpan m_timeToRefract;
                 protected int m_cutoffTime;//the time in milliseconds that timeToAdvance was stopped at
-                //relevant timer here
-                //private monoswitchTimer m_timer
                 //render and layout related
                 protected int? m_maxWidth;
                 protected int? m_maxHeight;
@@ -47,8 +47,12 @@ namespace monoswitch
                 //display and control related
                 protected switchNode m_startingNode;//the node to start/restart the selection set at
                 protected switchNode m_currentNode;//the current node that will be selected or deselected on input
+                protected Keys m_signalKey;
+                protected KeyState m_signalState;
+                //the input manager
                 //elements
                 protected Panel m_panel;
+                protected ScrollBars m_scroller;
 
             #endregion
 
@@ -157,7 +161,15 @@ namespace monoswitch
             #region public
 
                 //delegates
-                //public void 
+                //public void
+                public void respondKeyDown(Object o, KeyEventArgs e)
+                {
+                }
+
+                public void respondKeyUp(Object o, KeyEventArgs e)
+                {
+
+                }
 
             #endregion
 
@@ -187,12 +199,17 @@ namespace monoswitch
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, selectionSet.DEFAULT_SCANNINGRATE);
                     this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_cutoffTime = 0;
+                    this.m_refractoryPeriod = new TimeSpan(0, 0, 0, 0, 0);
+                    this.m_timeToRefract = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
                     this.m_commited = false;
                     this.m_startingNode = null;
                     this.m_currentNode = null;
                     this.m_panel = null;
+                    this.m_scroller = null;
+                    this.m_signalKey = Keys.F9;
+                    this.m_signalState = KeyState.Down;
                 }
 
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, TimeSpan p_scanR, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
@@ -209,14 +226,19 @@ namespace monoswitch
                     }
                     this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_cutoffTime = 0;
+                    this.m_refractoryPeriod = new TimeSpan(0, 0, 0, 0, 0);
+                    this.m_timeToRefract = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
                     this.m_commited = false;
                     this.m_startingNode = null;
                     this.m_currentNode = null;
                     this.m_panel = null;
+                    this.m_scroller = null;
                     this.m_maxHeight = null;
                     this.m_maxWidth = null;
+                    this.m_signalKey = Keys.F9;
+                    this.m_signalState = KeyState.Down;
                 }
 
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, int p_scanR, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
@@ -234,8 +256,11 @@ namespace monoswitch
                     this.m_currentNode = null;
                     this.m_startingNode = null;
                     this.m_panel = null;
+                    this.m_scroller = null;
                     this.m_maxHeight = null;
                     this.m_maxWidth = null;
+                    this.m_signalKey = Keys.F9;
+                    this.m_signalState = KeyState.Down;
                 }
 
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IEnumerable<switchNode> p_intendedNodes, int p_scanR = 0, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
@@ -275,6 +300,8 @@ namespace monoswitch
                     }
                     this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_cutoffTime = 0;
+                    this.m_refractoryPeriod = new TimeSpan(0, 0, 0, 0, 0);
+                    this.m_timeToRefract = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
                     if (this.isValidList(p_intendedNodes))
@@ -283,17 +310,19 @@ namespace monoswitch
                         this.m_endings.Add(p_intendedNodes[p_intendedNodes.Length - 1]);
                         this.m_startingNode = this.m_beginnings[0];
                         this.m_currentNode = m_startingNode;
-                        this.m_panel = null;
                     }
                     else
                     {
                         this.m_startingNode = null;
                         this.m_currentNode = null;
-                        this.m_panel = null;
                     }
+                    this.m_panel = null;
+                    this.m_scroller = null;
                     this.m_maxHeight = null;
                     this.m_maxWidth = null;
                     this.m_commited = false;
+                    this.m_signalKey = Keys.F9;
+                    this.m_signalState = KeyState.Down;
                 }
 
                 public selectionSet( Game p_game, Skin p_defaultSkin, Text p_defaultText, switchNode[] p_intendedNodes, TimeSpan p_scanR, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
@@ -305,6 +334,8 @@ namespace monoswitch
                     }
                     this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_cutoffTime = 0;
+                    this.m_refractoryPeriod = new TimeSpan(0, 0, 0, 0, 0);
+                    this.m_timeToRefract = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
                     if (this.isValidList(p_intendedNodes))
@@ -313,17 +344,19 @@ namespace monoswitch
                         this.m_endings.Add(p_intendedNodes[p_intendedNodes.Length - 1]);
                         this.m_startingNode = this.m_beginnings[0];
                         this.m_currentNode = m_startingNode;
-                        this.m_panel = null;
                     }
                     else
                     {
                         this.m_startingNode = null;
                         this.m_currentNode = null;
-                        this.m_panel = null;
                     }
+                    this.m_panel = null;
+                    this.m_scroller = null;
                     this.m_maxHeight = null;
                     this.m_maxWidth = null;
                     this.m_commited = false;
+                    this.m_signalKey = Keys.F9;
+                    this.m_signalState = KeyState.Down;
                 }
 
                 //INITIALIZE
@@ -362,9 +395,9 @@ namespace monoswitch
                     }
                     else
                     {
-                        ScrollBars bars = new ScrollBars();
-                        bars.Children = itemsToAdd;
-                        this.m_panel.Children = new Widget[] { bars };
+                        this.m_scroller = new ScrollBars();
+                        this.m_scroller.Children = itemsToAdd;
+                        this.m_panel.Children = new Widget[] { this.m_scroller };
                     }
                     this.Widgets = new Widget[] { this.m_panel };
                     this.m_commited = true;
