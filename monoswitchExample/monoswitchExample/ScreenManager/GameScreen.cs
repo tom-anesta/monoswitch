@@ -27,7 +27,6 @@ namespace monoswitchExample
         Hidden,
     }
 
-
     /// <summary>
     /// A screen is a single layer that has update and draw logic, and which
     /// can be combined with other layers to build up a complex menu system.
@@ -46,23 +45,14 @@ namespace monoswitchExample
             #region protected
 
                 protected bool m_isPopup = false;
-
                 protected TimeSpan m_transitionOnTime = TimeSpan.Zero;
-
                 protected TimeSpan m_transitionOffTime = TimeSpan.Zero;
-
                 protected float m_transitionPosition = 1;
-
                 protected ScreenState m_screenState = ScreenState.TransitionOn;
-
                 protected bool m_isExiting = false;
-
                 protected bool m_otherScreenHasFocus;
-
                 protected ScreenManager m_screenManager;
-
                 protected PlayerIndex? m_controllingPlayer;
-
                 //protected GestureType enabledGestures = GestureType.None;//for some reason touch not available?
 
             #endregion
@@ -86,8 +76,14 @@ namespace monoswitchExample
                 /// </summary>
                 public bool IsPopup
                 {
-                    get { return this.m_isPopup; }
-                    protected set { this.m_isPopup = value; }
+                    get
+                    {
+                        return this.m_isPopup;
+                    }
+                    protected set
+                    {
+                        this.m_isPopup = value;
+                    }
                 }
 
                 /// <summary>
@@ -96,8 +92,14 @@ namespace monoswitchExample
                 /// </summary>
                 public TimeSpan transitionOnTime
                 {
-                    get { return this.m_transitionOnTime; }
-                    protected set { this.m_transitionOnTime = value; }
+                    get
+                    {
+                        return this.m_transitionOnTime;
+                    }
+                    protected set
+                    {
+                        this.m_transitionOnTime = value;
+                    }
                 }
 
                 /// <summary>
@@ -106,8 +108,14 @@ namespace monoswitchExample
                 /// </summary>
                 public TimeSpan transitionOffTime
                 {
-                    get { return this.m_transitionOffTime; }
-                    protected set { this.m_transitionOffTime = value; }
+                    get
+                    {
+                        return this.m_transitionOffTime;
+                    }
+                    protected set
+                    {
+                        this.m_transitionOffTime = value;
+                    }
                 }
 
 
@@ -118,8 +126,14 @@ namespace monoswitchExample
                 /// </summary>
                 public float transitionPosition
                 {
-                    get { return this.m_transitionPosition; }
-                    protected set { this.m_transitionPosition = value; }
+                    get
+                    {
+                        return this.m_transitionPosition;
+                    }
+                    protected set
+                    {
+                        this.m_transitionPosition = value;
+                    }
                 }
 
                 /// <summary>
@@ -129,7 +143,10 @@ namespace monoswitchExample
                 /// </summary>
                 public float TransitionAlpha
                 {
-                    get { return 1f - this.m_transitionPosition; }
+                    get
+                    {
+                        return 1f - this.m_transitionPosition;
+                    }
                 }
 
                 /// <summary>
@@ -137,8 +154,14 @@ namespace monoswitchExample
                 /// </summary>
                 public ScreenState ScreenState
                 {
-                    get { return this.m_screenState; }
-                    protected set { this.m_screenState = value; }
+                    get
+                    {
+                        return this.m_screenState;
+                    }
+                    protected set
+                    {
+                        this.m_screenState = value;
+                    }
                 }
 
                 /// <summary>
@@ -151,8 +174,14 @@ namespace monoswitchExample
                 /// </summary>
                 public bool IsExiting
                 {
-                    get { return this.m_isExiting; }
-                    protected internal set { this.m_isExiting = value; }
+                    get
+                    {
+                        return this.m_isExiting;
+                    }
+                    protected internal set
+                    {
+                        this.m_isExiting = value;
+                    }
                 }
 
                 /// <summary>
@@ -171,8 +200,14 @@ namespace monoswitchExample
                 /// </summary>
                 public ScreenManager ScreenManager
                 {
-                    get { return this.m_screenManager; }
-                    internal set { this.m_screenManager = value; }
+                    get
+                    {
+                        return this.m_screenManager;
+                    }
+                    internal set
+                    {
+                        this.m_screenManager = value;
+                    }
                 }
 
                 /// <summary>
@@ -185,36 +220,15 @@ namespace monoswitchExample
                 /// </summary>
                 public PlayerIndex? controllingPlayer
                 {
-                    get { return this.m_controllingPlayer; }
-                    internal set { this.m_controllingPlayer = value; }
-                }
-
-                /*
-                /// <summary>
-                /// Gets the gestures the screen is interested in. Screens should be as specific
-                /// as possible with gestures to increase the accuracy of the gesture engine.
-                /// For example, most menus only need Tap or perhaps Tap and VerticalDrag to operate.
-                /// These gestures are handled by the ScreenManager when screens change and
-                /// all gestures are placed in the InputState passed to the HandleInput method.
-                /// </summary>
-                public GestureType EnabledGestures
-                {
-                    get { return enabledGestures; }
-                    protected set
+                    get
                     {
-                        enabledGestures = value;
-
-                        // the screen manager handles this during screen changes, but
-                        // if this screen is active and the gesture types are changing,
-                        // we have to update the TouchPanel ourself.
-                        if (ScreenState == ScreenState.Active)
-                        {
-                            TouchPanel.EnabledGestures = value;
-                        }
+                        return this.m_controllingPlayer;
+                    }
+                    internal set
+                    {
+                        this.m_controllingPlayer = value;
                     }
                 }
-                */
-                //for some reason touch isn't working
 
             #endregion
 
@@ -251,20 +265,23 @@ namespace monoswitchExample
                 /// <summary>
                 /// Load graphics content for the screen.
                 /// </summary>
-                public virtual void LoadContent() { }
+                public virtual void LoadContent()
+                {
+                }
 
                 /// <summary>
                 /// Unload content for the screen.
                 /// </summary>
-                public virtual void UnloadContent() { }
+                public virtual void UnloadContent()
+                {
+                }
 
                 /// <summary>
                 /// Allows the screen to run logic, such as updating the transition position.
                 /// Unlike HandleInput, this method is called regardless of whether the screen
                 /// is active, hidden, or in the middle of a transition.
                 /// </summary>
-                public virtual void Update(GameTime gameTime, bool otherScreenHasFocus,
-                                                              bool coveredByOtherScreen)
+                public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
                 {
                     this.m_otherScreenHasFocus = otherScreenHasFocus;
 
@@ -342,12 +359,16 @@ namespace monoswitchExample
                 /// is only called when the screen is active, and not when some other
                 /// screen has taken the focus.
                 /// </summary>
-                public virtual void HandleInput(InputState input) { }
+                public virtual void HandleInput(InputState input)
+                {
+                }
 
                 /// <summary>
                 /// This is called when the screen should draw itself.
                 /// </summary>
-                public virtual void Draw(GameTime gameTime) { }
+                public virtual void Draw(GameTime gameTime)
+                {
+                }
 
                 /// <summary>
                 /// Tells the screen to go away. Unlike ScreenManager.RemoveScreen, which

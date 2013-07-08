@@ -444,6 +444,22 @@ namespace monoswitch
                     this.Start();
                 }
 
+                //update functions
+                public void UpdateByTime(GameTime gametime)
+                {
+                    //let's just hope we don't need access
+                    //Dom.DfsOperationChildren(node =>
+                    //{
+                    //    if (!node.Data.Active) return;
+                    //    node.Data.Update();
+                    //});
+
+
+                }
+                
+
+                //virtual functions
+
                 public virtual bool isValidList(switchNode[] testList, int endStartsNI = 0, int beginEndsI = 0)//override in subclasses with graph algorithms
                 {
                     if (testList == null || testList.Length < 1)
@@ -526,7 +542,7 @@ namespace monoswitch
                     return compList.ToArray();//error/default return
                 }
 
-                public static int width_from_widgets(Widget[] list)
+                public virtual int width_from_widgets(Widget[] list)
                 {
                     //find the lowest x and the highest x+width and get their difference
                     int min = int.MaxValue;
@@ -540,7 +556,7 @@ namespace monoswitch
                     return (int)Math.Abs(max-min);
                 }
 
-                public static int height_from_widgets(Widget[] list)
+                public virtual int height_from_widgets(Widget[] list)
                 {
                     int min = int.MaxValue;
                     int max = int.MinValue;

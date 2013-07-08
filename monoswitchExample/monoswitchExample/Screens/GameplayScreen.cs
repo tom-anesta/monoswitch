@@ -15,7 +15,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Ruminate.GUI.Framework;
 using monoswitchExample.game;
+using monoswitch;
+using monoswitch.content;
 #endregion
 
 namespace monoswitchExample
@@ -38,10 +41,6 @@ namespace monoswitchExample
 
             #region protected
 
-                //gamestatemanagement obsolete variables
-                //protected Vector2 m_enemyPosition = new Vector2(100, 100);
-                //protected Vector2 m_playerPosition = new Vector2(100, 100);
-
                 //statemanagement
                 protected ContentManager m_content;
                 protected SpriteFont m_gameFont;
@@ -49,49 +48,19 @@ namespace monoswitchExample
                 protected float m_pauseAlpha;
 
                 //game objects
-
-                //obsolete variables
-                /*
-                // Keyboard states used to determine key presses
-                //KeyboardState currentKeyboardState;
-                //KeyboardState previousKeyboardState;
-                // Gamepad states used to determine button presses
-                //GamePadState currentGamePadState;
-                //GamePadState previousGamePadState;
-                // A movement speed for the player
-                //float playerMoveSpeed;
-                // Image used to display the static background
-                //Texture2D mainBackground;
-                // Parallaxing Layers
-                //parallaxingbackground bgLayer1;
-                //parallaxingbackground bgLayer2;
-                // Enemies
-                // The rate at which the enemies appear
-                //TimeSpan enemySpawnTime;
-                //TimeSpan previousSpawnTime;
-                //Texture2D projectileTexture;
-                //List<Projectile> projectiles;
-                // The rate of fire of the player laser
-                //TimeSpan fireTime;
-                //TimeSpan previousFireTime;
-                //Texture2D explosionTexture;
-                //List<Animation> explosions;
-                // The sound that is played when a laser is fired
-                //SoundEffect laserSound;
-                // The sound used when the player or an enemy dies
-                //SoundEffect explosionSound;
-                // The music played during gameplay
-                //Song gameplayMusic;
-                //Number that holds the player score
-                */
-        
                 protected int m_score;
                 protected Texture2D m_starTexture;
                 protected List<star> m_stars;
                 protected Player m_player;
                 //the timer
                 protected gameTimer m_timer;
-
+                //selection set
+                protected selectionSet m_selectSet;
+                //nl_selection set for future testing;
+                protected nl_SelectionSet m_nlss;
+                //need a reference to the game
+                protected exampleGame m_game;
+                
             #endregion
 
             #region private
@@ -142,12 +111,15 @@ namespace monoswitchExample
                 /// <summary>
                 /// Constructor.
                 /// </summary>
-                public GameplayScreen()
+                public GameplayScreen(exampleGame game)
                 {
                     this.m_transitionOnTime = TimeSpan.FromSeconds(1.5);
                     this.m_transitionOffTime = TimeSpan.FromSeconds(0.5);
                     this.m_inited = false;
                     this.m_timer = null;
+                    this.m_selectSet = null;
+                    this.m_nlss = null;
+                    this.m_game = game;
                 }
 
                 /// <summary>
@@ -175,7 +147,11 @@ namespace monoswitchExample
                     this.m_starTexture = this.m_content.Load<Texture2D>("mineAnimation");
                     this.repopulateStars();
                     this.m_timer = null;
-                    //this.m_starAnimation = new Animation();
+                    //set up your selection set or nl_selectionset
+                    Skin skin = new Skin(this.m_game.ss_imgMap, this.m_game.ss_map);
+                    Text text = new Text(this.m_game.ss_font, Color.Black);
+                    this.m_selectSet = new selectionSet(this.m_game, skin, text);
+                    this.m_nlss = null;
                     // A real game would probably have more content than this sample, so
                     // it would take longer to load. We simulate that by delaying for a
                     // while, giving you a chance to admire the beautiful loading screen.
@@ -185,8 +161,6 @@ namespace monoswitchExample
                     // it should not try to catch up.
                     ScreenManager.Game.ResetElapsedTime();
                 }
-
-                
 
                 /// <summary>
                 /// Unload graphics content used by the game.
@@ -217,6 +191,15 @@ namespace monoswitchExample
                     UpdateStars(gameTime);
                     // Update the collision
                     UpdateCollision();
+                    //update the selection sets
+                    if (this.m_selectSet != null)
+                    {
+                        this.m_selectSet.Update();
+                    }
+                    if (this.m_nlss != null)
+                    {
+                        this.m_nlss.Update();
+                    }
                     if (this.m_timer == null)
                     {
                         this.m_timer = new gameTimer();
@@ -230,7 +213,6 @@ namespace monoswitchExample
                     }
 
                 }
-
 
                 /// <summary>
                 /// Lets the game respond to player input. Unlike the Update method,

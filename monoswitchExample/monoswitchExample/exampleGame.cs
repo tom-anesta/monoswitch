@@ -10,6 +10,8 @@
 #region Using Statements
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.IO;
+using Ruminate.Utils;
 #endregion
 
 namespace monoswitchExample
@@ -33,6 +35,8 @@ namespace monoswitchExample
                 {
                     "gradient",
                 };
+                //from ruminate example
+                
 
             #endregion
 
@@ -40,6 +44,9 @@ namespace monoswitchExample
 
                 protected GraphicsDeviceManager graphics;
                 protected ScreenManager screenManager;
+                protected SpriteFont m_GreySpriteFont;
+                protected Texture2D m_GreyImageMap;
+                protected string m_GreyMap;
 
             #endregion
 
@@ -52,6 +59,30 @@ namespace monoswitchExample
         #region properties
 
             #region public
+
+                public SpriteFont ss_font
+                {
+                    get
+                    {
+                        return this.m_GreySpriteFont;
+                    }
+                }
+
+                public Texture2D ss_imgMap
+                {
+                    get
+                    {
+                        return this.m_GreyImageMap;
+                    }
+                }
+
+                public string ss_map
+                {
+                    get
+                    {
+                        return this.m_GreyMap;
+                    }
+                }
 
             #endregion
 
@@ -93,9 +124,6 @@ namespace monoswitchExample
                     Content.RootDirectory = "Content";
 
                     graphics = new GraphicsDeviceManager(this);
-                    graphics.PreferredBackBufferWidth = 853;
-                    graphics.PreferredBackBufferHeight = 480;
-
                     // Create the screen manager component.
                     screenManager = new ScreenManager(this);
 
@@ -103,12 +131,21 @@ namespace monoswitchExample
 
                     // Activate the first screens.
                     screenManager.AddScreen(new BackgroundScreen(), null);
-                    screenManager.AddScreen(new MainMenuScreen(), null);
+                    screenManager.AddScreen(new MainMenuScreen(this), null);
                 }
 
             #endregion
 
             #region protected
+
+                protected override void Initialize()
+                {
+                    this.graphics.PreferredBackBufferWidth = 1200;
+                    this.graphics.PreferredBackBufferHeight = 800;
+                    this.graphics.ApplyChanges();
+                    IsMouseVisible = false;
+                    base.Initialize();
+                }
 
                 /// <summary>
                 /// Loads graphics content.
@@ -119,6 +156,10 @@ namespace monoswitchExample
                     {
                         Content.Load<object>(asset);
                     }
+                    m_GreyImageMap = Content.Load<Texture2D>(@"GreySkin\ImageMap");
+                    m_GreyMap = File.OpenText(@"GuiExampleContent\GreySkin\Map.txt").ReadToEnd();
+                    m_GreySpriteFont = Content.Load<SpriteFont>(@"GreySkin\Texture");
+                    DebugUtils.Init(this.graphics.GraphicsDevice, m_GreySpriteFont);
                 }
 
                 /// <summary>
@@ -127,7 +168,6 @@ namespace monoswitchExample
                 protected override void Draw(GameTime gameTime)
                 {
                     graphics.GraphicsDevice.Clear(Color.Black);
-
                     // The real drawing happens inside the screen manager component.
                     base.Draw(gameTime);
                 }

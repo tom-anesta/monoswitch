@@ -27,6 +27,8 @@ namespace monoswitchExample
 
             #region protected
 
+                protected exampleGame m_game
+
             #endregion
 
             #region private
@@ -74,7 +76,7 @@ namespace monoswitchExample
                 /// <summary>
                 /// Constructor fills in the menu contents.
                 /// </summary>
-                public MainMenuScreen() : base("Main Menu")
+                public MainMenuScreen(exampleGame game) : base("Main Menu")
                 {
                     // Create our menu entries.
                     MenuEntry playGameMenuEntry = new MenuEntry("Play Game");
@@ -88,6 +90,7 @@ namespace monoswitchExample
                     this.m_menuEntries.Add(playGameMenuEntry);
                     this.m_menuEntries.Add(optionsMenuEntry);
                     this.m_menuEntries.Add(exitMenuEntry);
+                    this.m_game = game;
                 }
 
             #endregion
@@ -99,7 +102,7 @@ namespace monoswitchExample
                 /// </summary>
                 protected void PlayGameMenuEntrySelected(object sender, PlayerIndexEventArgs e)
                 {
-                    LoadingScreen.Load(ScreenManager, true, e.playerIndex, new GameplayScreen());
+                    LoadingScreen.Load(ScreenManager, true, e.playerIndex, new GameplayScreen(this.m_game));
                 }
 
                 /// <summary>

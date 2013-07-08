@@ -138,6 +138,10 @@
     <Content Include="Game.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\monoswitch.csproj">
+      <Project>{4CC1FE4E-60E7-4232-B81C-89A546067950}</Project>
+      <Name>monoswitch</Name>
+    </ProjectReference>
     <ProjectReference Include="..\monoswitchExampleContent\monoswitchExampleContent.contentproj">
       <Name>monoswitchExampleContent</Name>
       <XnaReferenceType>Content</XnaReferenceType>
