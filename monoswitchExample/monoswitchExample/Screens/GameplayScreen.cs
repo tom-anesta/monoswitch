@@ -195,10 +195,12 @@ namespace monoswitchExample
                     if (this.m_selectSet != null)
                     {
                         this.m_selectSet.Update();
+                        this.m_selectSet.UpdateByTime(gameTime);
                     }
                     if (this.m_nlss != null)
                     {
                         this.m_nlss.Update();
+                        this.m_selectSet.UpdateByTime(gameTime);
                     }
                     if (this.m_timer == null)
                     {
@@ -235,7 +237,7 @@ namespace monoswitchExample
                     bool gamePadDisconnected = !gamePadState.IsConnected && input.gamePadWasConnected[playerIndex];
                     if (input.IsPauseGame(this.controllingPlayer) || gamePadDisconnected)
                     {
-                        ScreenManager.AddScreen(new PauseMenuScreen(), this.controllingPlayer);
+                        ScreenManager.AddScreen(new PauseMenuScreen(this.m_game), this.controllingPlayer);
                     }
                     else
                     {
@@ -309,7 +311,15 @@ namespace monoswitchExample
                     }
                     spriteBatch.End();
                     // If the game is transitioning on or off, fade it out to black.
-
+                    //nests spritebatch.begin can;t put it above
+                    if (this.m_selectSet != null)
+                    {
+                        this.m_selectSet.Draw();
+                    }
+                    if (this.m_nlss != null)
+                    {
+                        this.m_nlss.Draw();
+                    }
 
                     if (this.m_transitionPosition > 0 || this.m_pauseAlpha > 0)
                     {
@@ -582,7 +592,7 @@ namespace monoswitchExample
                 protected void respondTimerComplete(object sender, EventArgs e)
                 {
                     ScreenManager.AddScreen(new BackgroundScreen(), this.controllingPlayer);
-                    ScreenManager.AddScreen(new MainMenuScreen(), this.controllingPlayer);
+                    ScreenManager.AddScreen(new MainMenuScreen(this.m_game), this.controllingPlayer);
                     this.ExitScreen();
                 }
 

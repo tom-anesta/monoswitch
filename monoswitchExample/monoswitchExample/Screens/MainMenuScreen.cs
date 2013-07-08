@@ -27,7 +27,7 @@ namespace monoswitchExample
 
             #region protected
 
-                protected exampleGame m_game
+                protected exampleGame m_game;
 
             #endregion
 

@@ -157,8 +157,8 @@ namespace monoswitchExample
                         Content.Load<object>(asset);
                     }
                     m_GreyImageMap = Content.Load<Texture2D>(@"GreySkin\ImageMap");
-                    m_GreyMap = File.OpenText(@"GuiExampleContent\GreySkin\Map.txt").ReadToEnd();
-                    m_GreySpriteFont = Content.Load<SpriteFont>(@"GreySkin\Texture");
+                    m_GreyMap = File.OpenText(@"Content\GreySkin\Map.txt").ReadToEnd();
+                    m_GreySpriteFont = Content.Load<SpriteFont>(@"gamefont");
                     DebugUtils.Init(this.graphics.GraphicsDevice, m_GreySpriteFont);
                 }
 

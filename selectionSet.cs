@@ -447,13 +447,19 @@ namespace monoswitch
                 //update functions
                 public void UpdateByTime(GameTime gametime)
                 {
-                    //let's just hope we don't need access
-                    //Dom.DfsOperationChildren(node =>
-                    //{
-                    //    if (!node.Data.Active) return;
-                    //    node.Data.Update();
-                    //});
-
+                    //we don't have access to dom because it's private
+                    Widget[] temps = this.Widgets;
+                    foreach (Widget widge in temps)
+                    {
+                        widge.GetTreeNode().DfsOperation(node =>
+                        {
+                            if (!node.Data.Active || !(node.Data is s_switch) )
+                            {
+                                return;
+                            }
+                            (node.Data as s_switch).UpdateByTime(gametime);
+                        });
+                    }
 
                 }
                 

@@ -215,9 +215,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TestSkin\Map.txt">
+    <None Include="TestSkin\Map.txt">
       <Name>Map</Name>
-    </Compile>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Font.spritefont">
@@ -234,16 +235,18 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GreySkin\Map.txt">
+    <None Include="GreySkin\Map.txt">
       <Name>Map</Name>
-    </Compile>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GreySkin\Metrics.xml">
+    <None Include="GreySkin\Metrics.xml">
       <Name>Metrics</Name>
       <Importer>XmlImporter</Importer>
       <Processor>PassThroughProcessor</Processor>
-    </Compile>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GreySkin\Texture.png">

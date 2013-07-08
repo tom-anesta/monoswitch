@@ -158,6 +158,36 @@ namespace monoswitch.content
 
                 public event switchEvent OnToggle;
                 public event switchEvent OffToggle;
+
+
+                /*
+                protected internal override void EnterPressed()
+                {
+                }
+                protected internal override void ExitPressed()
+                {
+                }
+                */
+
+                protected internal new virtual void EnterHover()
+                {
+                    this.highlight();
+                }
+
+                protected internal new virtual void ExitHover()
+                {
+                    this.deHighlight();
+                }
+
+                protected internal new virtual void KeyUp(KeyEventArgs e)
+                {
+
+                }
+
+                protected internal new virtual void KeyDown(KeyEventArgs e)
+                {
+
+                }
                 
 
             #endregion
@@ -328,6 +358,11 @@ namespace monoswitch.content
                 }
             }
 
+            public void UpdateByTime(GameTime gametime)
+            {
+                return;//nothing yet
+            }
+
             #endregion
 
             #region protected
@@ -348,53 +383,6 @@ namespace monoswitch.content
                         widge.RenderRule.Mode = ButtonRenderRule.RenderMode.Default;
                     }
             }
-
-            #endregion
-
-        #endregion
-
-        #region events
-
-            #region public
-
-                /*
-                protected internal override void EnterPressed()
-                {
-                }
-                protected internal override void ExitPressed()
-                {
-                }
-                */
-
-                protected internal new virtual void EnterHover()
-                {
-                    this.highlight();
-                }
-
-                protected internal new virtual void ExitHover()
-                {
-                    this.deHighlight();
-                }
-
-                protected internal new virtual void KeyUp(KeyEventArgs e)
-                {
-
-                }
-
-                protected internal new virtual void KeyDown(KeyEventArgs e)
-                {
-
-                }
-
-                
-
-            #endregion
-
-            #region protected
-
-            #endregion
-
-            #region private
 
             #endregion
 

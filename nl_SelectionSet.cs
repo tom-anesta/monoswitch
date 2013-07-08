@@ -11,7 +11,7 @@ using monoswitch.content;
 
 namespace monoswitch
 {
-    class nl_SelectionSet: selectionSet
+    public class nl_SelectionSet: selectionSet
     {
         #region members
 

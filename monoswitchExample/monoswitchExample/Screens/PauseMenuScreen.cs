@@ -28,6 +28,8 @@ namespace monoswitchExample
 
             #region protected
 
+                protected exampleGame m_game;
+
             #endregion
 
             #region private
@@ -59,8 +61,9 @@ namespace monoswitchExample
                 /// <summary>
                 /// Constructor.
                 /// </summary>
-                public PauseMenuScreen() : base("Paused")
+                public PauseMenuScreen(exampleGame game) : base("Paused")
                 {
+                    this.m_game = game;
                     // Create our menu entries.
                     MenuEntry resumeGameMenuEntry = new MenuEntry("Resume Game");
                     MenuEntry quitGameMenuEntry = new MenuEntry("Quit Game");
@@ -90,7 +93,7 @@ namespace monoswitchExample
                 /// </summary>
                 void ConfirmQuitMessageBoxAccepted(object sender, PlayerIndexEventArgs e)
                 {
-                    LoadingScreen.Load(ScreenManager, false, null, new BackgroundScreen(), new MainMenuScreen());
+                    LoadingScreen.Load(ScreenManager, false, null, new BackgroundScreen(), new MainMenuScreen(this.m_game));
                 }
 
             #endregion
