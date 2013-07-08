@@ -363,6 +363,7 @@ namespace monoswitch
 
                 public virtual bool Commit(int p_x, int p_y, int? p_width = null, int? p_height = null)
                 {
+                    Console.WriteLine("committing now");
                     int act_width = 0;
                     int act_height = 0;
                     bool widthAssigned = false;
@@ -398,6 +399,15 @@ namespace monoswitch
                     {
                         act_width = width_from_widgets(itemsToAdd);
                     }
+                    if (p_height.HasValue)
+                    {
+                        act_height = Math.Abs((int)p_height);
+                        widthAssigned = true;
+                    }
+                    else
+                    {
+                        act_height = height_from_widgets(itemsToAdd);
+                    }
 
                     this.m_panel = new Panel(p_x, p_y, Math.Min(act_width, ((int)(this.m_maxWidth.HasValue ? this.m_maxWidth : int.MaxValue)) ), Math.Min(act_height, ((int)(this.m_maxHeight.HasValue ? this.m_maxHeight : int.MaxValue))) );
                     if (!widthAssigned && !heightAssigned)
@@ -411,6 +421,7 @@ namespace monoswitch
                         this.m_panel.Children = new Widget[] { this.m_scroller };
                     }
                     this.Widgets = new Widget[] { this.m_panel };
+                    Console.WriteLine("the size is now w: " + this.m_panel.AbsoluteArea.Width + ", h: " + this.m_panel.AbsoluteArea.Height);
                     this.m_commited = true;
                     return true;
                 }

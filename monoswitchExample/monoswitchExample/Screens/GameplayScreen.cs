@@ -149,17 +149,17 @@ namespace monoswitchExample
                     this.m_timer = null;
                     //set up your selection set or nl_selectionset
                     Skin skin = new Skin(this.m_game.ss_imgMap, this.m_game.ss_map);
-                    Text text = new Text(this.m_game.ss_font, Color.Black);
+                    Text text = new Text(this.m_game.ss_font, Color.White);
 
                     //do the selection set
                     this.m_selectSet = new selectionSet(this.m_game, skin, text);
-                    s_switch temp1 = new s_switch(10, 10, 50, "right", Keys.D);
+                    s_switch temp1 = new s_switch(10, 10, 150, "right", Keys.D);
                     switchNode temp1Node = new switchNode(temp1);
-                    s_switch temp2 = new s_switch(60, 10, 50, "up", Keys.W);
+                    s_switch temp2 = new s_switch(160, 10, 150, "up", Keys.W);
                     switchNode temp2Node = new switchNode(temp2);
-                    s_switch temp3 = new s_switch(110, 10, 50, "left", Keys.A);
+                    s_switch temp3 = new s_switch(310, 10, 150, "left", Keys.A);
                     switchNode temp3Node = new switchNode(temp3);
-                    s_switch temp4 = new s_switch(160, 10, 50, "down", Keys.S);
+                    s_switch temp4 = new s_switch(460, 10, 150, "down", Keys.S);
                     switchNode temp4Node = new switchNode(temp4);
                     temp1Node.addSuccessor(temp2Node);
                     temp2Node.addSuccessor(temp3Node);
@@ -167,7 +167,7 @@ namespace monoswitchExample
                     temp4Node.addSuccessor(temp1Node);
                     switchNode[] nodeArr = { temp1Node, temp2Node, temp3Node, temp4Node };
                     this.m_selectSet.assignNodes(nodeArr);
-                    this.m_selectSet.Commit(0, 0, 220, 60);
+                    this.m_selectSet.Commit(0, 0);
                     //do the nl selection set
                     this.m_nlss = null;
 
@@ -326,7 +326,7 @@ namespace monoswitchExample
                     //draw your timer
                     if (this.m_timer != null && this.m_timer.isActive)
                     {
-                        spriteBatch.DrawString(this.m_gameFont, this.m_timer.displayValue, new Vector2(this.ScreenManager.GraphicsDevice.Viewport.X, this.ScreenManager.GraphicsDevice.Viewport.Y), Color.Red);
+                        spriteBatch.DrawString(this.m_gameFont, this.m_timer.displayValue, new Vector2(this.ScreenManager.GraphicsDevice.Viewport.X, this.ScreenManager.GraphicsDevice.Viewport.Y +100), Color.Red);
                     }
                     spriteBatch.End();
                     // If the game is transitioning on or off, fade it out to black.
