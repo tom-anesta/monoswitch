@@ -162,14 +162,61 @@ namespace monoswitch
             #region public
 
                 //delegates
+
+                //events
+                public event KeyEventHandler sendKeyUp;
+                public event KeyEventHandler sendKeyDown;
+
                 //public void
-                public void respondKeyDown(Object o, KeyEventArgs e)
+                public void respondSwitchDown(s_switch val)
                 {
+                    //initialize variables
+                    List<Keys> kdList = new List<Keys>();
+                    List<Keys> kuList = new List<Keys>();
+
+                    //resolve logic
+
+                    //logig not done yet, just do this
+                    kdList.Add(val.controller);
+
+                    //resolve results by sending the keys
+                    while (kdList.Count > 0)
+                    {
+                        this.sendKeyDown(this, new KeyEventArgs(kdList[0]));
+                        kdList.RemoveAt(0);
+                    }
+                    while (kuList.Count > 0)
+                    {
+                        this.sendKeyUp(this, new KeyEventArgs(kuList[0]));
+                        kuList.RemoveAt(0);
+                    }
                 }
 
-                public void respondKeyUp(Object o, KeyEventArgs e)
+                public void respondSwitchUp(s_switch val)
                 {
+                    //initialize variables
+                    List<Keys> kdList = new List<Keys>();
+                    List<Keys> kuList = new List<Keys>();
 
+                    //resolve logic
+
+                    //logig not done yet, just do this
+                    kuList.Add(val.controller);
+
+                    //send the keys
+                    while (kdList.Count > 0)
+                    {
+                        if (this.sendKeyDown != null)
+                        {
+                            this.sendKeyDown(this, new KeyEventArgs(kdList[0]));
+                        }
+                        kdList.RemoveAt(0);
+                    }
+                    while (kuList.Count > 0)
+                    {
+                        this.sendKeyUp(this, new KeyEventArgs(kuList[0]));
+                        kuList.RemoveAt(0);
+                    }
                 }
 
             #endregion
@@ -451,6 +498,11 @@ namespace monoswitch
                     {
                         this.m_startingNode = starter;
                         this.m_currentNode = starter;
+                    }
+                    //after committing the items assign them this as thier parent
+                    foreach (switchNode sn in itemsToCommit)
+                    {
+                        sn.addParent(this);
                     }
                     this.m_msInMan.HoverWidget = this.m_currentNode.child;
                     this.m_commited = true;

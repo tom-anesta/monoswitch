@@ -60,6 +60,8 @@ namespace monoswitchExample
                 protected nl_SelectionSet m_nlss;
                 //need a reference to the game
                 protected exampleGame m_game;
+
+
                 
             #endregion
 
@@ -120,6 +122,7 @@ namespace monoswitchExample
                     this.m_selectSet = null;
                     this.m_nlss = null;
                     this.m_game = game;
+                    
                 }
 
                 /// <summary>
@@ -168,6 +171,8 @@ namespace monoswitchExample
                     switchNode[] nodeArr = { temp1Node, temp2Node, temp3Node, temp4Node };
                     this.m_selectSet.assignNodes(nodeArr);
                     this.m_selectSet.Commit(0, 0);
+                    this.m_selectSet.sendKeyDown += this.kdown;
+                    this.m_selectSet.sendKeyUp += this.kup;
                     //do the nl selection set
                     this.m_nlss = null;
 
@@ -224,7 +229,7 @@ namespace monoswitchExample
                     if (this.m_timer == null)
                     {
                         this.m_timer = new gameTimer();
-                        this.m_timer.set(gameTime, 12);
+                        this.m_timer.set(gameTime, 45);
                         //add your event handler
                         this.m_timer.timerComplete += this.respondTimerComplete;
                     }
@@ -296,17 +301,7 @@ namespace monoswitchExample
                     this.repopulateStars();//get more stars
                 }
 
-                private void UpdateCollision()
-                {
-                    // Do the collision between the player and the stars
-                    for (int i = 0; i < this.m_stars.Count; i++)
-                    {
-                        if (closeCircleIntersects(this.m_stars[i], this.m_player))
-                        {
-                            this.m_stars[i].active = false;
-                        }
-                    }
-                }
+                
                 /// <summary>
                 /// Draws the gameplay screen.
                 /// </summary>
@@ -619,6 +614,68 @@ namespace monoswitchExample
             #endregion
 
             #region private
+
+                private void UpdateCollision()
+                {
+                    // Do the collision between the player and the stars
+                    for (int i = 0; i < this.m_stars.Count; i++)
+                    {
+                        if (closeCircleIntersects(this.m_stars[i], this.m_player))
+                        {
+                            this.m_stars[i].active = false;
+                        }
+                    }
+                }
+
+                private void kdown(Object o, KeyEventArgs e)
+                {
+                    if (e.KeyCode == Keys.D)
+                    {
+                        Console.WriteLine("signalling right");
+                        this.m_player.dpressed = true;
+                    }
+                    else if (e.KeyCode == Keys.W)
+                    {
+                        Console.WriteLine("signalling up");
+                        this.m_player.wpressed = true;
+                    }
+                    else if (e.KeyCode == Keys.A)
+                    {
+                        Console.WriteLine("signalling left");
+                        this.m_player.apressed = true;
+                    }
+                    else if (e.KeyCode == Keys.S)
+                    {
+                        Console.WriteLine("signalling down");
+                        this.m_player.spressed = true;
+                    }
+
+                }
+
+                private void kup(Object o, KeyEventArgs e)
+                {
+                    if (e.KeyCode == Keys.D)
+                    {
+                        Console.WriteLine("signalling no longer right");
+                        this.m_player.dpressed = false;
+                    }
+                    else if (e.KeyCode == Keys.W)
+                    {
+                        Console.WriteLine("signalling no longer up");
+                        this.m_player.wpressed = false;
+                    }
+                    else if (e.KeyCode == Keys.A)
+                    {
+                        Console.WriteLine("signalling no longer left");
+                        this.m_player.apressed = false;
+                    }
+                    else if (e.KeyCode == Keys.S)
+                    {
+                        Console.WriteLine("signalling no longer down");
+                        this.m_player.spressed = false;
+                    }
+
+                }
 
             #endregion
 

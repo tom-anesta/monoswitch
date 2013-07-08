@@ -47,6 +47,12 @@ namespace monoswitchExample.game
                 protected Viewport m_port;
                 protected float m_radius;
 
+                //for control
+                protected bool m_dpressed;
+                protected bool m_wpressed;
+                protected bool m_apressed;
+                protected bool m_spressed;
+
             #endregion
 
             #region private
@@ -165,6 +171,37 @@ namespace monoswitchExample.game
                         return this.m_radius;
                     }
                 }
+                
+                //for control
+
+                public bool dpressed
+                {
+                    set
+                    {
+                        this.m_dpressed = value;
+                    }
+                }
+                public bool wpressed
+                {
+                    set
+                    {
+                        this.m_wpressed = value;
+                    }
+                }
+                public bool apressed
+                {
+                    set
+                    {
+                        this.m_apressed = value;
+                    }
+                }
+                public bool spressed
+                {
+                    set
+                    {
+                        this.m_spressed = value;
+                    }
+                }
 
             #endregion
 
@@ -222,6 +259,10 @@ namespace monoswitchExample.game
                     this.m_playerDirection = directions.right;
                     this.m_rotationAngle = 0;
                     this.m_radius = (int) (Math.Sqrt(Math.Pow(this.Height, 2) + Math.Pow(this.Width, 2)) / 2);
+                    this.m_dpressed = false;
+                    this.m_wpressed = false;
+                    this.m_apressed = false;
+                    this.m_spressed = false;
                 }
 
                 public void Update(GameTime gameTime)
@@ -386,19 +427,19 @@ namespace monoswitchExample.game
                     Vector2 movement = Vector2.Zero;
                     if (k_state != null)
                     {
-                        if (k_state.IsKeyDown(Keys.Left) && !k_state.IsKeyDown(Keys.Right))
+                        if ( (k_state.IsKeyDown(Keys.Left) && !k_state.IsKeyDown(Keys.Right) ) || ( this.m_apressed && !this.m_dpressed) )
                         {
                             hval = 0;
                         }
-                        if (k_state.IsKeyDown(Keys.Right) && !k_state.IsKeyDown(Keys.Left))
+                        else if( (k_state.IsKeyDown(Keys.Right) && !k_state.IsKeyDown(Keys.Left) ) || ( this.m_dpressed && !this.m_apressed ) )
                         {
                             hval = 2;
                         }
-                        if (k_state.IsKeyDown(Keys.Up) && !k_state.IsKeyDown(Keys.Down))
+                        if ( (k_state.IsKeyDown(Keys.Up) && !k_state.IsKeyDown(Keys.Down)) || (this.m_wpressed && !this.m_spressed) )
                         {
                             vval = 2;
                         }
-                        if (k_state.IsKeyDown(Keys.Down) && !k_state.IsKeyDown(Keys.Up))
+                        else if ( (k_state.IsKeyDown(Keys.Down) && !k_state.IsKeyDown(Keys.Up)) || (this.m_spressed && ! this.m_wpressed) )
                         {
                             vval = 0;
                         }

@@ -74,10 +74,6 @@ namespace monoswitch
                         }
                         return rVal;
                     }
-                    set//read only
-                    {
-                        return;
-                    }
                 }
 
                 public List<switchNode> predecessors
@@ -91,10 +87,6 @@ namespace monoswitch
                         }
                         return rVal;
                     }
-                    set//read only
-                    {
-                        return;
-                    }
                 }
 
                 public List<selectionSet> parents
@@ -107,10 +99,6 @@ namespace monoswitch
                             rVal.Add(ss);
                         }
                         return rVal;
-                    }
-                    set
-                    {
-                        return;//read only
                     }
                 }
 
@@ -234,23 +222,6 @@ namespace monoswitch
                     this.m_commited = false;
                     return this.m_commited;
                 }
-                /*
-                foreach (switchNode sn in this.m_successors)//check for self-references
-                {
-                    if(sn == this)
-                    {
-                        return this.m_commited;
-                    }
-                }
-                foreach (switchNode sn in this.m_predecessors)//check for self-references
-                {
-                    if(sn == this)
-                    {
-                        this.m_commited = false;
-                        return this.m_commited;
-                    }
-                }
-                */
                 if (!this.m_child.commit())
                 {
                     this.m_commited = false;
@@ -487,25 +458,29 @@ namespace monoswitch
 
             public Boolean addParent(selectionSet p_val)
             {
-                if(this.m_parents.Contains(p_val))
+                if(this.m_parents.Contains(p_val) || this.child == null)
                 {
                     return false;
                 }
                 //add to the list
                 this.m_parents.Add(p_val);
                 //add event handlers
+                this.child.OnToggle += p_val.respondSwitchDown;
+                this.child.OffToggle += p_val.respondSwitchUp;
                 //return
                 return true;
             }
 
             public Boolean removeParent(selectionSet p_val)
             {
-                if (!this.m_parents.Contains(p_val))
+                if (!this.m_parents.Contains(p_val) || this.child == null)
                 {
                     return false;
                 }
                 int index = this.m_parents.IndexOf(p_val);
                 //remove event handlers
+                this.child.OffToggle -= p_val.respondSwitchUp;
+                this.child.OnToggle -= p_val.respondSwitchDown;
                 //remove the item
                 this.m_parents.RemoveAt(index);
                 //return

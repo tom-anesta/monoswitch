@@ -17,7 +17,6 @@ namespace monoswitch.content
 {
 
     public delegate void switchEvent(s_switch sender);
-    public delegate void monoSwitchKeyEvent(List<Keys> kList, List<KeyState> sList);
 
     public class s_switch: Ruminate.GUI.Framework.WidgetBase<Ruminate.GUI.Content.ButtonRenderRule>//standard switch.
     {//reproduce functionality of toggle button
@@ -158,16 +157,6 @@ namespace monoswitch.content
 
                 public event switchEvent OnToggle;
                 public event switchEvent OffToggle;
-
-
-                /*
-                protected internal override void EnterPressed()
-                {
-                }
-                protected internal override void ExitPressed()
-                {
-                }
-                */
 
                 protected internal new virtual void EnterHover()
                 {
@@ -391,7 +380,6 @@ namespace monoswitch.content
             {
                 if (!this.switchedOn)
                 {
-                    Console.WriteLine("entering hover");
                     RenderRule.Mode = ButtonRenderRule.RenderMode.Hover;
                 }
             }
