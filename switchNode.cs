@@ -330,11 +330,19 @@ namespace monoswitch
                     {
                         if (sn == val)//if already present
                         {
+                            if (this.intendedSuccessor == null)
+                            {
+                                this.intendedSuccessor = val;
+                            }
                             return true;
                         }
                     }
                     this.m_successors.Add(val);
                     val.addPredecessor(this);
+                    if (this.intendedSuccessor == null)
+                    {
+                        this.intendedSuccessor = val;
+                    }
                     return true;
                 }
                 return false;
@@ -350,10 +358,18 @@ namespace monoswitch
                 {
                     if (this.m_successors[index] == val)//if already present
                     {
+                        if (this.intendedSuccessor == null)
+                        {
+                            this.intendedSuccessor = val;
+                        }
                         return true;
                     }
                     this.m_successors.Insert(index, val);
                     val.addPredecessor(this);
+                    if (this.intendedSuccessor == null)
+                    {
+                        this.intendedSuccessor = val;
+                    }
                     return true;
                 }
                 if (val != null && index >= 0)
@@ -361,10 +377,20 @@ namespace monoswitch
                     foreach (switchNode sn in this.m_successors)
                     {
                         if (sn == val)//if already present
+                        {
+                            if (this.intendedSuccessor == null)
+                            {
+                                this.intendedSuccessor = val;
+                            }
                             return true;
+                        }
                     }
                     this.m_successors.Add(val);
                     val.addPredecessor(this);
+                    if (this.intendedSuccessor == null)
+                    {
+                        this.intendedSuccessor = val;
+                    }
                     return true;
                 }
                 return false;
@@ -382,6 +408,7 @@ namespace monoswitch
                         if (tempNode.commited)
                             return false;
                         this.m_predecessors.RemoveAt(i);
+                        
                         tempNode.removeSuccessor(this);
                         return true;
                     }
@@ -415,6 +442,17 @@ namespace monoswitch
                         if (tempNode.commited)
                             return false;
                         this.m_successors.RemoveAt(i);
+                        if (this.intendedSuccessor == val)
+                        {
+                            if (this.m_successors.Count == 0)
+                            {
+                                this.intendedSuccessor = null;
+                            }
+                            else
+                            {
+                                this.intendedSuccessor = this.m_successors[0];
+                            }
+                        }
                         tempNode.removePredecessor(this);
                         return true;
                     }
@@ -432,6 +470,17 @@ namespace monoswitch
                 if (tempNode.commited)
                     return false;
                 this.m_successors.RemoveAt(index);
+                if (this.intendedSuccessor == tempNode)
+                {
+                    if (this.m_successors.Count == 0)
+                    {
+                        this.intendedSuccessor = null;
+                    }
+                    else
+                    {
+                        this.intendedSuccessor = this.m_successors[0];
+                    }
+                }
                 tempNode.removePredecessor(this);
                 return true;
             }

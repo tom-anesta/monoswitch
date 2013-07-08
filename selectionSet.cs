@@ -50,6 +50,7 @@ namespace monoswitch
                 protected Keys m_signalKey;
                 protected KeyState m_signalState;
                 //the input manager
+                protected msInputManager m_msInMan;
                 //elements
                 protected Panel m_panel;
                 protected ScrollBars m_scroller;
@@ -196,9 +197,13 @@ namespace monoswitch
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    //handle fixing the input
+                    this.m_msInMan = new msInputManager(p_game, this.Dom);
+                    this.InputManager = null;//remove the input manager
+
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, selectionSet.DEFAULT_SCANNINGRATE);
                     this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
-                    this.m_cutoffTime = 0;
+                    this.m_cutoffTime = int.MaxValue;
                     this.m_refractoryPeriod = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_timeToRefract = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_beginnings = new List<switchNode>();
@@ -215,6 +220,9 @@ namespace monoswitch
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, TimeSpan p_scanR, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    //handle fixing the input
+                    this.m_msInMan = new msInputManager(p_game, this.Dom);
+                    this.InputManager = null;//remove the input manager
                     
                     if((int)p_scanR.TotalMilliseconds >= selectionSet.DEFAULT_MIN_SCANNINGRATE)
                     {
@@ -225,7 +233,7 @@ namespace monoswitch
                         this.m_scanningRate = new TimeSpan(0, 0, 0, 0, selectionSet.DEFAULT_SCANNINGRATE);
                     }
                     this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
-                    this.m_cutoffTime = 0;
+                    this.m_cutoffTime = int.MaxValue;
                     this.m_refractoryPeriod = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_timeToRefract = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_beginnings = new List<switchNode>();
@@ -244,12 +252,16 @@ namespace monoswitch
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, int p_scanR, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    //handle fixing the input
+                    this.m_msInMan = new msInputManager(p_game, this.Dom);
+                    this.InputManager = null;//remove the input manager
+
                     if (p_scanR >= selectionSet.DEFAULT_MIN_SCANNINGRATE)
                     {
                         this.m_scanningRate = new TimeSpan(0, 0, 0, 0, p_scanR);
                     }
                     this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
-                    this.m_cutoffTime = 0;
+                    this.m_cutoffTime = int.MaxValue;
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
                     this.m_commited = false;
@@ -267,28 +279,28 @@ namespace monoswitch
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     switchNode[] arr = p_intendedNodes.ToArray();
-                    delayedArrayConstructor(arr, p_scanR);
+                    delayedArrayConstructor(p_game, arr, p_scanR);
                 }
 
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IList<switchNode> p_intendedNodes, int p_scanR = 0, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     switchNode[] arr = p_intendedNodes.ToArray();
-                    delayedArrayConstructor(arr, p_scanR);
+                    delayedArrayConstructor(p_game, arr, p_scanR);
                 }
 
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IEnumerable<switchNode> p_intendedNodes, TimeSpan p_scanR, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     switchNode[] arr = p_intendedNodes.ToArray();
-                    delayedArrayConstructor(arr, p_scanR);
+                    delayedArrayConstructor(p_game, arr, p_scanR);
                 }
 
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IList<switchNode> p_intendedNodes, TimeSpan p_scanR, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     switchNode[] arr = p_intendedNodes.ToArray();
-                    delayedArrayConstructor(arr, p_scanR);
+                    delayedArrayConstructor(p_game, arr, p_scanR);
                 }
 
                 public selectionSet( Game p_game, Skin p_defaultSkin, Text p_defaultText, switchNode[] p_intendedNodes, int p_scanR, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null )
@@ -299,7 +311,7 @@ namespace monoswitch
                         this.m_scanningRate = new TimeSpan(0, 0, 0, 0, p_scanR);
                     }
                     this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
-                    this.m_cutoffTime = 0;
+                    this.m_cutoffTime = int.MaxValue;
                     this.m_refractoryPeriod = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_timeToRefract = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_beginnings = new List<switchNode>();
@@ -333,7 +345,7 @@ namespace monoswitch
                         this.m_scanningRate = p_scanR;
                     }
                     this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
-                    this.m_cutoffTime = 0;
+                    this.m_cutoffTime = int.MaxValue;
                     this.m_refractoryPeriod = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_timeToRefract = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_beginnings = new List<switchNode>();
@@ -361,9 +373,9 @@ namespace monoswitch
 
                 //INITIALIZE
 
-                public virtual bool Commit(int p_x, int p_y, int? p_width = null, int? p_height = null)
+                public virtual bool Commit(int p_x, int p_y, switchNode starter = null, int? p_width = null, int? p_height = null)
                 {
-                    Console.WriteLine("committing now");
+                    //Console.WriteLine("committing now");
                     int act_width = 0;
                     int act_height = 0;
                     bool widthAssigned = false;
@@ -421,7 +433,14 @@ namespace monoswitch
                         this.m_panel.Children = new Widget[] { this.m_scroller };
                     }
                     this.Widgets = new Widget[] { this.m_panel };
-                    Console.WriteLine("the size is now w: " + this.m_panel.AbsoluteArea.Width + ", h: " + this.m_panel.AbsoluteArea.Height);
+                    //Console.WriteLine("the size is now w: " + this.m_panel.AbsoluteArea.Width + ", h: " + this.m_panel.AbsoluteArea.Height);
+                    //assign the current node to the inputmanager
+                    if (starter != null && this.m_beginnings.Contains(starter))
+                    {
+                        this.m_startingNode = starter;
+                        this.m_currentNode = starter;
+                    }
+                    this.m_msInMan.HoverWidget = this.m_currentNode.child;
                     this.m_commited = true;
                     return true;
                 }
@@ -436,7 +455,8 @@ namespace monoswitch
                     {
                         return;
                     }
-                    int pref_time = ((int)this.m_currentNode.child.scanningRate.TotalMilliseconds > selectionSet.DEFAULT_MIN_SCANNINGRATE) ? (int)this.m_currentNode.child.scanningRate.TotalMilliseconds : (int)this.m_scanningRate.TotalMilliseconds;
+                    int pref_time = Math.Min(this.m_cutoffTime, ((int)this.m_currentNode.child.scanningRate.TotalMilliseconds > selectionSet.DEFAULT_MIN_SCANNINGRATE) ? (int)this.m_currentNode.child.scanningRate.TotalMilliseconds : (int)this.m_scanningRate.TotalMilliseconds);
+                    Console.WriteLine("the pref time at start is " + pref_time);
                     this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, pref_time);
                 }
 
@@ -456,7 +476,7 @@ namespace monoswitch
                         return;
                     }
                     this.m_currentNode = this.m_startingNode;
-                    this.m_cutoffTime = 0;
+                    this.m_cutoffTime = int.MaxValue;
                     this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
                 }
 
@@ -465,6 +485,10 @@ namespace monoswitch
                     this.Reset();
                     this.Start();
                 }
+
+                //handle the advance
+
+                
 
                 //update functions
                 public void UpdateByTime(GameTime gametime)
@@ -482,7 +506,21 @@ namespace monoswitch
                             (node.Data as s_switch).UpdateByTime(gametime);
                         });
                     }
-
+                    //now let's update the clock
+                    double result = this.m_timeToAdvance.TotalMilliseconds - gametime.ElapsedGameTime.TotalMilliseconds;
+                    while (result <= 0)
+                    {
+                        this.advance();
+                        if ((int)this.m_currentNode.child.scanningRate.TotalMilliseconds > selectionSet.DEFAULT_MIN_SCANNINGRATE)//then we want to use that scanning rate
+                        {
+                            result += (int)this.m_currentNode.child.scanningRate.TotalMilliseconds;
+                        }
+                        else
+                        {
+                            result += (int)this.m_scanningRate.TotalMilliseconds;//use the selection set rate
+                        }
+                    }
+                    this.m_timeToAdvance = new TimeSpan((long)result*TimeSpan.TicksPerMillisecond);
                 }
                 
 
@@ -641,8 +679,12 @@ namespace monoswitch
 
             #region protected
 
-                protected void delayedArrayConstructor(switchNode[] p_intendedNodes, int p_scanR)
+                protected void delayedArrayConstructor(Game p_game, switchNode[] p_intendedNodes, int p_scanR)
                 {
+                    //handle fixing the input
+                    this.m_msInMan = new msInputManager(p_game, this.Dom);
+                    this.InputManager = null;//remove the input manager
+
                     if (p_scanR >= selectionSet.DEFAULT_MIN_SCANNINGRATE)
                     {
                         this.m_scanningRate = new TimeSpan(0, 0, 0, 0, p_scanR);
@@ -666,8 +708,12 @@ namespace monoswitch
                     this.m_commited = false;
                 }
 
-                protected void delayedArrayConstructor(switchNode[] p_intendedNodes, TimeSpan p_scanR)
+                protected void delayedArrayConstructor(Game p_game, switchNode[] p_intendedNodes, TimeSpan p_scanR)
                 {
+                    //handle fixing the input
+                    this.m_msInMan = new msInputManager(p_game, this.Dom);
+                    this.InputManager = null;//remove the input manager
+
                     if (p_scanR.Milliseconds >= selectionSet.DEFAULT_MIN_SCANNINGRATE && p_scanR.Seconds == 0 && p_scanR.Minutes == 0 && p_scanR.Hours == 0 && p_scanR.Days == 0)
                     {
                         this.m_scanningRate = p_scanR;
@@ -689,6 +735,12 @@ namespace monoswitch
                     this.m_maxHeight = null;
                     this.m_maxWidth = null;
                     this.m_commited = false;
+                }
+
+                protected void advance()//int sliced
+                {
+                    this.m_currentNode = this.m_currentNode.intendedSuccessor;
+                    this.m_msInMan.HoverWidget = this.m_currentNode.child;
                 }
 
             #endregion

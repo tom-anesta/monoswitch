@@ -13,7 +13,7 @@ namespace monoswitch
 {
     //this class is a replication of the ruminate input manager class.  
     //the input manager class automatically focused and selected widged based on mouse movements.  we want to work based on key presses
-    class msInputManager
+    public class msInputManager
     {
 
         #region members_memberlike_properties
@@ -52,13 +52,13 @@ namespace monoswitch
 
             #region internal
 
-                internal s_switch HoverWidget
+                public s_switch HoverWidget
                 {
                     get
                     {
                         return _hoverWidget;
                     }
-                    private set
+                    set
                     {
                         if (value == _hoverWidget)
                         {

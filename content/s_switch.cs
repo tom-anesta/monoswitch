@@ -401,6 +401,7 @@ namespace monoswitch.content
             {
                 if (!this.switchedOn)
                 {
+                    Console.WriteLine("entering hover");
                     RenderRule.Mode = ButtonRenderRule.RenderMode.Hover;
                 }
             }
