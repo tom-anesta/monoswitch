@@ -234,7 +234,7 @@ namespace monoswitch
                     this.m_commited = false;
                     return this.m_commited;
                 }
-                
+                /*
                 foreach (switchNode sn in this.m_successors)//check for self-references
                 {
                     if(sn == this)
@@ -250,6 +250,7 @@ namespace monoswitch
                         return this.m_commited;
                     }
                 }
+                */
                 if (!this.m_child.commit())
                 {
                     this.m_commited = false;
@@ -259,9 +260,7 @@ namespace monoswitch
                 return this.m_commited;
             }
 
-            
-
-            //UPDATE         
+            //UPDATE
 
             //OTHER PUBLIC FUNCTIONS
 
@@ -437,22 +436,36 @@ namespace monoswitch
                 return true;
             }
 
+            public Boolean addParent(selectionSet p_val)
+            {
+                if(this.m_parents.Contains(p_val))
+                {
+                    return false;
+                }
+                //add to the list
+                this.m_parents.Add(p_val);
+                //add event handlers
+                //return
+                return true;
+            }
+
+            public Boolean removeParent(selectionSet p_val)
+            {
+                if (!this.m_parents.Contains(p_val))
+                {
+                    return false;
+                }
+                int index = this.m_parents.IndexOf(p_val);
+                //remove event handlers
+                //remove the item
+                this.m_parents.RemoveAt(index);
+                //return
+                return true;
+            }
+
             
 
-        /*
-        -removeIn(switchNode):switchNode
-        -input: the switchNode that we want to remove from the in vector
-        -output: the 
-        -removeInAt(unsigned integer):switchNode
-        -input the index from which we want to remove from
-        -output: the switchNode that was removed if success, null otherwise
-        -removeOut(switchNode):switchNode
-        -input: the switchNode that you want to remove
-        -output: the switchNode that was removed if success
-        -removeOutAt(unsigned integer):switchNode
-        -input: the index from which you want to remove a switchNode
-        -output: the switchNode that was removed if success 
-        */
+
 
             #endregion
 

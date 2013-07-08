@@ -150,8 +150,27 @@ namespace monoswitchExample
                     //set up your selection set or nl_selectionset
                     Skin skin = new Skin(this.m_game.ss_imgMap, this.m_game.ss_map);
                     Text text = new Text(this.m_game.ss_font, Color.Black);
+
+                    //do the selection set
                     this.m_selectSet = new selectionSet(this.m_game, skin, text);
+                    s_switch temp1 = new s_switch(10, 10, 50, "right", Keys.D);
+                    switchNode temp1Node = new switchNode(temp1);
+                    s_switch temp2 = new s_switch(60, 10, 50, "up", Keys.W);
+                    switchNode temp2Node = new switchNode(temp2);
+                    s_switch temp3 = new s_switch(110, 10, 50, "left", Keys.A);
+                    switchNode temp3Node = new switchNode(temp3);
+                    s_switch temp4 = new s_switch(160, 10, 50, "down", Keys.S);
+                    switchNode temp4Node = new switchNode(temp4);
+                    temp1Node.addSuccessor(temp2Node);
+                    temp2Node.addSuccessor(temp3Node);
+                    temp3Node.addSuccessor(temp4Node);
+                    temp4Node.addSuccessor(temp1Node);
+                    switchNode[] nodeArr = { temp1Node, temp2Node, temp3Node, temp4Node };
+                    this.m_selectSet.assignNodes(nodeArr);
+                    this.m_selectSet.Commit(0, 0, 220, 60);
+                    //do the nl selection set
                     this.m_nlss = null;
+
                     // A real game would probably have more content than this sample, so
                     // it would take longer to load. We simulate that by delaying for a
                     // while, giving you a chance to admire the beautiful loading screen.

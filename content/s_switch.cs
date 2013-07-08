@@ -264,6 +264,27 @@ namespace monoswitch.content
                 this.m_controllers = new List<Keys>();
                 this.m_commited = false;
             }
+
+            public s_switch(int x, int y, string label, Keys controllerValue, int padding = 2)
+                : this(x, y, label, padding)
+            {
+                this.m_controllers.Add(controllerValue);
+            }
+
+            public s_switch(int x, int y, string label, TimeSpan scanR, int padding = 2)
+                : this(x, y, label, padding)
+            {
+                this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
+            }
+
+            //int not allowed as an input due to padding
+            public s_switch(int x, int y, string label, Keys controllerValue, TimeSpan scanR, int padding = 2)
+                : this(x, y, label, padding)
+            {
+                this.m_controllers.Add(controllerValue);
+                this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
+            }
+
             /// <summary>
             /// Creates a new button at the location specified. The button defaults to
             /// the height of the RenderRule and width of the label.
@@ -287,6 +308,39 @@ namespace monoswitch.content
                 this.m_controllers = new List<Keys>();
                 this.m_commited = false;
             }
+
+            public s_switch(int x, int y, int width, string label, Keys controllerValue)
+                : this(x, y, width, label)
+            {
+                this.m_controllers.Add(controllerValue);
+            }
+
+            public s_switch(int x, int y, int width, string label, TimeSpan scanR)
+                :this(x, y, width, label)
+            {
+                this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
+            }
+
+            public s_switch(int x, int y, int width, string label, int scanR)
+                :this(x, y, width, label)
+            {
+                this.m_scanningRate = new TimeSpan(0, 0, 0, 0, Math.Abs(scanR));
+            }
+
+            public s_switch(int x, int y, int width, string label, Keys controllerValue, TimeSpan scanR)
+                :this(x, y, width, label)
+            {
+                this.m_controllers.Add(controllerValue);
+                this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
+            }
+
+            public s_switch(int x, int y, int width, string label, Keys controllerValue, int scanR)
+                : this(x, y, width, label)
+            {
+                this.m_controllers.Add(controllerValue);
+                this.m_scanningRate = new TimeSpan(0, 0, 0, 0, Math.Abs(scanR));
+            }
+
 
             //INITIALIZATION FUNCTIONS
 

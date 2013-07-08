@@ -377,6 +377,17 @@ namespace monoswitch
                         this.m_commited = false;
                         return false;
                     }
+                    foreach (switchNode item in itemsToCommit)
+                    {
+                        if (!item.commit())
+                        {
+                            this.m_scroller = null;
+                            this.m_panel = null;
+                            this.m_commited = false;
+                            return false;
+                        }
+                    }
+
                     Widget[] itemsToAdd = itemsToCommit.Select(x=>x.child).ToArray();
                     if (p_width.HasValue)
                     {
@@ -466,6 +477,42 @@ namespace monoswitch
 
                 //virtual functions
 
+                public virtual bool assignNodes(switchNode[] arr, int endStartsNI = 0, int beginsEndsI = 0)
+                {
+                    if (isValidList(arr, endStartsNI, beginsEndsI))
+                    {//will already check for bounds errors
+                        this.m_beginnings = new List<switchNode>();
+                        this.m_endings = new List<switchNode>();
+                        int s = 1;
+                        int e = arr.Length-1;
+                        if(endStartsNI != 0)
+                        {
+                            s = endStartsNI;
+                        }
+                        if(beginsEndsI != 0)
+                        {
+                            e = beginsEndsI;
+                        }
+                        int index = 0;
+                        while (index < s)
+                        {
+                            this.m_beginnings.Add(arr[index]);
+                            index++;
+                        }
+                        index = e;
+                        while (index < arr.Length)
+                        {
+                            this.m_endings.Add(arr[index]);
+                            index++;
+                        }
+                        this.m_startingNode = this.m_beginnings[0];
+                        this.m_currentNode = this.m_beginnings[0];
+                        return true;
+                    }
+
+                    return false;
+                }
+
                 public virtual bool isValidList(switchNode[] testList, int endStartsNI = 0, int beginEndsI = 0)//override in subclasses with graph algorithms
                 {
                     if (testList == null || testList.Length < 1)
@@ -481,15 +528,15 @@ namespace monoswitch
                         }
                         return false;
                     }
-                    List<switchNode> compList = new List<switchNode>(testList.Length);
+                    List<switchNode> compList = new List<switchNode>();
                     switchNode s_root = testList[0];
                     switchNode s_last = s_root;
-                    compList[0] = s_root;
+                    compList.Insert(0, s_root);
                     int index = 1;
                     //can we iterate over?
                     while (s_root.successors.Count == 1 && s_root.predecessors.Count == 1 && ( (s_root = s_root.successors[0]).predecessors[0] == s_last && !(compList.Contains(s_root)) ) && index < testList.Length)
                     {
-                        compList[index] = s_root;
+                        compList.Insert(index, s_root);
                         s_last = s_root;
                         index++;
                     }//check to make sure it is full
