@@ -178,16 +178,6 @@ namespace monoswitch.content
                 {
                     this.deHighlight();
                 }
-
-                protected internal new virtual void KeyUp(KeyEventArgs e)
-                {
-
-                }
-
-                protected internal new virtual void KeyDown(KeyEventArgs e)
-                {
-
-                }
                 
 
             #endregion

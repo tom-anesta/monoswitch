@@ -152,7 +152,7 @@ namespace monoswitchExample
                     Text text = new Text(this.m_game.ss_font, Color.White);
 
                     //do the selection set
-                    this.m_selectSet = new selectionSet(this.m_game, skin, text);
+                    this.m_selectSet = new selectionSet(this.m_game, skin, text, Keys.E, KeyState.Down);
                     s_switch temp1 = new s_switch(10, 10, 150, "right", Keys.D);
                     switchNode temp1Node = new switchNode(temp1);
                     s_switch temp2 = new s_switch(160, 10, 150, "up", Keys.W);

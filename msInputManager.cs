@@ -28,6 +28,9 @@ namespace monoswitch
 
             #region protected
 
+                protected Keys m_signalKey;
+                protected KeyState m_signalState;
+
             #endregion
 
             #region private
@@ -170,8 +173,11 @@ namespace monoswitch
         // Ties into the events in InputSystem. Top events are asynchronous and
                 // used for state management. The rest of them are synchronous and used to
                 // trigger user specified event handlers.
-                internal msInputManager(Game game, Root<Widget> dom)
+                internal msInputManager(Game game, Root<Widget> dom, Keys signal, KeyState sigState)
                 {
+                    this.m_signalKey = signal;
+                    this.m_signalState = sigState;
+
                     _dom = dom;
                     InputSystem.Initialize(game.Window);
 
@@ -179,21 +185,27 @@ namespace monoswitch
                     //removing all code involving mousemove
 
                     /* ## Input Events to fire the focused widget's event handlers ## */
-                    InputSystem.KeyDown += delegate(Object o, KeyEventArgs e)
+                    if (this.m_signalState == KeyState.Down)
                     {
-                        if (HoverWidget != null)
+                        InputSystem.KeyDown += delegate(Object o, KeyEventArgs e)
                         {
-                            HoverWidget.KeyDown(e);
-                        }
-                    };
+                            if (HoverWidget != null && e.KeyCode == this.m_signalKey)
+                            {
+                                HoverWidget.toggleSwitch();
+                            }
+                        };
+                    }
+                    else if (this.m_signalState == KeyState.Up)
+                    {
+                        InputSystem.KeyUp += delegate(Object o, KeyEventArgs e)
+                        {
+                            if (HoverWidget != null && e.KeyCode == this.m_signalKey)
+                            {
+                                HoverWidget.toggleSwitch();
+                            }
+                        };
+                    }
 
-                    InputSystem.KeyUp += delegate(Object o, KeyEventArgs e)
-                    {
-                        if (HoverWidget != null)
-                        {
-                            HoverWidget.KeyUp(e);
-                        }
-                    };
                 }
 
             #endregion
