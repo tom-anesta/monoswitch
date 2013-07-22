@@ -9,7 +9,7 @@ using Microsoft.Xna;
 using Microsoft.Xna.Framework.Input;
 using monoswitch.content;
 
-namespace monoswitch
+namespace monoswitch.containers
 {
     public class selectionSet : Gui
     {

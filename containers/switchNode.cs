@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using monoswitch.content;
 
-namespace monoswitch
+namespace monoswitch.containers
 {
     public class switchNode
     {

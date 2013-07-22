@@ -18,6 +18,7 @@ using Microsoft.Xna.Framework.Input;
 using Ruminate.GUI.Framework;
 using monoswitchExample.game;
 using monoswitch;
+using monoswitch.containers;
 using monoswitch.content;
 #endregion
 

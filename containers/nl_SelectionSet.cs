@@ -10,7 +10,7 @@ using Ruminate.GUI.Content;
 using Ruminate.GUI.Framework;
 using monoswitch.content;
 
-namespace monoswitch
+namespace monoswitch.containers
 {
     public class nl_SelectionSet: selectionSet
     {
