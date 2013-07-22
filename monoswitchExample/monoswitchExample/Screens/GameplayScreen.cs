@@ -58,7 +58,7 @@ namespace monoswitchExample
                 //selection set
                 protected selectionSet m_selectSet;
                 //nl_selection set for future testing;
-                protected nl_SelectionSet m_nlss;
+                //protected nl_SelectionSet m_nlss;
                 //need a reference to the game
                 protected exampleGame m_game;
 
@@ -121,7 +121,7 @@ namespace monoswitchExample
                     this.m_inited = false;
                     this.m_timer = null;
                     this.m_selectSet = null;
-                    this.m_nlss = null;
+                    //this.m_nlss = null;
                     this.m_game = game;
                     
                 }
@@ -175,7 +175,7 @@ namespace monoswitchExample
                     this.m_selectSet.sendKeyDown += this.kdown;
                     this.m_selectSet.sendKeyUp += this.kup;
                     //do the nl selection set
-                    this.m_nlss = null;
+                    //this.m_nlss = null;
 
                     // A real game would probably have more content than this sample, so
                     // it would take longer to load. We simulate that by delaying for a
@@ -222,11 +222,13 @@ namespace monoswitchExample
                         this.m_selectSet.Update();
                         this.m_selectSet.UpdateByTime(gameTime);
                     }
+                    /*
                     if (this.m_nlss != null)
                     {
                         this.m_nlss.Update();
                         this.m_selectSet.UpdateByTime(gameTime);
                     }
+                    */
                     if (this.m_timer == null)
                     {
                         this.m_timer = new gameTimer();
@@ -331,11 +333,12 @@ namespace monoswitchExample
                     {
                         this.m_selectSet.Draw();
                     }
+                    /*
                     if (this.m_nlss != null)
                     {
                         this.m_nlss.Draw();
                     }
-
+                    */
                     if (this.m_transitionPosition > 0 || this.m_pauseAlpha > 0)
                     {
                         float alpha = MathHelper.Lerp(1f - TransitionAlpha, 1f, this.m_pauseAlpha / 2);

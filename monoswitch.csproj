@@ -55,11 +55,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="containers\KeyLogic.cs" />
     <Compile Include="content\composite_switch.cs" />
     <Compile Include="content\discretecomposite_switch.cs" />
     <Compile Include="content\discrete_switch.cs" />
     <Compile Include="msInputManager.cs" />
-    <Compile Include="containers\nl_SelectionSet.cs" />
     <Compile Include="containers\selectionSet.cs" />
     <Compile Include="containers\switchNode.cs" />
     <Compile Include="content\s_switch.cs" />
