@@ -153,7 +153,7 @@ namespace monoswitchExample
                     this.m_timer = null;
                     //set up your selection set or nl_selectionset
                     Skin skin = new Skin(this.m_game.ss_imgMap, this.m_game.ss_map);
-                    Text text = new Text(this.m_game.ss_font, Color.White);
+                    Text text = new Text(this.m_game.ss_font, Color.Green);
 
                     //do the selection set
                     this.m_selectSet = new selectionSet(this.m_game, skin, text, Keys.E, KeyState.Down);
