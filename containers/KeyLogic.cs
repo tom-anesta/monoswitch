@@ -10,13 +10,14 @@ namespace monoswitch.containers
 {
     public enum logics
     {
-        NOT, OR, AND, XOR, LEFT, RIGHT, BI
+        NOT, OR, AND, XOR, LEFT, RIGHT, BI, NONE
     }
 
     public enum methods
     {
         ACTIVATE, DEACTIVATE
     }
+
 
     public class KeyLogicRoot : KeyLogicNode
     {
@@ -113,7 +114,7 @@ namespace monoswitch.containers
 
     }
 
-    public class KeyLogicNode : Ruminate.DataStructures.TreeNode<KeyLogicDictionary>
+    public class KeyLogicNode : Ruminate.DataStructures.TreeNode<KeyGroup>
     {
 
         #region members_memberlike_properties
@@ -133,6 +134,10 @@ namespace monoswitch.containers
             #endregion
 
             #region protected
+
+                protected bool m_allowFalse;
+                protected logics m_log;
+                protected methods m_method;
 
             #endregion
 
@@ -161,6 +166,34 @@ namespace monoswitch.containers
                     }
                 }
 
+                public logics log
+                {
+                    get
+                    {
+                        return this.m_log;
+                    }
+                    set
+                    {
+                        this.m_log = value;
+                        this.DfsOperation(node => this.OnLogicChanged(node));
+                    }
+                }
+
+                public methods method
+                {
+                    get
+                    {
+                        return this.m_method;
+                    }
+                    set
+                    {
+                        this.m_method = value;
+                        this.DfsOperation(node => this.OnMethodChanged(node));
+                    }
+                }
+
+
+
             #endregion
 
             #region internal
@@ -180,6 +213,18 @@ namespace monoswitch.containers
         #region events
 
             #region public
+
+                public NodeOperation<KeyGroup> OnLogicChanged
+                {
+                    get;
+                    set;
+                }
+
+                public NodeOperation<KeyGroup> OnMethodChanged
+                {
+                    get;
+                    set;
+                }
 
             #endregion
 
@@ -202,9 +247,22 @@ namespace monoswitch.containers
             #region public
                 
                 //constructor
-                public KeyLogicNode(KeyLogicDictionary dat) : base(dat)
+                public KeyLogicNode(KeyGroup dat) : base(dat)
                 {
+                    this.m_allowFalse = true;
+                    this.m_log = logics.NONE;
+                    this.m_method = methods.DEACTIVATE;
                 }
+
+                public KeyLogicNode(KeyGroup dat, bool alfalse = true, logics lval = logics.NONE, methods mval = methods.DEACTIVATE) : this(dat)
+                {
+                    this.m_allowFalse = alfalse;
+                    this.m_log = lval;
+                    this.m_method = mval;
+                }
+
+                
+
                 
                 //statics
                 public static bool evaluate(bool left, logics? type, bool? right = null)
@@ -266,207 +324,6 @@ namespace monoswitch.containers
 
     }
 
-    public class KeyLogicDictionary : ITreeNode<KeyLogicDictionary>
-    {
 
-        #region members_memberlike_properties
-
-            #region public
-
-            #endregion
-
-            #region internal
-
-            #endregion
-
-            #region protected
-
-                protected TreeNode<KeyLogicDictionary> m_parent;
-                protected Dictionary<Keys, bool> m_dict;
-
-            #endregion
-
-            #region private
-
-            #endregion
-
-        #endregion
-
-        #region properties
-
-            #region public
-
-                public bool isTrue
-                {
-                    get
-                    {
-                        bool rVal = true;
-                        foreach (Keys kVal in this.m_dict.Keys)
-                        {
-                            if (!this.m_dict[kVal])
-                            {
-                                rVal = false;
-                                break;
-                            }
-                        }
-                        return rVal;
-                    }
-                }
-
-                public bool isFalse
-                {
-                    get
-                    {
-                        bool rVal = true;
-                        foreach (Keys kVal in this.m_dict.Keys)
-                        {
-                            if (this.m_dict[kVal])
-                            {
-                                rVal = false;
-                                break;
-                            }
-                        }
-                        return rVal;
-                    }
-                }
-
-                public bool isIndeterminate
-                {
-                    get
-                    {
-                        return (this.isTrue && this.isFalse);
-                    }
-                }
-
-            #endregion
-
-            #region internal
-
-            #endregion
-
-            #region protected
-
-            #endregion
-
-            #region private
-
-            #endregion
-
-        #endregion
-
-        #region events
-
-            #region public
-
-            #endregion
-
-            #region internal
-
-            #endregion
-
-            #region protected
-
-            #endregion
-
-            #region private
-
-            #endregion
-
-        #endregion
-
-        #region methods
-
-            #region public
-
-                //constructor
-                public KeyLogicDictionary()
-                {
-                    this.m_parent = null;
-                    this.m_dict = new Dictionary<Keys, bool>();
-                }
-
-                public TreeNode<KeyLogicDictionary> GetTreeNode()
-                {
-                    return this.m_parent;
-                }
-
-                public void add(Keys kVal)
-                {
-                    if (!this.m_dict.ContainsKey(kVal))
-                    {
-                        this.m_dict[kVal] = false;
-                    }
-                }
-
-                public void add(List<Keys> kList)
-                {
-                    foreach (Keys kVal in kList)
-                    {
-                        this.add(kVal);
-                    }
-                }
-
-                //control methods
-                public void deactivate(List<Keys> dVal)
-                {
-                    if (dVal.Count == 0)
-                    {
-                        foreach (Keys kv in this.m_dict.Keys)
-                        {
-                            this.m_dict[kv] = false;
-                        }
-                    }
-                    foreach (Keys kv in dVal)
-                    {
-                        if (this.m_dict.ContainsKey(kv))
-                        {
-                            this.m_dict[kv] = false;
-                        }
-                    }
-                }
-
-                public void activate(List<Keys> aVal)
-                {
-                    if (aVal.Count == 0)
-                    {
-                        foreach (Keys kv in this.m_dict.Keys)
-                        {
-                            this.m_dict[kv] = true;
-                        }
-                    }
-                    foreach (Keys kv in aVal)
-                    {
-                        if (this.m_dict.ContainsKey(kv))
-                        {
-                            this.m_dict[kv] = true;
-                        }
-                    }
-                }
-
-                
-
-            #endregion
-
-            #region internal
-
-            #endregion
-
-            #region protected
-
-            #endregion
-
-            #region private
-
-            #endregion
-
-        #endregion
-
-        
-
-        
-
-        
-
-    }
 
 }
