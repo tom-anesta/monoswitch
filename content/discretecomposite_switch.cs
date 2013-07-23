@@ -12,7 +12,9 @@ namespace monoswitch.content
 
             #region public
 
-            //delegates
+            #endregion
+
+            #region internal
 
             #endregion
 
@@ -29,6 +31,30 @@ namespace monoswitch.content
         #region properties
 
             #region public
+
+            #endregion
+
+            #region internal
+
+            #endregion
+
+            #region protected
+
+            #endregion
+
+            #region private
+
+            #endregion
+
+        #endregion
+
+        #region events
+
+            #region public
+
+            #endregion
+
+            #region internal
 
             #endregion
 
@@ -56,19 +82,7 @@ namespace monoswitch.content
 
             #endregion
 
-            #region protected
-
-            #endregion
-
-            #region private
-
-            #endregion
-
-        #endregion
-
-        #region events
-
-            #region public
+            #region internal
 
             #endregion
 
@@ -81,6 +95,8 @@ namespace monoswitch.content
             #endregion
 
         #endregion
+
+        
 
     }
 }

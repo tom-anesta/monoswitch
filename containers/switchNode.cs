@@ -15,21 +15,25 @@ namespace monoswitch.containers
 
             #endregion
 
+            #region internal
+
+            #endregion
+
             #region protected
+
+                protected s_switch m_child;
+                protected List<switchNode> m_successors;
+                protected List<switchNode> m_predecessors;
+                protected List<selectionSet> m_parents;//the selectionsets that use this switch node
+
+                protected switchNode m_lastPredecessor;//the last node that led into this one
+                protected switchNode m_lastSuccessor;//the last node that led out of this one.
+                protected switchNode m_intendedSuccessor;//where the node is currently pointing for next move
+                protected Boolean m_commited;//has the graph structure been committed?
 
             #endregion
 
             #region private
-
-                private s_switch m_child;
-                private List<switchNode> m_successors;
-                private List<switchNode> m_predecessors;
-                private List<selectionSet> m_parents;//the selectionsets that use this switch node
-
-                private switchNode m_lastPredecessor;//the last node that led into this one
-                private switchNode m_lastSuccessor;//the last node that led out of this one.
-                private switchNode m_intendedSuccessor;//where the node is currently pointing for next move
-                private Boolean m_commited;//has the graph structure been committed?
 
             #endregion
 
@@ -162,6 +166,10 @@ namespace monoswitch.containers
 
             #endregion
 
+            #region internal
+
+            #endregion
+
             #region protected
 
             #endregion
@@ -178,176 +186,156 @@ namespace monoswitch.containers
 
             //CONSTRUCTOR
 
-            public switchNode()
-            {
-                this.m_child = null;
-                this.m_lastPredecessor = null;
-                this.m_lastSuccessor = null;
-                this.m_intendedSuccessor = null;
-                this.m_predecessors = new List<switchNode>();
-                this.m_successors = new List<switchNode>();
-                this.m_parents = new List<selectionSet>();
-                this.m_commited = false;
-            }
-
-            public switchNode(s_switch val)
-            {
-                this.m_child = val;
-                this.m_lastPredecessor = null;
-                this.m_lastSuccessor = null;
-                this.m_intendedSuccessor = null;
-                this.m_predecessors = new List<switchNode>();
-                this.m_successors = new List<switchNode>();
-                this.m_parents = new List<selectionSet>();
-                this.m_commited = false;
-            }
-
-            //INITIALIZATION FUNCTIONS
-
-            //ends initialization
-            public Boolean commit()
-            {
-                if (this.m_child == null)//does this node contain anything?
+                public switchNode()
                 {
+                    this.m_child = null;
+                    this.m_lastPredecessor = null;
+                    this.m_lastSuccessor = null;
+                    this.m_intendedSuccessor = null;
+                    this.m_predecessors = new List<switchNode>();
+                    this.m_successors = new List<switchNode>();
+                    this.m_parents = new List<selectionSet>();
                     this.m_commited = false;
-                    return this.m_commited;
                 }
-                if(this.m_successors == null || this.m_successors.Count == 0)//check quant errors in successors
+
+                public switchNode(s_switch val)
                 {
+                    this.m_child = val;
+                    this.m_lastPredecessor = null;
+                    this.m_lastSuccessor = null;
+                    this.m_intendedSuccessor = null;
+                    this.m_predecessors = new List<switchNode>();
+                    this.m_successors = new List<switchNode>();
+                    this.m_parents = new List<selectionSet>();
                     this.m_commited = false;
-                    return this.m_commited;
                 }
-                if(this.m_predecessors == null || this.m_predecessors.Count == 0)//check quant errors in predecessors
-                {
-                    this.m_commited = false;
-                    return this.m_commited;
-                }
-                if (!this.m_child.commit())
-                {
-                    this.m_commited = false;
-                    return this.m_commited;
-                }
-                this.m_commited = true;
-                return this.m_commited;
-            }
 
-            //UPDATE
+                //INITIALIZATION FUNCTIONS
 
-            //OTHER PUBLIC FUNCTIONS
-
-            //for setting up the thing
-
-            public Boolean addPredecessor(switchNode val)
-            {
-                if (this.m_commited || val == null || val.commited)
+                //ends initialization
+                public Boolean commit()
                 {
-                    return false;
-                }
-                if (val != null)
-                {
-                    foreach (switchNode sn in this.m_predecessors)
+                    if (this.m_child == null)//does this node contain anything?
                     {
-                        if (sn == val)//if already present
-                        {
-                            return true;
-                        }
+                        this.m_commited = false;
+                        return this.m_commited;
                     }
-                    this.m_predecessors.Add(val);
-                    val.addSuccessor(this);
-                    return true;
-                }
-                return false;
-            }
-
-            public Boolean addPredecessorAt(switchNode val, int index)
-            {
-                if (this.m_commited || val == null || val.commited)
-                {
-                    return false;
-                }
-                if(val != null && index >= 0 && index < this.m_predecessors.Count)
-                {
-                    if (this.m_predecessors[index] == val)//if already present
+                    if(this.m_successors == null || this.m_successors.Count == 0)//check quant errors in successors
                     {
+                        this.m_commited = false;
+                        return this.m_commited;
+                    }
+                    if(this.m_predecessors == null || this.m_predecessors.Count == 0)//check quant errors in predecessors
+                    {
+                        this.m_commited = false;
+                        return this.m_commited;
+                    }
+                    if (!this.m_child.commit())
+                    {
+                        this.m_commited = false;
+                        return this.m_commited;
+                    }
+                    this.m_commited = true;
+                    return this.m_commited;
+                }
+
+                //UPDATE
+
+                //OTHER PUBLIC FUNCTIONS
+
+                //for setting up the thing
+
+                public Boolean addPredecessor(switchNode val)
+                {
+                    if (this.m_commited || val == null || val.commited)
+                    {
+                        return false;
+                    }
+                    if (val != null)
+                    {
+                        foreach (switchNode sn in this.m_predecessors)
+                        {
+                            if (sn == val)//if already present
+                            {
+                                return true;
+                            }
+                        }
+                        this.m_predecessors.Add(val);
+                        val.addSuccessor(this);
                         return true;
                     }
-                    this.m_predecessors.Insert(index, val);
-                    val.addSuccessor(this);
-                    return true;
-                }
-                if (val != null && index >= 0)
-                {
-                    foreach (switchNode sn in this.m_predecessors)
-                    {
-                        if (sn == val)//if already present
-                            return true;
-                    }
-                    this.m_predecessors.Add(val);
-                    val.addSuccessor(this);
-                    return true;
-                }
-                return false;
-            }
-
-            public Boolean addSuccessor(switchNode val)
-            {
-                if (this.m_commited || val == null || val.commited)
-                {
                     return false;
                 }
-                if (val != null)
+
+                public Boolean addPredecessorAt(switchNode val, int index)
                 {
-                    foreach (switchNode sn in this.m_successors)
+                    if (this.m_commited || val == null || val.commited)
                     {
-                        if (sn == val)//if already present
+                        return false;
+                    }
+                    if(val != null && index >= 0 && index < this.m_predecessors.Count)
+                    {
+                        if (this.m_predecessors[index] == val)//if already present
                         {
-                            if (this.intendedSuccessor == null)
-                            {
-                                this.intendedSuccessor = val;
-                            }
                             return true;
                         }
+                        this.m_predecessors.Insert(index, val);
+                        val.addSuccessor(this);
+                        return true;
                     }
-                    this.m_successors.Add(val);
-                    val.addPredecessor(this);
-                    if (this.intendedSuccessor == null)
+                    if (val != null && index >= 0)
                     {
-                        this.intendedSuccessor = val;
+                        foreach (switchNode sn in this.m_predecessors)
+                        {
+                            if (sn == val)//if already present
+                                return true;
+                        }
+                        this.m_predecessors.Add(val);
+                        val.addSuccessor(this);
+                        return true;
                     }
-                    return true;
-                }
-                return false;
-            }
-
-            public Boolean addSuccessorAt(switchNode val, int index)
-            {
-                if (this.m_commited || val == null || val.commited)
-                {
                     return false;
                 }
-                if (val != null && index >= 0 && index < this.m_successors.Count)
+
+                public Boolean addSuccessor(switchNode val)
                 {
-                    if (this.m_successors[index] == val)//if already present
+                    if (this.m_commited || val == null || val.commited)
                     {
+                        return false;
+                    }
+                    if (val != null)
+                    {
+                        foreach (switchNode sn in this.m_successors)
+                        {
+                            if (sn == val)//if already present
+                            {
+                                if (this.intendedSuccessor == null)
+                                {
+                                    this.intendedSuccessor = val;
+                                }
+                                return true;
+                            }
+                        }
+                        this.m_successors.Add(val);
+                        val.addPredecessor(this);
                         if (this.intendedSuccessor == null)
                         {
                             this.intendedSuccessor = val;
                         }
                         return true;
                     }
-                    this.m_successors.Insert(index, val);
-                    val.addPredecessor(this);
-                    if (this.intendedSuccessor == null)
-                    {
-                        this.intendedSuccessor = val;
-                    }
-                    return true;
+                    return false;
                 }
-                if (val != null && index >= 0)
+
+                public Boolean addSuccessorAt(switchNode val, int index)
                 {
-                    foreach (switchNode sn in this.m_successors)
+                    if (this.m_commited || val == null || val.commited)
                     {
-                        if (sn == val)//if already present
+                        return false;
+                    }
+                    if (val != null && index >= 0 && index < this.m_successors.Count)
+                    {
+                        if (this.m_successors[index] == val)//if already present
                         {
                             if (this.intendedSuccessor == null)
                             {
@@ -355,167 +343,191 @@ namespace monoswitch.containers
                             }
                             return true;
                         }
-                    }
-                    this.m_successors.Add(val);
-                    val.addPredecessor(this);
-                    if (this.intendedSuccessor == null)
-                    {
-                        this.intendedSuccessor = val;
-                    }
-                    return true;
-                }
-                return false;
-            }
-
-            public Boolean removePredecessor(switchNode val)
-            {
-                if (this.m_commited || val == null || val.commited)
-                    return false;
-                for (int i = 0; i < this.m_predecessors.Count; i++)
-                {
-                    if (this.m_predecessors[i] == val)
-                    {
-                        switchNode tempNode = this.m_successors[i];
-                        if (tempNode.commited)
-                            return false;
-                        this.m_predecessors.RemoveAt(i);
-                        
-                        tempNode.removeSuccessor(this);
+                        this.m_successors.Insert(index, val);
+                        val.addPredecessor(this);
+                        if (this.intendedSuccessor == null)
+                        {
+                            this.intendedSuccessor = val;
+                        }
                         return true;
                     }
-                }
-                return false;
-            }
-
-            public Boolean removePredecessorAt(int index)
-            {
-                if (this.m_commited)
-                    return false;
-                if (index >= this.m_predecessors.Count)
-                    return false;
-                switchNode tempNode = this.m_predecessors[index];
-                if (tempNode.commited)
-                    return false;
-                this.m_predecessors.RemoveAt(index);
-                tempNode.removeSuccessor(this);
-                return true;
-            }
-
-            public Boolean removeSuccessor(switchNode val)
-            {
-                if (this.m_commited || val == null || val.commited)
-                    return false;
-                for (int i = 0; i < this.m_successors.Count; i++)
-                {
-                    if (this.m_successors[i] == val)
+                    if (val != null && index >= 0)
                     {
-                        switchNode tempNode = this.m_successors[i];
-                        if (tempNode.commited)
-                            return false;
-                        this.m_successors.RemoveAt(i);
-                        if (this.intendedSuccessor == val)
+                        foreach (switchNode sn in this.m_successors)
                         {
-                            if (this.m_successors.Count == 0)
+                            if (sn == val)//if already present
                             {
-                                this.intendedSuccessor = null;
-                            }
-                            else
-                            {
-                                this.intendedSuccessor = this.m_successors[0];
+                                if (this.intendedSuccessor == null)
+                                {
+                                    this.intendedSuccessor = val;
+                                }
+                                return true;
                             }
                         }
-                        tempNode.removePredecessor(this);
+                        this.m_successors.Add(val);
+                        val.addPredecessor(this);
+                        if (this.intendedSuccessor == null)
+                        {
+                            this.intendedSuccessor = val;
+                        }
                         return true;
                     }
+                    return false;
                 }
-                return false;
-            }
 
-            public Boolean removeSuccessorAt(int index)
-            {
-                if (this.m_commited)
-                    return false;
-                if (index >= this.m_successors.Count)
-                    return false;
-                switchNode tempNode = this.m_successors[index];
-                if (tempNode.commited)
-                    return false;
-                this.m_successors.RemoveAt(index);
-                if (this.intendedSuccessor == tempNode)
+                public Boolean removePredecessor(switchNode val)
                 {
-                    if (this.m_successors.Count == 0)
+                    if (this.m_commited || val == null || val.commited)
+                        return false;
+                    for (int i = 0; i < this.m_predecessors.Count; i++)
                     {
-                        this.intendedSuccessor = null;
+                        if (this.m_predecessors[i] == val)
+                        {
+                            switchNode tempNode = this.m_successors[i];
+                            if (tempNode.commited)
+                                return false;
+                            this.m_predecessors.RemoveAt(i);
+                        
+                            tempNode.removeSuccessor(this);
+                            return true;
+                        }
                     }
-                    else
+                    return false;
+                }
+
+                public Boolean removePredecessorAt(int index)
+                {
+                    if (this.m_commited)
+                        return false;
+                    if (index >= this.m_predecessors.Count)
+                        return false;
+                    switchNode tempNode = this.m_predecessors[index];
+                    if (tempNode.commited)
+                        return false;
+                    this.m_predecessors.RemoveAt(index);
+                    tempNode.removeSuccessor(this);
+                    return true;
+                }
+
+                public Boolean removeSuccessor(switchNode val)
+                {
+                    if (this.m_commited || val == null || val.commited)
+                        return false;
+                    for (int i = 0; i < this.m_successors.Count; i++)
                     {
-                        this.intendedSuccessor = this.m_successors[0];
+                        if (this.m_successors[i] == val)
+                        {
+                            switchNode tempNode = this.m_successors[i];
+                            if (tempNode.commited)
+                                return false;
+                            this.m_successors.RemoveAt(i);
+                            if (this.intendedSuccessor == val)
+                            {
+                                if (this.m_successors.Count == 0)
+                                {
+                                    this.intendedSuccessor = null;
+                                }
+                                else
+                                {
+                                    this.intendedSuccessor = this.m_successors[0];
+                                }
+                            }
+                            tempNode.removePredecessor(this);
+                            return true;
+                        }
                     }
-                }
-                tempNode.removePredecessor(this);
-                return true;
-            }
-
-            public Boolean addParent(selectionSet p_val)
-            {
-                if(this.m_parents.Contains(p_val) || this.child == null)
-                {
                     return false;
                 }
-                //add to the list
-                this.m_parents.Add(p_val);
-                //add event handlers
-                this.child.OnToggle += p_val.respondSwitchDown;
-                this.child.OffToggle += p_val.respondSwitchUp;
-                //return
-                return true;
-            }
 
-            public Boolean removeParent(selectionSet p_val)
-            {
-                if (!this.m_parents.Contains(p_val) || this.child == null)
+                public Boolean removeSuccessorAt(int index)
                 {
-                    return false;
+                    if (this.m_commited)
+                        return false;
+                    if (index >= this.m_successors.Count)
+                        return false;
+                    switchNode tempNode = this.m_successors[index];
+                    if (tempNode.commited)
+                        return false;
+                    this.m_successors.RemoveAt(index);
+                    if (this.intendedSuccessor == tempNode)
+                    {
+                        if (this.m_successors.Count == 0)
+                        {
+                            this.intendedSuccessor = null;
+                        }
+                        else
+                        {
+                            this.intendedSuccessor = this.m_successors[0];
+                        }
+                    }
+                    tempNode.removePredecessor(this);
+                    return true;
                 }
-                int index = this.m_parents.IndexOf(p_val);
-                //remove event handlers
-                this.child.OffToggle -= p_val.respondSwitchUp;
-                this.child.OnToggle -= p_val.respondSwitchDown;
-                //remove the item
-                this.m_parents.RemoveAt(index);
-                //return
-                return true;
-            }
 
-            
+                public Boolean addParent(selectionSet p_val)
+                {
+                    if(this.m_parents.Contains(p_val) || this.child == null)
+                    {
+                        return false;
+                    }
+                    //add to the list
+                    this.m_parents.Add(p_val);
+                    //add event handlers
+                    this.child.OnToggle += p_val.respondSwitchDown;
+                    this.child.OffToggle += p_val.respondSwitchUp;
+                    //return
+                    return true;
+                }
 
-
+                public Boolean removeParent(selectionSet p_val)
+                {
+                    if (!this.m_parents.Contains(p_val) || this.child == null)
+                    {
+                        return false;
+                    }
+                    int index = this.m_parents.IndexOf(p_val);
+                    //remove event handlers
+                    this.child.OffToggle -= p_val.respondSwitchUp;
+                    this.child.OnToggle -= p_val.respondSwitchDown;
+                    //remove the item
+                    this.m_parents.RemoveAt(index);
+                    //return
+                    return true;
+                }
 
             #endregion
 
-        #region protected
+            #region internal
 
-        #endregion
+            #endregion
 
-        #region private
+            #region protected
 
-        #endregion
+            #endregion
+
+            #region private
+
+            #endregion
 
         #endregion
 
         #region events
 
-        #region public
+            #region public
 
-        #endregion
+            #endregion
 
-        #region protected
+            #region internal
 
-        #endregion
+            #endregion
 
-        #region private
+            #region protected
 
-        #endregion
+            #endregion
+
+            #region private
+
+            #endregion
 
         #endregion
 

@@ -11,7 +11,9 @@ namespace monoswitch.content
 
             #region public
 
-            //delegates
+            #endregion
+
+            #region internal
 
             #endregion
 
@@ -31,28 +33,7 @@ namespace monoswitch.content
 
             #endregion
 
-            #region protected
-
-            #endregion
-
-            #region private
-
-            #endregion
-
-        #endregion
-
-        #region methods
-
-            #region public
-
-            //CONSTRUCTOR
-
-            //INITIALIZATION FUNCTIONS
-
-            //UPDATE         
-
-            //OTHER PUBLIC FUNCTIONS
-
+            #region internal
 
             #endregion
 
@@ -72,6 +53,10 @@ namespace monoswitch.content
 
             #endregion
 
+            #region internal
+
+            #endregion
+
             #region protected
 
             #endregion
@@ -81,6 +66,37 @@ namespace monoswitch.content
             #endregion
 
         #endregion
+
+        #region methods
+
+        #region public
+
+        //CONSTRUCTOR
+
+            //INITIALIZATION FUNCTIONS
+
+            //UPDATE         
+
+            //OTHER PUBLIC FUNCTIONS
+
+
+            #endregion
+
+            #region internal
+
+            #endregion
+
+            #region protected
+
+            #endregion
+
+            #region private
+
+            #endregion
+
+        #endregion
+
+        
 
     }
 }

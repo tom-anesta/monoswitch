@@ -18,273 +18,272 @@ namespace monoswitch.containers
 
         #region members_memberlike_properties
 
-        #region public
+            #region public
 
-        #endregion
+            #endregion
 
-        #region internal
+            #region internal
 
-        #endregion
+            #endregion
 
-        #region protected
+            #region protected
 
-        protected TreeNode<KeyGroup> m_parent;
-        protected List<KeyPair> m_list;
-        protected KeyDelegator m_delegator;
+                protected TreeNode<KeyGroup> m_parent;
+                protected List<KeyPair> m_list;
+                protected KeyDelegator m_delegator;
 
+            #endregion
 
-        #endregion
+            #region private
 
-        #region private
-
-        #endregion
+            #endregion
 
         #endregion
 
         #region properties
 
-        #region public
+            #region public
 
-        public bool isTrue
-        {
-            get
-            {
-                bool rVal = true;
-                foreach (KeyPair kPair in this.m_list)
+                public bool isTrue
                 {
-                    if (!(kPair.state == KeyState.Down))
+                    get
                     {
-                        rVal = false;
-                        break;
+                        bool rVal = true;
+                        foreach (KeyPair kPair in this.m_list)
+                        {
+                            if (!(kPair.state == KeyState.Down))
+                            {
+                                rVal = false;
+                                break;
+                            }
+                        }
+                        return rVal;
                     }
                 }
-                return rVal;
-            }
-        }
 
-        public bool isFalse
-        {
-            get
-            {
-                bool rVal = true;
-                foreach (KeyPair kPair in this.m_list)
+                public bool isFalse
                 {
-                    if (kPair.state == KeyState.Down)
+                    get
                     {
-                        rVal = false;
-                        break;
+                        bool rVal = true;
+                        foreach (KeyPair kPair in this.m_list)
+                        {
+                            if (kPair.state == KeyState.Down)
+                            {
+                                rVal = false;
+                                break;
+                            }
+                        }
+                        return rVal;
                     }
                 }
-                return rVal;
-            }
-        }
 
-        public bool isIndeterminate
-        {
-            get
-            {
-                return (this.isTrue && this.isFalse);
-            }
-        }
+                public bool isIndeterminate
+                {
+                    get
+                    {
+                        return (this.isTrue && this.isFalse);
+                    }
+                }
 
-        #endregion
+            #endregion
 
-        #region internal
+            #region internal
 
-        #endregion
+            #endregion
 
-        #region protected
+            #region protected
 
-        #endregion
+            #endregion
 
-        #region private
+            #region private
 
-        #endregion
+            #endregion
 
         #endregion
 
         #region events
 
-        #region public
+            #region public
 
-        #endregion
+            #endregion
 
-        #region internal
+            #region internal
 
-        #endregion
+            #endregion
 
-        #region protected
+            #region protected
 
-        #endregion
+            #endregion
 
-        #region private
+            #region private
 
-        #endregion
+            #endregion
 
         #endregion
 
         #region methods
 
-        #region public
+            #region public
 
-        //constructor
-        public KeyGroup(KeyDelegator delegator)
-        {
-            this.m_parent = null;
-            this.m_list = new List<KeyPair>();
-            if (delegator != null)
-            {
-                this.m_delegator = delegator;
-            }
-            else
-            {
-                this.m_delegator = new KeyDelegator();
-            }
-        }
+                //constructor
+                public KeyGroup(KeyDelegator delegator)
+                {
+                    this.m_parent = null;
+                    this.m_list = new List<KeyPair>();
+                    if (delegator != null)
+                    {
+                        this.m_delegator = delegator;
+                    }
+                    else
+                    {
+                        this.m_delegator = new KeyDelegator();
+                    }
+                }
 
-        public KeyGroup(KeyDelegator delegator, List<Keys> kList) : this(delegator)
-        {
-            foreach (Keys kVal in kList)
-            {
-                this.add(kVal);
-            }
-        }
+                public KeyGroup(KeyDelegator delegator, List<Keys> kList) : this(delegator)
+                {
+                    foreach (Keys kVal in kList)
+                    {
+                        this.add(kVal);
+                    }
+                }
 
-        //iTreeNode
-        public TreeNode<KeyGroup> GetTreeNode()
-        {
-            return this.m_parent;
-        }
+                //iTreeNode
+                public TreeNode<KeyGroup> GetTreeNode()
+                {
+                    return this.m_parent;
+                }
 
-        //structure methods
-        public bool add(Keys kVal)
-        {
-            if (!(this.m_list.Select(x => x.key).Contains(kVal)) )
-            {
-                KeyPair adder = this.m_delegator.key(kVal);
-                this.m_list.Add(adder);
-                //now is it invalidated?
-                //if invalidated remove it and return false
-                //handle adding event listeners
+                //structure methods
+                public bool add(Keys kVal)
+                {
+                    if (!(this.m_list.Select(x => x.key).Contains(kVal)) )
+                    {
+                        KeyPair adder = this.m_delegator.key(kVal);
+                        this.m_list.Add(adder);
+                        //now is it invalidated?
+                        //if invalidated remove it and return false
+                        //handle adding event listeners
                
-                return true;
-            }
-            return false;
-        }
-        public List<bool> add(List<Keys> kList)
-        {
-            List<bool> rList = new List<bool>();
-            foreach (Keys kVal in kList)
-            {
-                if (!(this.m_list.Select(x => x.key).Contains(kVal)))
-                {
-                    KeyPair adder = this.m_delegator.key(kVal);
-                    this.m_list.Add(adder);
-                    //now is it invalidated?
-                    //if invalidated remove it and return false
-                    //handle adding event listeners
-                    
-                    rList.Add(true);
+                        return true;
+                    }
+                    return false;
                 }
-                else
+                public List<bool> add(List<Keys> kList)
                 {
-                    rList.Add(false);
-                }
-            }
-            return rList;
-        }
-        public bool remove(Keys kVal)
-        {
-            KeyPair remover = this.m_list.FirstOrDefault(x => (x.key == kVal));
-            if (remover != null)
-            {
-                this.m_list.Remove(remover);//first remove
-                //now is it invalidated?
-                //if invalidated add it again and return false
-                //handle removing event listeners
-
-            }
-            return false;
-        }
-        public List<bool> remove(List<Keys> kList)
-        {
-            List<bool> rList = new List<bool>();
-            foreach (Keys kVal in kList)
-            {
-                KeyPair remover = this.m_list.FirstOrDefault(x => (x.key == kVal));
-                if (remover != null)
-                {
-                    this.m_list.Remove(remover);
-                    //now is it invalidated?
-                    //if invalideated add it again and return false
-                    //handle removing event listeners
-                    
-                    rList.Add(true);
-                }
-                else
-                {
-                    rList.Add(false);
-                }
-            }
-            return rList;
-        }
-
-        //control methods
-        public void deactivate(List<Keys> dVal)
-        {
-            if (dVal.Count == 0)
-            {
-                foreach (KeyPair kPair in this.m_list)
-                {
-                    kPair.state = KeyState.Up;
-                }
-            }
-            else
-            {
-                foreach (KeyPair kPair in this.m_list)
-                {
-                    if (dVal.Contains(kPair.key))
+                    List<bool> rList = new List<bool>();
+                    foreach (Keys kVal in kList)
                     {
-                        kPair.state = KeyState.Up;
+                        if (!(this.m_list.Select(x => x.key).Contains(kVal)))
+                        {
+                            KeyPair adder = this.m_delegator.key(kVal);
+                            this.m_list.Add(adder);
+                            //now is it invalidated?
+                            //if invalidated remove it and return false
+                            //handle adding event listeners
+                    
+                            rList.Add(true);
+                        }
+                        else
+                        {
+                            rList.Add(false);
+                        }
+                    }
+                    return rList;
+                }
+                public bool remove(Keys kVal)
+                {
+                    KeyPair remover = this.m_list.FirstOrDefault(x => (x.key == kVal));
+                    if (remover != null)
+                    {
+                        this.m_list.Remove(remover);//first remove
+                        //now is it invalidated?
+                        //if invalidated add it again and return false
+                        //handle removing event listeners
+
+                    }
+                    return false;
+                }
+                public List<bool> remove(List<Keys> kList)
+                {
+                    List<bool> rList = new List<bool>();
+                    foreach (Keys kVal in kList)
+                    {
+                        KeyPair remover = this.m_list.FirstOrDefault(x => (x.key == kVal));
+                        if (remover != null)
+                        {
+                            this.m_list.Remove(remover);
+                            //now is it invalidated?
+                            //if invalideated add it again and return false
+                            //handle removing event listeners
+                    
+                            rList.Add(true);
+                        }
+                        else
+                        {
+                            rList.Add(false);
+                        }
+                    }
+                    return rList;
+                }
+
+                //control methods
+                public void deactivate(List<Keys> dVal)
+                {
+                    if (dVal.Count == 0)
+                    {
+                        foreach (KeyPair kPair in this.m_list)
+                        {
+                            kPair.state = KeyState.Up;
+                        }
+                    }
+                    else
+                    {
+                        foreach (KeyPair kPair in this.m_list)
+                        {
+                            if (dVal.Contains(kPair.key))
+                            {
+                                kPair.state = KeyState.Up;
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-        public void activate(List<Keys> aVal)
-        {
-            if (aVal.Count == 0)
-            {
-                foreach (KeyPair kPair in this.m_list)
+                public void activate(List<Keys> aVal)
                 {
-                    kPair.state = KeyState.Down;
-                }
-            }
-            else
-            {
-                foreach (KeyPair kPair in this.m_list)
-                {
-                    if (aVal.Contains(kPair.key))
+                    if (aVal.Count == 0)
                     {
-                        kPair.state = KeyState.Down;
+                        foreach (KeyPair kPair in this.m_list)
+                        {
+                            kPair.state = KeyState.Down;
+                        }
+                    }
+                    else
+                    {
+                        foreach (KeyPair kPair in this.m_list)
+                        {
+                            if (aVal.Contains(kPair.key))
+                            {
+                                kPair.state = KeyState.Down;
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-        #endregion
+            #endregion
 
-        #region internal
+            #region internal
 
-        #endregion
+            #endregion
 
-        #region protected
+            #region protected
 
-        #endregion
+            #endregion
 
-        #region private
+            #region private
 
-        #endregion
+            #endregion
 
         #endregion
 
