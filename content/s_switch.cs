@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Input;
 using Ruminate.GUI.Framework;
 using Ruminate.GUI.Content;
 using Microsoft.Xna.Framework.Graphics;
+using monoswitch.containers;
 
 //authors note: 
 //as toggle button was a sealed class in the ruminate framework, 
@@ -38,7 +39,7 @@ namespace monoswitch.content
             #region protected
 
                 protected TimeSpan m_scanningRate;
-                protected List<Keys> m_controllers;
+                protected KeyGroup m_group;
                 protected Boolean m_commited;
                 //based off toggle button
                 protected bool m_switchedOn;
@@ -56,7 +57,6 @@ namespace monoswitch.content
         #region properties
 
             #region public
-
                 //based on toggle button
 
                 /// <summary>
@@ -67,6 +67,7 @@ namespace monoswitch.content
                     get { return RenderRule.Label; }
                     set { RenderRule.Label = value; }
                 }
+                
                 /// <summary>
                 /// The gap between the text and the edge of the button.
                 /// </summary>
@@ -86,7 +87,6 @@ namespace monoswitch.content
                 /// <summary>
                 /// The width of the button.
                 /// </summary>
-                
                 public int width
                 {
                     get
@@ -106,23 +106,16 @@ namespace monoswitch.content
                     {
                         return this.m_scanningRate;
                     }
-                    //set
-                    //{
-                    //
-                    //}
                 }
 
-                public Keys controller
+                public KeyGroup controllers
                 {
                     get
                     {
-                        if(this.m_controllers.Count == 0)
-                        {
-                            return Keys.F9;
-                        }
-                        return this.m_controllers[0];
+                        return this.m_group;
                     }
                 }
+
                 public Boolean commited
                 {
                     get
@@ -130,6 +123,7 @@ namespace monoswitch.content
                         return this.m_commited;
                     }
                 }
+                
                 /// <summary>
                 /// Returns true when the button is pressed and false when
                 /// released.
@@ -139,6 +133,14 @@ namespace monoswitch.content
                     get
                     {
                         return m_switchedOn;
+                    }
+                }
+
+                public KeyGroup group
+                {
+                    get
+                    {
+                        return new KeyGroup(this.m_group);
                     }
                 }
                 
@@ -196,7 +198,11 @@ namespace monoswitch.content
 
             #region public
                 //CONSTRUCTOR
-                public s_switch()
+                public s_switch(KeyDelegator kdel) : this(kdel, new List<Keys>())
+                {
+                }
+
+                public s_switch(KeyDelegator kdel, List<Keys> kList)
                 {
                     this.Area = new Rectangle(0, 0, 0, 0);
                     this.label = label;
@@ -207,29 +213,23 @@ namespace monoswitch.content
                     //set monoswitchstuff
                     this.m_switchedOn = false;
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, 0);
-                    this.m_controllers = new List<Keys>();
+                    this.setGroup(kdel, kList);
                     this.m_commited = false;
                 }
 
-                public s_switch(Keys controllerValue) : this()
-                {
-                    this.m_controllers.Add(controllerValue);
-                }
-
-                public s_switch(int scanR) : this()
+                public s_switch(KeyDelegator kdel, int scanR) : this(kdel)
                 {
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, Math.Abs(scanR));
                 }
 
-                public s_switch(TimeSpan scanR) : this()
+                public s_switch(KeyDelegator kdel, TimeSpan scanR) : this(kdel)
                 {
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
                 }
 
-                public s_switch(Keys controllerValue, int scanR) : this()
+                public s_switch(KeyDelegator kdel, List<Keys> kList, int scanR) : this(kdel, kList)
                 {
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, Math.Abs(scanR));
-                    this.m_controllers.Add(controllerValue);
                 }
 
                 /// <summary>
@@ -240,7 +240,12 @@ namespace monoswitch.content
                 /// <param name="y">The Y coordinate of the widget.</param>
                 /// <param name="label">The label to be rendered on the button.</param>
                 /// <param name="padding">If specified the padding on either side of the label.</param>
-                public s_switch(int x, int y, string label, int padding = 2)
+                public s_switch(KeyDelegator kdel, int x, int y, string label, int padding = 2)
+                    : this(kdel, new List<Keys>(), x, y, label, padding)
+                {
+                }
+
+                public s_switch(KeyDelegator kdel, List<Keys> kList, int x, int y, string label, int padding = 2)
                 {
                     this.Area = new Rectangle(x, y, 0, 0);
                     this.label = label;
@@ -251,27 +256,21 @@ namespace monoswitch.content
                     //set switch important variables
                     this.m_switchedOn = false;
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, 0);
-                    this.m_controllers = new List<Keys>();
+                    setGroup(kdel, kList);
                     this.m_commited = false;
                 }
 
-                public s_switch(int x, int y, string label, Keys controllerValue, int padding = 2)
-                    : this(x, y, label, padding)
-                {
-                    this.m_controllers.Add(controllerValue);
-                }
-
-                public s_switch(int x, int y, string label, TimeSpan scanR, int padding = 2)
-                    : this(x, y, label, padding)
+                public s_switch(KeyDelegator kdel, int x, int y, string label, TimeSpan scanR, int padding = 2)
+                    : this(kdel, x, y, label, padding)
                 {
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
                 }
 
+
                 //int not allowed as an input due to padding
-                public s_switch(int x, int y, string label, Keys controllerValue, TimeSpan scanR, int padding = 2)
-                    : this(x, y, label, padding)
+                public s_switch(KeyDelegator kdel, List<Keys> kList, int x, int y, string label, TimeSpan scanR, int padding = 2)
+                    : this(kdel, kList, x, y, label, padding)
                 {
-                    this.m_controllers.Add(controllerValue);
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
                 }
 
@@ -283,7 +282,12 @@ namespace monoswitch.content
                 /// <param name="y">The Y coordinate of the widget.</param>
                 /// <param name="width">The width of the Button. Ignored if the width is less that the width of the label.</param>
                 /// <param name="label">The label to be rendered on the button.</param>
-                public s_switch(int x, int y, int width, string label)
+                public s_switch(KeyDelegator kdel, int x, int y, int width, string label)
+                    : this(kdel, new List<Keys>(), x, y, width, label)
+                {
+                }
+
+                public s_switch(KeyDelegator kdel, List<Keys> kList, int x, int y, int width, string label)
                 {
                     this.Area = new Rectangle(x, y, 0, 0);
                     this.width = width;
@@ -295,39 +299,31 @@ namespace monoswitch.content
 
                     this.m_switchedOn = false;
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, 0);
-                    this.m_controllers = new List<Keys>();
+                    setGroup(kdel, kList);
                     this.m_commited = false;
                 }
 
-                public s_switch(int x, int y, int width, string label, Keys controllerValue)
-                    : this(x, y, width, label)
-                {
-                    this.m_controllers.Add(controllerValue);
-                }
-
-                public s_switch(int x, int y, int width, string label, TimeSpan scanR)
-                    :this(x, y, width, label)
+                public s_switch(KeyDelegator kdel, int x, int y, int width, string label, TimeSpan scanR)
+                    :this(kdel, x, y, width, label)
                 {
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
                 }
 
-                public s_switch(int x, int y, int width, string label, int scanR)
-                    :this(x, y, width, label)
+                public s_switch(KeyDelegator kdel, List<Keys> kList, int x, int y, int width, string label, TimeSpan scanR)
+                    : this(kdel, kList, x, y, width, label)
+                {
+                    this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
+                }
+
+                public s_switch(KeyDelegator kdel, int x, int y, int width, string label, int scanR)
+                    :this(kdel, x, y, width, label)
                 {
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, Math.Abs(scanR));
                 }
 
-                public s_switch(int x, int y, int width, string label, Keys controllerValue, TimeSpan scanR)
-                    :this(x, y, width, label)
+                public s_switch(KeyDelegator kdel, List<Keys> kList, int x, int y, int width, string label, int scanR)
+                    : this(kdel, kList, x, y, width, label)
                 {
-                    this.m_controllers.Add(controllerValue);
-                    this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
-                }
-
-                public s_switch(int x, int y, int width, string label, Keys controllerValue, int scanR)
-                    : this(x, y, width, label)
-                {
-                    this.m_controllers.Add(controllerValue);
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, Math.Abs(scanR));
                 }
 
@@ -353,7 +349,7 @@ namespace monoswitch.content
                 //ends initialization
                 public Boolean commit()
                 {
-                    if (this.m_controllers.Count < 1)
+                    if (this.m_group.Count < 1)
                     {
                         this.m_commited = false;
                         return this.m_commited;
@@ -364,7 +360,6 @@ namespace monoswitch.content
                 //UPDATE
                 protected override void Update()
                 {//do nothing in gui update
-
                 }
                 //OTHER PUBLIC FUNCTIONS
                 //switch the device
@@ -373,6 +368,7 @@ namespace monoswitch.content
                     m_switchedOn = !m_switchedOn;//set it first as our events will depend on this state
                     if (m_switchedOn)
                     {
+                        this.m_group.activate(new List<Keys>());
                         if (OnToggle != null)
                         {
                             OnToggle(this);
@@ -380,6 +376,7 @@ namespace monoswitch.content
                     }
                     else
                     {
+                        this.m_group.deactivate(new List<Keys>());
                         if (OffToggle != null)
                         {
                             OffToggle(this);
@@ -419,6 +416,18 @@ namespace monoswitch.content
 
             #region private
 
+                private void setGroup(KeyDelegator kdel, List<Keys> kList)
+                {
+                    if (kList.Count < 1)
+                    {
+                        this.m_group = new KeyGroup(kdel);
+                    }
+                    else
+                    {
+                        this.m_group = new KeyGroup(kdel, kList);
+                    }
+                }
+
                 private void pressSwitch(s_switch widge)
                 {
                         widge.RenderRule.Mode = ButtonRenderRule.RenderMode.Pressed;
@@ -435,20 +444,10 @@ namespace monoswitch.content
             #endregion
 
         #endregion
-
-
                 
     }
 
 }
-
-
-
-    
-
-    /*####################################################################*/
-    /*                        Node Initialization                         */
-    /*####################################################################*/
 
 
 

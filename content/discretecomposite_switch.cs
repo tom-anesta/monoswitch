@@ -73,6 +73,11 @@ namespace monoswitch.content
             #region public
 
             //CONSTRUCTOR
+            public discretecomposite_switch(KeyDelegator kDel)
+                : base(kDel)
+            {
+
+            }
 
             //INITIALIZATION FUNCTIONS
 

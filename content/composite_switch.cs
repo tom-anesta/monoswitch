@@ -53,6 +53,10 @@ namespace monoswitch.content
             #region public
 
                 //CONSTRUCTOR
+                public composite_switch(KeyDelegator kDel) : base(kDel)
+                {
+
+                }
 
                 //INITIALIZATION FUNCTIONS
 

@@ -58,6 +58,7 @@ namespace monoswitch.containers
                 //elements
                 protected Panel m_panel;
                 protected ScrollBars m_scroller;
+                protected KeyDelegator m_keyDelegator;
 
             #endregion
 
@@ -179,18 +180,15 @@ namespace monoswitch.containers
                 public void respondSwitchDown(s_switch val)
                 {
                     //initialize variables
-                    List<Keys> kdList = new List<Keys>();
-                    List<Keys> kuList = new List<Keys>();
-
-                    //resolve logic
-
-                    //logig not done yet, just do this
-                    kdList.Add(val.controller);
-
-                    //resolve results by sending the keys
+                    List<Keys> kdList = val.group.actives;
+                    List<Keys> kuList = val.group.unactives;
+                    //send the keys
                     while (kdList.Count > 0)
                     {
-                        this.sendKeyDown(this, new KeyEventArgs(kdList[0]));
+                        if (this.sendKeyDown != null)
+                        {
+                            this.sendKeyDown(this, new KeyEventArgs(kdList[0]));
+                        }
                         kdList.RemoveAt(0);
                     }
                     while (kuList.Count > 0)
@@ -203,14 +201,8 @@ namespace monoswitch.containers
                 public void respondSwitchUp(s_switch val)
                 {
                     //initialize variables
-                    List<Keys> kdList = new List<Keys>();
-                    List<Keys> kuList = new List<Keys>();
-
-                    //resolve logic
-
-                    //logig not done yet, just do this
-                    kuList.Add(val.controller);
-
+                    List<Keys> kdList = val.group.actives;
+                    List<Keys> kuList = val.group.unactives;
                     //send the keys
                     while (kdList.Count > 0)
                     {
@@ -249,9 +241,10 @@ namespace monoswitch.containers
 
                 //CONSTRUCTOR
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_keyDelegator = kDel;
                     //handle fixing the input
                     this.m_signalKey = p_activatorKey;
                     this.m_signalState = p_akstate;
@@ -274,9 +267,10 @@ namespace monoswitch.containers
                     this.m_signalState = KeyState.Down;
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, TimeSpan p_scanR, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_keyDelegator = kDel;
                     //handle fixing the input
                     this.m_signalKey = p_activatorKey;
                     this.m_signalState = p_akstate;
@@ -308,9 +302,10 @@ namespace monoswitch.containers
                     this.m_signalState = KeyState.Down;
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, int p_scanR, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, int p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_keyDelegator = kDel;
                     //handle fixing the input
                     this.m_signalKey = p_activatorKey;
                     this.m_signalState = p_akstate;
@@ -334,37 +329,42 @@ namespace monoswitch.containers
                     this.m_maxWidth = null;
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, IEnumerable<switchNode> p_intendedNodes, int p_scanR = 0, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, IEnumerable<switchNode> p_intendedNodes, KeyDelegator kDel, int p_scanR = 0, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_keyDelegator = kDel;
                     switchNode[] arr = p_intendedNodes.ToArray();
                     delayedArrayConstructor(p_game, p_activatorKey, p_akstate, arr, p_scanR);
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, IList<switchNode> p_intendedNodes, int p_scanR = 0, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, IList<switchNode> p_intendedNodes, KeyDelegator kDel, int p_scanR = 0, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_keyDelegator = kDel;
                     switchNode[] arr = p_intendedNodes.ToArray();
                     delayedArrayConstructor(p_game, p_activatorKey, p_akstate, arr, p_scanR);
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, IEnumerable<switchNode> p_intendedNodes, TimeSpan p_scanR, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, IEnumerable<switchNode> p_intendedNodes, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_keyDelegator = kDel;
                     switchNode[] arr = p_intendedNodes.ToArray();
                     delayedArrayConstructor(p_game, p_activatorKey, p_akstate, arr, p_scanR);
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, IList<switchNode> p_intendedNodes, TimeSpan p_scanR, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, IList<switchNode> p_intendedNodes, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_keyDelegator = kDel;
                     switchNode[] arr = p_intendedNodes.ToArray();
                     delayedArrayConstructor(p_game, p_activatorKey, p_akstate, arr, p_scanR);
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, switchNode[] p_intendedNodes, int p_scanR, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, switchNode[] p_intendedNodes, int p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_keyDelegator = kDel;
                     //handle fixing the input
                     this.m_signalKey = p_activatorKey;
                     this.m_signalState = p_akstate;
@@ -400,9 +400,10 @@ namespace monoswitch.containers
                     this.m_commited = false;
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, switchNode[] p_intendedNodes, TimeSpan p_scanR, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, switchNode[] p_intendedNodes, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_keyDelegator = kDel;
                     //handle fixing the input
                     this.m_signalKey = p_activatorKey;
                     this.m_signalState = p_akstate;
@@ -487,7 +488,6 @@ namespace monoswitch.containers
                     {
                         act_height = height_from_widgets(itemsToAdd);
                     }
-
                     this.m_panel = new Panel(p_x, p_y, Math.Min(act_width, ((int)(this.m_maxWidth.HasValue ? this.m_maxWidth : int.MaxValue)) ), Math.Min(act_height, ((int)(this.m_maxHeight.HasValue ? this.m_maxHeight : int.MaxValue))) );
                     if (!widthAssigned && !heightAssigned)
                     {//size should be fine? debug later
@@ -559,9 +559,6 @@ namespace monoswitch.containers
                 }
 
                 //handle the advance
-
-                
-
                 //update functions
                 public void UpdateByTime(GameTime gametime)
                 {

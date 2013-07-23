@@ -86,6 +86,31 @@ namespace monoswitch.containers
                     }
                 }
 
+                public int Count
+                {
+                    get
+                    {
+                        return this.m_list.Count;
+                    }
+                }
+
+                public List<Keys> actives
+                {
+                    get
+                    {
+                        return ((List<Keys>)(this.m_list.Where(x => x.state == KeyState.Down)).Select(x => x.key).ToList<Keys>());//get the keys that are down
+                    }
+                }
+
+                public List<Keys> unactives
+                {
+                    get
+                    {
+                        return ((List<Keys>)(this.m_list.Where(x => x.state == KeyState.Up)).Select(x => x.key).ToList<Keys>());//get the keys that are up
+                    }
+
+                }
+
             #endregion
 
             #region internal
@@ -145,8 +170,19 @@ namespace monoswitch.containers
                 {
                     foreach (Keys kVal in kList)
                     {
-                        this.add(kVal);
+                        this.Add(kVal);
                     }
+                }
+
+                public KeyGroup(KeyGroup keyGroup)
+                {
+                    this.m_delegator = keyGroup.m_delegator;
+                    this.m_list = new List<KeyPair>();
+                    foreach (KeyPair kp in keyGroup.m_list)
+                    {
+                        this.m_list.Add(kp);
+                    }
+                    this.m_parent = keyGroup.m_parent;
                 }
 
                 //iTreeNode
@@ -156,7 +192,7 @@ namespace monoswitch.containers
                 }
 
                 //structure methods
-                public bool add(Keys kVal)
+                public bool Add(Keys kVal)
                 {
                     if (!(this.m_list.Select(x => x.key).Contains(kVal)) )
                     {
@@ -170,7 +206,7 @@ namespace monoswitch.containers
                     }
                     return false;
                 }
-                public List<bool> add(List<Keys> kList)
+                public List<bool> Add(List<Keys> kList)
                 {
                     List<bool> rList = new List<bool>();
                     foreach (Keys kVal in kList)
@@ -192,7 +228,7 @@ namespace monoswitch.containers
                     }
                     return rList;
                 }
-                public bool remove(Keys kVal)
+                public bool Remove(Keys kVal)
                 {
                     KeyPair remover = this.m_list.FirstOrDefault(x => (x.key == kVal));
                     if (remover != null)
@@ -205,7 +241,7 @@ namespace monoswitch.containers
                     }
                     return false;
                 }
-                public List<bool> remove(List<Keys> kList)
+                public List<bool> Remove(List<Keys> kList)
                 {
                     List<bool> rList = new List<bool>();
                     foreach (Keys kVal in kList)

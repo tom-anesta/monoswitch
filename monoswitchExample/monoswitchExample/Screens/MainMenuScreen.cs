@@ -102,7 +102,7 @@ namespace monoswitchExample
                 /// </summary>
                 protected void PlayGameMenuEntrySelected(object sender, PlayerIndexEventArgs e)
                 {
-                    LoadingScreen.Load(ScreenManager, true, e.playerIndex, new GameplayScreen(this.m_game));
+                    LoadingScreen.Load(ScreenManager, true, e.playerIndex, new GameplayScreen(this.m_game, false, false));
                 }
 
                 /// <summary>

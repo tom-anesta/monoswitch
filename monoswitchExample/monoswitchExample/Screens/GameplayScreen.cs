@@ -62,6 +62,9 @@ namespace monoswitchExample
                 //need a reference to the game
                 protected exampleGame m_game;
 
+                //for construction of the selection set
+                bool m_isDiscrete = false;
+                bool m_isComposite = false;
 
                 
             #endregion
@@ -114,7 +117,7 @@ namespace monoswitchExample
                 /// <summary>
                 /// Constructor.
                 /// </summary>
-                public GameplayScreen(exampleGame game)
+                public GameplayScreen(exampleGame game, bool disc, bool comp)
                 {
                     this.m_transitionOnTime = TimeSpan.FromSeconds(1.5);
                     this.m_transitionOffTime = TimeSpan.FromSeconds(0.5);
@@ -123,6 +126,9 @@ namespace monoswitchExample
                     this.m_selectSet = null;
                     //this.m_nlss = null;
                     this.m_game = game;
+
+                    this.m_isDiscrete = disc;
+                    this.m_isComposite = comp;
                     
                 }
 
@@ -156,22 +162,47 @@ namespace monoswitchExample
                     Text text = new Text(this.m_game.ss_font, Color.Green);
 
                     //do the selection set
-                    this.m_selectSet = new selectionSet(this.m_game, skin, text, Keys.E, KeyState.Down);
-                    s_switch temp1 = new s_switch(10, 10, 150, "right", Keys.D);
-                    switchNode temp1Node = new switchNode(temp1);
-                    s_switch temp2 = new s_switch(160, 10, 150, "up", Keys.W);
-                    switchNode temp2Node = new switchNode(temp2);
-                    s_switch temp3 = new s_switch(310, 10, 150, "left", Keys.A);
-                    switchNode temp3Node = new switchNode(temp3);
-                    s_switch temp4 = new s_switch(460, 10, 150, "down", Keys.S);
-                    switchNode temp4Node = new switchNode(temp4);
-                    temp1Node.addSuccessor(temp2Node);
-                    temp2Node.addSuccessor(temp3Node);
-                    temp3Node.addSuccessor(temp4Node);
-                    temp4Node.addSuccessor(temp1Node);
-                    switchNode[] nodeArr = { temp1Node, temp2Node, temp3Node, temp4Node };
-                    this.m_selectSet.assignNodes(nodeArr);
-                    this.m_selectSet.Commit(0, 0);
+                    KeyDelegator KDELEGATOR = new KeyDelegator();
+                    this.m_selectSet = new selectionSet(this.m_game, skin, text, Keys.E, KeyState.Down, KDELEGATOR);
+                    if(!this.m_isDiscrete && !this.m_isComposite)//if using basic switches
+                    {
+
+                        List<Keys> list1 = new List<Keys>();
+                        list1.Add(Keys.D);
+                        s_switch temp1 = new s_switch(KDELEGATOR, list1, 10, 10, 150, "right");
+                        switchNode temp1Node = new switchNode(temp1);
+                        List<Keys> list2 = new List<Keys>();
+                        list2.Add(Keys.W);
+                        s_switch temp2 = new s_switch(KDELEGATOR, list2, 160, 10, 150, "up");
+                        switchNode temp2Node = new switchNode(temp2);
+                        List<Keys> list3 = new List<Keys>();
+                        list3.Add(Keys.A);
+                        s_switch temp3 = new s_switch(KDELEGATOR, list3, 310, 10, 150, "left");
+                        switchNode temp3Node = new switchNode(temp3);
+                        List<Keys> list4 = new List<Keys>();
+                        list4.Add(Keys.S);
+                        s_switch temp4 = new s_switch(KDELEGATOR, list4, 460, 10, 150, "down");
+                        switchNode temp4Node = new switchNode(temp4);
+                        temp1Node.addSuccessor(temp2Node);
+                        temp2Node.addSuccessor(temp3Node);
+                        temp3Node.addSuccessor(temp4Node);
+                        temp4Node.addSuccessor(temp1Node);
+                        switchNode[] nodeArr = { temp1Node, temp2Node, temp3Node, temp4Node };
+                        this.m_selectSet.assignNodes(nodeArr);
+                        this.m_selectSet.Commit(0, 0);
+                    }
+                    else if(this.m_isDiscrete && !this.m_isComposite)
+                    {
+
+                    }
+                    else if(!this.m_isDiscrete && this.m_isComposite)
+                    {
+
+                    }
+                    else if(this.m_isDiscrete && this.m_isComposite)
+                    {
+
+                    }
                     this.m_selectSet.sendKeyDown += this.kdown;
                     this.m_selectSet.sendKeyUp += this.kup;
                     //do the nl selection set

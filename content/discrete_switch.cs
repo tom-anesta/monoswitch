@@ -69,15 +69,20 @@ namespace monoswitch.content
 
         #region methods
 
-        #region public
+            #region public
 
-        //CONSTRUCTOR
+                //CONSTRUCTOR
+                public discrete_switch(KeyDelegator kDel)
+                    : base(kDel)
+                {
 
-            //INITIALIZATION FUNCTIONS
+                }
 
-            //UPDATE         
+                //INITIALIZATION FUNCTIONS
 
-            //OTHER PUBLIC FUNCTIONS
+                //UPDATE         
+
+                //OTHER PUBLIC FUNCTIONS
 
 
             #endregion
