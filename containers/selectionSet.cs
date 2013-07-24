@@ -246,7 +246,7 @@ namespace monoswitch.containers
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
-                    this.m_keyRoot = new KeyLogicRoot(this.m_keyDelegator);
+                    this.InitRoot();
                     //handle fixing the input
                     this.m_signalKey = p_activatorKey;
                     this.m_signalState = p_akstate;
@@ -273,6 +273,7 @@ namespace monoswitch.containers
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
+                    this.InitRoot();
                     //handle fixing the input
                     this.m_signalKey = p_activatorKey;
                     this.m_signalState = p_akstate;
@@ -308,6 +309,7 @@ namespace monoswitch.containers
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
+                    this.InitRoot();
                     //handle fixing the input
                     this.m_signalKey = p_activatorKey;
                     this.m_signalState = p_akstate;
@@ -335,6 +337,7 @@ namespace monoswitch.containers
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
+                    this.InitRoot();
                     switchNode[] arr = p_intendedNodes.ToArray();
                     delayedArrayConstructor(p_game, p_activatorKey, p_akstate, arr, p_scanR);
                 }
@@ -343,6 +346,7 @@ namespace monoswitch.containers
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
+                    this.InitRoot();
                     switchNode[] arr = p_intendedNodes.ToArray();
                     delayedArrayConstructor(p_game, p_activatorKey, p_akstate, arr, p_scanR);
                 }
@@ -351,6 +355,7 @@ namespace monoswitch.containers
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
+                    this.InitRoot();
                     switchNode[] arr = p_intendedNodes.ToArray();
                     delayedArrayConstructor(p_game, p_activatorKey, p_akstate, arr, p_scanR);
                 }
@@ -359,6 +364,7 @@ namespace monoswitch.containers
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
+                    this.InitRoot();
                     switchNode[] arr = p_intendedNodes.ToArray();
                     delayedArrayConstructor(p_game, p_activatorKey, p_akstate, arr, p_scanR);
                 }
@@ -367,6 +373,7 @@ namespace monoswitch.containers
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
+                    this.InitRoot();
                     //handle fixing the input
                     this.m_signalKey = p_activatorKey;
                     this.m_signalState = p_akstate;
@@ -406,6 +413,7 @@ namespace monoswitch.containers
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
+                    this.InitRoot();
                     //handle fixing the input
                     this.m_signalKey = p_activatorKey;
                     this.m_signalState = p_akstate;
