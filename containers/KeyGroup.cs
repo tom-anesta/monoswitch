@@ -12,10 +12,10 @@ namespace monoswitch.containers
 {
 
     public delegate void KeyStatePairChange(KeyPair kPair, ref bool kVal);
+    public delegate void KeyGroupChange(KeyPair kPair, KeyGroup kGroup, ref bool kVal);
 
     public class KeyGroup : ITreeNode<KeyGroup>
     {
-
         #region members_memberlike_properties
 
             #region public
@@ -31,6 +31,7 @@ namespace monoswitch.containers
                 protected TreeNode<KeyGroup> m_parent;
                 protected List<KeyPair> m_list;
                 protected KeyDelegator m_delegator;
+                protected logicStates m_state;
 
             #endregion
 
@@ -48,16 +49,7 @@ namespace monoswitch.containers
                 {
                     get
                     {
-                        bool rVal = true;
-                        foreach (KeyPair kPair in this.m_list)
-                        {
-                            if (!(kPair.state == KeyState.Down))
-                            {
-                                rVal = false;
-                                break;
-                            }
-                        }
-                        return rVal;
+                        return this.m_state == logicStates.TRUE;
                     }
                 }
 
@@ -65,16 +57,7 @@ namespace monoswitch.containers
                 {
                     get
                     {
-                        bool rVal = true;
-                        foreach (KeyPair kPair in this.m_list)
-                        {
-                            if (kPair.state == KeyState.Down)
-                            {
-                                rVal = false;
-                                break;
-                            }
-                        }
-                        return rVal;
+                        return this.m_state == logicStates.FALSE;
                     }
                 }
 
@@ -82,7 +65,15 @@ namespace monoswitch.containers
                 {
                     get
                     {
-                        return (this.isTrue && this.isFalse);
+                        return this.m_state == logicStates.INDETERMINATE;
+                    }
+                }
+
+                public logicStates state
+                {
+                    get
+                    {
+                        return this.m_state;
                     }
                 }
 
@@ -131,6 +122,18 @@ namespace monoswitch.containers
 
             #region public
 
+                public KeyGroupChange groupChanged
+                {
+                    get
+                    {
+                        return this.m_groupAttemptChanged;
+                    }
+                    protected set
+                    {
+                        this.m_groupAttemptChanged = value;
+                    }
+                }
+
             #endregion
 
             #region internal
@@ -138,6 +141,8 @@ namespace monoswitch.containers
             #endregion
 
             #region protected
+
+                protected event KeyGroupChange m_groupAttemptChanged;
 
             #endregion
 
@@ -164,6 +169,7 @@ namespace monoswitch.containers
                     {
                         this.m_delegator = new KeyDelegator();
                     }
+                    this.m_state = logicStates.INDETERMINATE;
                 }
 
                 public KeyGroup(KeyDelegator delegator, List<Keys> kList) : this(delegator)
@@ -198,10 +204,25 @@ namespace monoswitch.containers
                     {
                         KeyPair adder = this.m_delegator.key(kVal);
                         this.m_list.Add(adder);
-                        //now is it invalidated?
-                        //if invalidated remove it and return false
                         //handle adding event listeners
-               
+
+                        //now is it invalidated?
+                        logicStates tempState = this.m_state;
+                        this.evaluate();
+                        if (this.m_state != tempState)
+                        {
+                            bool addingattempt = true;
+                            if (this.m_groupAttemptChanged != null)
+                            {
+                                this.m_groupAttemptChanged(adder, this, ref addingattempt);
+                            }
+                            if (!addingattempt)//if changed to false we are invalidated
+                            {//remove it and the event listeners
+                                this.m_list.Remove(adder);
+                                //event listeners
+                                this.evaluate();//this should fix it
+                            }
+                        }//if invalidated remove it and return false
                         return true;
                     }
                     return false;
@@ -211,20 +232,7 @@ namespace monoswitch.containers
                     List<bool> rList = new List<bool>();
                     foreach (Keys kVal in kList)
                     {
-                        if (!(this.m_list.Select(x => x.key).Contains(kVal)))
-                        {
-                            KeyPair adder = this.m_delegator.key(kVal);
-                            this.m_list.Add(adder);
-                            //now is it invalidated?
-                            //if invalidated remove it and return false
-                            //handle adding event listeners
-                    
-                            rList.Add(true);
-                        }
-                        else
-                        {
-                            rList.Add(false);
-                        }
+                        rList.Add(Add(kVal));
                     }
                     return rList;
                 }
@@ -234,9 +242,27 @@ namespace monoswitch.containers
                     if (remover != null)
                     {
                         this.m_list.Remove(remover);//first remove
-                        //now is it invalidated?
-                        //if invalidated add it again and return false
                         //handle removing event listeners
+
+                        //now is it invalidated?
+                        logicStates tempState = this.m_state;
+                        this.evaluate();
+                        if (this.m_state != tempState)
+                        {
+                            bool removingattempt = false;
+                            if (this.m_groupAttemptChanged != null)
+                            {
+                                this.m_groupAttemptChanged(remover, this, ref removingattempt);
+                            }
+                            if (removingattempt)//if changed to false we are invalidated
+                            {//add it and the event listeners
+                                this.m_list.Add(remover);
+                                //event listeners
+                                this.evaluate();//this should fix it
+                            }
+                        }
+                        //if invalidated add it again and return false
+                        
 
                     }
                     return false;
@@ -246,20 +272,7 @@ namespace monoswitch.containers
                     List<bool> rList = new List<bool>();
                     foreach (Keys kVal in kList)
                     {
-                        KeyPair remover = this.m_list.FirstOrDefault(x => (x.key == kVal));
-                        if (remover != null)
-                        {
-                            this.m_list.Remove(remover);
-                            //now is it invalidated?
-                            //if invalideated add it again and return false
-                            //handle removing event listeners
-                    
-                            rList.Add(true);
-                        }
-                        else
-                        {
-                            rList.Add(false);
-                        }
+                        rList.Add(Remove(kVal));
                     }
                     return rList;
                 }
@@ -305,6 +318,48 @@ namespace monoswitch.containers
                             }
                         }
                     }
+                }
+
+                public logicStates evaluate()//double check the state
+                {
+                    bool trueFound = false;
+                    bool falseFound = false;
+                    foreach (KeyPair kPair in this.m_list)
+                    {
+                        if (kPair.state == KeyState.Down)
+                        {
+                            trueFound = true;
+                            if (trueFound && falseFound)
+                            {
+                                break;
+                            }
+                        }
+                        else if (kPair.state == KeyState.Up)
+                        {
+                            falseFound = true;
+                            if (trueFound && falseFound)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    if (trueFound && falseFound)
+                    {
+                        this.m_state = logicStates.INDETERMINATE;
+                    }
+                    else if (trueFound)
+                    {
+                        this.m_state = logicStates.TRUE;
+                    }
+                    else if (falseFound)
+                    {
+                        this.m_state = logicStates.FALSE;
+                    }
+                    else
+                    {
+                        this.m_state = logicStates.INDETERMINATE;
+                    }
+                    return this.m_state;
                 }
 
             #endregion

@@ -41,16 +41,44 @@ namespace monoswitch
 
     public enum methods
     {
-        ACTIVATE, DEACTIVATE
+        ACTIVATE, DEACTIVATE, FOLLOW, NONE
     }
     //applying the following to operations
     /*
     
     //ACTIVATE: 
-        //XOR on attempt [true, true]
-        //LEFT on attempt 
-    
-    
+        //XOR INVALID
+        //LEFT on attempt [false, true] : [true, true]
+        //RIGHT on attempt [true, false] : [true, true]
+        //BI on attempt [true, false], [false, true] : [true, true]
+        //NONE: INVALID
+        //NOT : INVALID
+    //DEACTIVATE
+        //XOR on attempt [true, true] : [false, false]
+        //LEFT on attempt [false, true] : [false, false]
+        //RIGHT on attempt [true, false] : [false, false]
+        //BI on attempt [true, false], [false, true] : [false, false]
+        //NONE: INVALID
+        //NOT on attempt [true], [false]
+    //FOLLOW
+        //XOR on attempt [true, true] from [true, false] : [false, true]
+        //XOR on attempt [true, true] from [false, true] : [true, false]
+        //LEFT on attempt [false, true] from [false, false] : [true, true] //does activate and deactivate based on situation
+        //LEFT on attempt [false, true] from [true, true] : [false, false] //does activate and deactivate based on situation
+        //RIGHT on attempt [true, false] from [false, false] : [true, true] //does activate and deactivate based on situation
+        //RIGHT on attempt [true, false] from [true, true] : [false, false] //does activate and deactivate based on situation
+        //BI on attempt [true, false] or [false, true] from [false, false] : [true, true] //does activate and deactivate based on situation
+        //BI on attempt [true, false] or [false, true] from [true, true] : [false, false] //does activate and deactivate based on situation
+        //NONE : INVALID
+        //NOT : INVALID
+    //NONE
+        //XOR INVALID
+        //LEFT INVALID
+        //RIGHT INVALID
+        //LEFT INVALID
+        //BI : INVALID
+        //NONE : no action taken
+     
     
     
     */
@@ -72,7 +100,8 @@ namespace monoswitch
             #region protected
 
                 private static bool m_inited;
-                private static Dictionary<logics, List<methods>> m_dict;
+                private static Dictionary<logics, List<methods>> m_methodDict;
+                private static Dictionary<logics, logicStates> m_evalDict;
 
             #endregion
 
@@ -94,7 +123,7 @@ namespace monoswitch
                     }
                     set
                     {
-                        if (value == true)
+                        if (value == true && KeyLogicManager.m_inited == false)
                         {
                             KeyLogicManager.init();
                         }
@@ -144,10 +173,26 @@ namespace monoswitch
                 public static void init()
                 {
                     //initialize the dictionary
-                    KeyLogicManager.m_dict = new Dictionary<logics, List<methods>>();
-                    //assign values to the dictionary
-                    //List<methods> 
-
+                    KeyLogicManager.m_methodDict = new Dictionary<logics, List<methods>>();
+                    KeyLogicManager.m_evalDict = new Dictionary<logics, logicStates>();
+                    //assign values to the dictionary for matching methods
+                    //XOR, LEFT, RIGHT, BI, NONE, NOT
+                    KeyLogicManager.m_methodDict[logics.XOR] = new List<methods>(new methods[]{methods.DEACTIVATE, methods.FOLLOW});
+                    List<methods> leftlist = new List<methods>(new methods[] { methods.ACTIVATE, methods.DEACTIVATE, methods.FOLLOW });
+                    KeyLogicManager.m_methodDict[logics.LEFT] = leftlist;
+                    KeyLogicManager.m_methodDict[logics.RIGHT] = leftlist.ToList();
+                    KeyLogicManager.m_methodDict[logics.BI] = leftlist.ToList();
+                    KeyLogicManager.m_methodDict[logics.NOT] = new List<methods>(new methods[] { methods.DEACTIVATE });
+                    KeyLogicManager.m_methodDict[logics.NONE] = new List<methods>(new methods[] { methods.NONE });
+                    //assign values to the dictionary for matching
+                    //XOR : false, Left : false, Right : false, BI : false, NOT : false
+                    KeyLogicManager.m_evalDict[logics.XOR] = logicStates.FALSE;
+                    KeyLogicManager.m_evalDict[logics.LEFT] = logicStates.FALSE;
+                    KeyLogicManager.m_evalDict[logics.RIGHT] = logicStates.FALSE;
+                    KeyLogicManager.m_evalDict[logics.BI] = logicStates.FALSE;
+                    KeyLogicManager.m_evalDict[logics.NOT] = logicStates.FALSE;
+                    KeyLogicManager.m_evalDict[logics.NONE] = logicStates.FALSE;
+                    //mark as inited
                     KeyLogicManager.m_inited = true;
                 }
 
