@@ -390,7 +390,7 @@ namespace monoswitch.containers
                     this.m_timeToRefract = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
-                    if (this.isValidList(p_intendedNodes))
+                    if (this.isValidList(p_intendedNodes, this.m_keyDelegator))
                     {
                         this.m_beginnings.Add(p_intendedNodes[0]);
                         this.m_endings.Add(p_intendedNodes[p_intendedNodes.Length - 1]);
@@ -430,7 +430,7 @@ namespace monoswitch.containers
                     this.m_timeToRefract = new TimeSpan(0, 0, 0, 0, 0);
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
-                    if (this.isValidList(p_intendedNodes))
+                    if (this.isValidList(p_intendedNodes, this.m_keyDelegator))
                     {
                         this.m_beginnings.Add(p_intendedNodes[0]);
                         this.m_endings.Add(p_intendedNodes[p_intendedNodes.Length - 1]);
@@ -605,9 +605,9 @@ namespace monoswitch.containers
 
                 //virtual functions
 
-                public virtual bool assignNodes(switchNode[] arr, int endStartsNI = 0, int beginsEndsI = 0)
+                public virtual bool assignNodes(switchNode[] arr, KeyDelegator kDel, int endStartsNI = 0, int beginsEndsI = 0)
                 {
-                    if (isValidList(arr, endStartsNI, beginsEndsI))
+                    if (isValidList(arr, kDel, endStartsNI, beginsEndsI))
                     {//will already check for bounds errors
                         this.m_beginnings = new List<switchNode>();
                         this.m_endings = new List<switchNode>();
@@ -641,7 +641,7 @@ namespace monoswitch.containers
                     return false;
                 }
 
-                public virtual bool isValidList(switchNode[] testList, int endStartsNI = 0, int beginEndsI = 0)//override in subclasses with graph algorithms
+                public virtual bool isValidList(switchNode[] testList, KeyDelegator kDel, int endStartsNI = 0, int beginEndsI = 0)//override in subclasses with graph algorithms
                 {
                     if (testList == null || testList.Length < 1)
                     {
@@ -650,7 +650,7 @@ namespace monoswitch.containers
                     if (testList.Length == 1 && testList[0] != null)
                     {
                         switchNode tVal = testList[0];
-                        if( tVal.successors.Count == 1 && tVal.predecessors.Count == 1 && tVal.successors[0] == tVal && testList[0].predecessors[0] == tVal)
+                        if( tVal.successors.Count == 1 && tVal.predecessors.Count == 1 && tVal.successors[0] == tVal && testList[0].predecessors[0] == tVal && tVal.child.group.delegator == kDel)
                         {
                             return true;
                         }
@@ -772,7 +772,7 @@ namespace monoswitch.containers
                     }
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
-                    if (this.isValidList(p_intendedNodes))
+                    if (this.isValidList(p_intendedNodes, this.m_keyDelegator))
                     {
                         this.m_beginnings.Add(p_intendedNodes[0]);
                         this.m_endings.Add(p_intendedNodes[p_intendedNodes.Length - 1]);
@@ -803,7 +803,7 @@ namespace monoswitch.containers
                     }
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
-                    if (this.isValidList(p_intendedNodes))
+                    if (this.isValidList(p_intendedNodes, this.m_keyDelegator))
                     {
                         this.m_beginnings.Add(p_intendedNodes[0]);
                         this.m_endings.Add(p_intendedNodes[p_intendedNodes.Length - 1]);
@@ -829,10 +829,11 @@ namespace monoswitch.containers
                 protected void InitRoot()
                 {
                     this.m_keyRoot = new KeyLogicRoot(this.m_keyDelegator);
+                    this.m_keyRoot.OnAttachedToRoot += node => {  };
+                    this.m_keyRoot.OnChildrenChanged += node => { };
                 }
-
                 /*
-                 private void InitDom()
+                private void InitKRoot()
                 {
                     Dom = new Root<Widget>();
                     Dom.OnAttachedToRoot += node =>
@@ -852,9 +853,9 @@ namespace monoswitch.containers
 
             #endregion
 
-        #region private
+            #region private
 
-        #endregion
+            #endregion
 
         #endregion
     }

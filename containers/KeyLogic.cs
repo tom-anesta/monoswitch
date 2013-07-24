@@ -10,6 +10,8 @@ using monoswitch;
 namespace monoswitch.containers
 {
 
+    public delegate logicStates NodeStateOperation<T>(TreeNode<T> node) where T : class;
+
     public class KeyLogicRoot : KeyLogicNode
     {
 
@@ -57,8 +59,8 @@ namespace monoswitch.containers
 
             #region public
 
-                public NodeOperation<Dictionary<Keys, bool>> OnAttachedToRoot { get; set; }
-                public NodeOperation<Dictionary<Keys, bool>> OnChildrenChanged { get; set; }
+                public NodeOperation<KeyGroup> OnAttachedToRoot { get; set; }
+                public NodeOperation<KeyGroup> OnChildrenChanged { get; set; }
 
             #endregion
 
@@ -126,11 +128,12 @@ namespace monoswitch.containers
 
             #region protected
 
-                protected bool m_allowFalse;
                 protected logics m_log;
                 protected methods m_method;
                 protected KeyDelegator m_delegator;
                 protected KeyGroup m_group;
+                protected logicStates m_state;
+                protected bool m_last;//is the keygroup associated with this node placed last in a list evaluation or first?
 
             #endregion
 
@@ -185,6 +188,14 @@ namespace monoswitch.containers
                     }
                 }
 
+                public logicStates state
+                {
+                    get
+                    {
+                        return this.m_state;
+                    }
+                }
+
 
 
             #endregion
@@ -207,6 +218,7 @@ namespace monoswitch.containers
 
             #region public
 
+                //http://stackoverflow.com/questions/937181/c-sharp-pattern-to-prevent-an-event-handler-hooked-twice
                 public NodeOperation<KeyGroup> OnLogicChanged
                 {
                     get;
@@ -218,6 +230,17 @@ namespace monoswitch.containers
                     get;
                     set;
                 }
+
+                //respond to the thing
+                public bool testValid()
+                {
+                    List<Boolean> valList = new List<bool>();
+                    return true;
+                }
+
+                
+
+                
 
             #endregion
 
@@ -242,23 +265,44 @@ namespace monoswitch.containers
                 //constructor
                 public KeyLogicNode(KeyDelegator kDel) : base(null)
                 {
-                    this.m_allowFalse = true;
+                    this.m_delegator = kDel;
                     this.m_log = logics.NONE;
                     this.m_method = methods.DEACTIVATE;
+                    this.m_state = logicStates.INDETERMINATE;
+                    this.Data = null;
+                    this.m_last = false;
                 }
 
                 
                 /*
                 public KeyLogicNode() : this()
                 {
-                    this.m_allowFalse = true;
                     this.m_log = logics.NONE;
                     this.m_method = methods.DEACTIVATE;
                 }
                 */
-                
+                public logicStates clampedEvaluation()
+                {
+                    List<logicStates> sList = new List<logicStates>();
+                    foreach (KeyLogicNode cVal in this.Children.Cast<KeyLogicNode>().ToList())
+                    {
+                        sList.Add(cVal.state);
+                    }
+                    if (this.Data != null)
+                    {
+                        if (!this.m_last)
+                        {
+                            sList.Insert(0, this.Data.evaluate());
+                        }
+                        else
+                        {
+                            sList.Add(this.Data.evaluate());
+                        }
+                    }
+                    return KeyLogicManager.clampedEvaluate(sList, this.m_log);
+                }
 
-                
+
                 //statics
                 public static bool evaluate(bool left, logics? type, bool? right = null)
                 {
@@ -295,6 +339,86 @@ namespace monoswitch.containers
                     return rVal;
                 }
 
+                public logicStates DfsOperation(NodeStateOperation<KeyGroup> operation)
+                {
+                    List<logicStates> tempStates = new List<logicStates>();
+                    if (this.Data != null)
+                    {
+                        tempStates.Add(operation(this));
+                    }
+                    foreach (var child in Children)
+                    {
+                        tempStates.Add(((KeyLogicNode)child).DfsOperation(operation));
+                    }
+                    return this.clampedEvaluation();
+                }
+
+                public void CompositeOperation(NodeOperation<KeyGroup> operation)
+                {
+                    foreach (var child in Children)
+                    {
+                        child.DfsOperation(operation);
+                    }
+                    if (this.Data != null)
+                    {
+                        operation(this);
+                    }
+                }
+
+                public void CompositeOperation(NodeStateOperation<KeyGroup> operation)
+                {
+                    List<logicStates> tempStates = new List<logicStates>();
+                    logicStates tempB = logicStates.INDETERMINATE;
+                    foreach (var child in Children)
+                    {
+                        tempB = ((KeyLogicNode)child).DfsOperation(operation);
+                        //should we do something if tempB is false?
+                        tempStates.Add(tempB);
+                    }
+                    if (this.Data != null)
+                    {
+                        tempB = operation(this);
+                        //should we do something if tempB is false?
+                        tempStates.Add(tempB);
+                    }
+                    this.clampedEvaluation();
+                }
+
+                // Add/Remove via TreeNode
+                public new void AddChild(KeyLogicNode child)
+                {
+                    child.Parent = this;
+                    Children.Add(child);
+                    if (Root == null)
+                    {
+                        return;
+                    }
+                    child.Root = null;
+                    child.KRoot = this.KRoot;
+                    KRoot.OnAttachedToRoot(this);
+                    //Root.OnAttachedToRoot(this);
+                    if (this.Attached || this.IsRoot)
+                    {
+                        DfsOperation(node => KRoot.OnChildrenChanged(node));
+                    }
+                }
+
+                public new void RemoveChild(KeyLogicNode child)
+                {
+                    if (child.Parent != this || !Children.Contains(child))
+                    {
+                        return;
+                    }
+                    child.Parent = null;
+                    Children.Remove(child);
+                    child.KRoot = null;
+                    if (this.Attached || this.IsRoot)
+                    {
+                        DfsOperation(node => KRoot.OnChildrenChanged(node));
+                    }
+
+                }
+
             #endregion
 
             #region internal
@@ -306,6 +430,8 @@ namespace monoswitch.containers
             #endregion
 
             #region private
+
+                
 
             #endregion
 

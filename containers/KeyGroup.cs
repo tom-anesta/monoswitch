@@ -45,6 +45,14 @@ namespace monoswitch.containers
 
             #region public
 
+                public KeyDelegator delegator
+                {
+                    get
+                    {
+                        return this.m_delegator;
+                    }
+                }
+
                 public bool isTrue
                 {
                     get

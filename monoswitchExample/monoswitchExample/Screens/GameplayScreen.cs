@@ -188,7 +188,7 @@ namespace monoswitchExample
                         temp3Node.addSuccessor(temp4Node);
                         temp4Node.addSuccessor(temp1Node);
                         switchNode[] nodeArr = { temp1Node, temp2Node, temp3Node, temp4Node };
-                        this.m_selectSet.assignNodes(nodeArr);
+                        this.m_selectSet.assignNodes(nodeArr, KDELEGATOR);
                         this.m_selectSet.Commit(0, 0);
                     }
                     else if(this.m_isDiscrete && !this.m_isComposite)
