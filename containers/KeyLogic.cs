@@ -5,19 +5,10 @@ using System.Text;
 using Ruminate;
 using Ruminate.DataStructures;
 using Microsoft.Xna.Framework.Input;
+using monoswitch;
 
 namespace monoswitch.containers
 {
-    public enum logics
-    {
-        NOT, OR, AND, XOR, LEFT, RIGHT, BI, NONE
-    }
-
-    public enum methods
-    {
-        ACTIVATE, DEACTIVATE
-    }
-
 
     public class KeyLogicRoot : KeyLogicNode
     {
@@ -89,7 +80,7 @@ namespace monoswitch.containers
 
             #region public
 
-                public KeyLogicRoot() : base(null)
+                public KeyLogicRoot(KeyDelegator kDel) : base(kDel)
                 {
                     KRoot = this;
                     Root = null;
@@ -138,6 +129,8 @@ namespace monoswitch.containers
                 protected bool m_allowFalse;
                 protected logics m_log;
                 protected methods m_method;
+                protected KeyDelegator m_delegator;
+                protected KeyGroup m_group;
 
             #endregion
 
@@ -247,20 +240,22 @@ namespace monoswitch.containers
             #region public
                 
                 //constructor
-                public KeyLogicNode(KeyGroup dat) : base(dat)
+                public KeyLogicNode(KeyDelegator kDel) : base(null)
                 {
                     this.m_allowFalse = true;
                     this.m_log = logics.NONE;
                     this.m_method = methods.DEACTIVATE;
                 }
 
-                public KeyLogicNode(KeyGroup dat, bool alfalse = true, logics lval = logics.NONE, methods mval = methods.DEACTIVATE) : this(dat)
+                
+                /*
+                public KeyLogicNode() : this()
                 {
-                    this.m_allowFalse = alfalse;
-                    this.m_log = lval;
-                    this.m_method = mval;
+                    this.m_allowFalse = true;
+                    this.m_log = logics.NONE;
+                    this.m_method = methods.DEACTIVATE;
                 }
-
+                */
                 
 
                 
@@ -280,12 +275,6 @@ namespace monoswitch.containers
                     {
                         case logics.NOT:
                             rVal = !left;
-                            break;
-                        case logics.OR:
-                            rVal = (left || right.Value);
-                            break;
-                        case logics.AND:
-                            rVal = (left && right.Value);
                             break;
                         case logics.XOR:
                             rVal = ((left && !right.Value) || (!left && right.Value));

@@ -59,6 +59,7 @@ namespace monoswitch.containers
                 protected Panel m_panel;
                 protected ScrollBars m_scroller;
                 protected KeyDelegator m_keyDelegator;
+                protected KeyLogicRoot m_keyRoot;
 
             #endregion
 
@@ -245,6 +246,7 @@ namespace monoswitch.containers
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
+                    this.m_keyRoot = new KeyLogicRoot(this.m_keyDelegator);
                     //handle fixing the input
                     this.m_signalKey = p_activatorKey;
                     this.m_signalState = p_akstate;
@@ -816,11 +818,35 @@ namespace monoswitch.containers
                     this.m_msInMan.HoverWidget = this.m_currentNode.child;
                 }
 
+                protected void InitRoot()
+                {
+                    this.m_keyRoot = new KeyLogicRoot(this.m_keyDelegator);
+                }
+
+                /*
+                 private void InitDom()
+                {
+                    Dom = new Root<Widget>();
+                    Dom.OnAttachedToRoot += node =>
+                    {
+                        node.DfsOperationChildren(prepareNode => prepareNode.Data.Prepare(this));
+                        node.DfsOperationChildren(childNode =>
+                        {
+                            if (childNode.Parent != null && childNode.Parent.Root != childNode.Parent)
+                            {
+                                childNode.Parent.Data.Layout();
+                            }
+                        });
+                    };
+                    Dom.OnChildrenChanged += node => node.DfsOperation(innerNode => innerNode.Data.Layout());
+                }
+                */
+
             #endregion
 
-            #region private
+        #region private
 
-            #endregion
+        #endregion
 
         #endregion
     }

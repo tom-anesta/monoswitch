@@ -61,6 +61,7 @@
     <Compile Include="content\discretecomposite_switch.cs" />
     <Compile Include="content\discrete_switch.cs" />
     <Compile Include="KeyDelegator.cs" />
+    <Compile Include="KeyLogicManager.cs" />
     <Compile Include="msInputManager.cs" />
     <Compile Include="containers\selectionSet.cs" />
     <Compile Include="containers\switchNode.cs" />
