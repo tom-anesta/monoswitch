@@ -299,7 +299,7 @@ namespace monoswitch.containers
                             sList.Add(this.Data.evaluate());
                         }
                     }
-                    return KeyLogicManager.clampedEvaluate(sList, this.m_log);
+                    return KeyLogicManager.evaluate(sList, this.m_log, true);
                 }
 
 
