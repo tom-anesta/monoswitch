@@ -179,6 +179,14 @@ namespace monoswitch.containers
                     }
                 }
 
+                public KeyDelegator delegator
+                {
+                    get
+                    {
+                        return this.m_delegator;
+                    }
+                }
+
                 public methods method
                 {
                     get
@@ -411,6 +419,13 @@ namespace monoswitch.containers
                 public bool AddChild(KeyLogicNode child)
                 {
                     if (Attached)
+                    {
+                        if (KRoot.containsNode(child))
+                        {
+                            return false;
+                        }
+                    }
+                    else
                     {
 
                     }

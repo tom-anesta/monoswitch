@@ -82,7 +82,7 @@ namespace monoswitch
                         this.m_dict = new Dictionary<Keys, KeyPair>();
                         foreach(Keys key in Enum.GetValues(typeof(Keys)).Cast<Keys>())
                         {
-                            this.m_dict[key] = new KeyPair(key);
+                            this.m_dict[key] = new KeyPair(key, KeyState.Up);
                         }
                     }
 
