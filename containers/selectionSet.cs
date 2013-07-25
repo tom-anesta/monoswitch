@@ -829,8 +829,8 @@ namespace monoswitch.containers
                 protected void InitRoot()
                 {
                     this.m_keyRoot = new KeyLogicRoot(this.m_keyDelegator);
-                    this.m_keyRoot.OnAttachedToRoot += node => {  };
-                    this.m_keyRoot.OnChildrenChanged += node => { };
+                    //this.m_keyRoot.OnAttachedToRoot += node => {  };
+                    //this.m_keyRoot.OnChildrenChanged += node => { };
                 }
                 /*
                 private void InitKRoot()

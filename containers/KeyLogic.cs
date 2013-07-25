@@ -10,7 +10,9 @@ using monoswitch;
 namespace monoswitch.containers
 {
 
-    public delegate logicStates NodeStateOperation<T>(TreeNode<T> node) where T : class;
+    public delegate logicStates NodeStateOperation(KeyLogicNode node);
+    public delegate List<logicStates> NodeStateListOperation(KeyLogicNode node);
+    //public delegate bool NodeBoolOperation(KeyLogicNode node, bool intended);
 
     public class KeyLogicRoot : KeyLogicNode
     {
@@ -59,8 +61,8 @@ namespace monoswitch.containers
 
             #region public
 
-                public NodeOperation<KeyGroup> OnAttachedToRoot { get; set; }
-                public NodeOperation<KeyGroup> OnChildrenChanged { get; set; }
+                public NodeStateOperation OnAttachedToRoot { get; set; }
+                public NodeStateOperation OnChildrenChanged { get; set; }
 
             #endregion
 
@@ -134,6 +136,8 @@ namespace monoswitch.containers
                 protected KeyGroup m_group;
                 protected logicStates m_state;
                 protected bool m_last;//is the keygroup associated with this node placed last in a list evaluation or first?
+                protected bool m_overwrite;
+                protected bool m_clamp;
 
             #endregion
 
@@ -196,6 +200,14 @@ namespace monoswitch.containers
                     }
                 }
 
+                public bool last
+                {
+                    get
+                    {
+                        return this.m_last;
+                    }
+                }
+
 
 
             #endregion
@@ -231,6 +243,13 @@ namespace monoswitch.containers
                     set;
                 }
 
+                public bool isNode(KeyLogicNode node, bool intended)
+                {
+                    if (this == node)
+                        return intended;
+                    return !intended;
+                }
+
                 //respond to the thing
                 public bool testValid()
                 {
@@ -263,25 +282,18 @@ namespace monoswitch.containers
             #region public
                 
                 //constructor
-                public KeyLogicNode(KeyDelegator kDel) : base(null)
+                public KeyLogicNode(KeyDelegator kDel, bool clmp = false, bool ovrw = false, bool lst = false) : base(null)
                 {
                     this.m_delegator = kDel;
                     this.m_log = logics.NONE;
                     this.m_method = methods.DEACTIVATE;
                     this.m_state = logicStates.INDETERMINATE;
                     this.Data = null;
-                    this.m_last = false;
+                    this.m_last = lst;
+                    this.m_overwrite = ovrw;
+                    this.m_clamp = clmp;
                 }
-
-                
-                /*
-                public KeyLogicNode() : this()
-                {
-                    this.m_log = logics.NONE;
-                    this.m_method = methods.DEACTIVATE;
-                }
-                */
-                public logicStates clampedEvaluation()
+                public logicStates evaluation()
                 {
                     List<logicStates> sList = new List<logicStates>();
                     foreach (KeyLogicNode cVal in this.Children.Cast<KeyLogicNode>().ToList())
@@ -299,65 +311,54 @@ namespace monoswitch.containers
                             sList.Add(this.Data.evaluate());
                         }
                     }
-                    return KeyLogicManager.evaluate(sList, this.m_log, true);
+                    return KeyLogicManager.evaluate(sList, this.m_log, this.m_clamp, this.m_overwrite);
                 }
 
-
-                //statics
-                public static bool evaluate(bool left, logics? type, bool? right = null)
-                {
-                    if (!type.HasValue)
-                    {
-                        return left;
-                    }
-                    if (type != logics.NOT && !right.HasValue)
-                    {
-                        return false;
-                    }
-                    bool rVal = false;
-                    switch (type.Value)
-                    {
-                        case logics.NOT:
-                            rVal = !left;
-                            break;
-                        case logics.XOR:
-                            rVal = ((left && !right.Value) || (!left && right.Value));
-                            break;
-                        case logics.LEFT:
-                            rVal = (!(right.Value && !left));
-                            break;
-                        case logics.RIGHT:
-                            rVal = (!(!right.Value && left));
-                            break;
-                        case logics.BI:
-                            rVal = (!((left && !right.Value) || (!left && right.Value)));
-                            break;
-                        default:
-                            rVal = false;
-                            break;
-                    }
-                    return rVal;
-                }
-
-                public logicStates DfsOperation(NodeStateOperation<KeyGroup> operation)
+                public logicStates DfsStateOperation(NodeStateOperation operation)
                 {
                     List<logicStates> tempStates = new List<logicStates>();
-                    if (this.Data != null)
-                    {
-                        tempStates.Add(operation(this));
-                    }
+                    logicStates adder = operation(this);
                     foreach (var child in Children)
                     {
-                        tempStates.Add(((KeyLogicNode)child).DfsOperation(operation));
+                        tempStates.Add(((KeyLogicNode)child).DfsStateOperation(operation));
                     }
-                    return this.clampedEvaluation();
+                    if(this.m_last)
+                    {
+                        tempStates.Add(adder);
+                    }
+                    else
+                    {
+                        tempStates.Insert(0, adder);
+                    }
+                    return KeyLogicManager.evaluate(tempStates, this.log, this.m_clamp, this.m_overwrite);
                 }
 
-                public void CompositeOperation(NodeOperation<KeyGroup> operation)
+                public List<logicStates> DfsStatesListOperation(NodeStateListOperation operation)
+                {
+                    List<logicStates> tempList = new List<logicStates>();
+                    List<logicStates> itemList = new List<logicStates>();
+                    List<logicStates> adder = operation(this);
+                    foreach (var child in Children)
+                    {
+                        itemList = ((KeyLogicNode)child).DfsStatesListOperation(operation);
+                        tempList.AddRange(itemList);
+                    }
+                    if (this.m_last)
+                    {
+                        tempList.AddRange(adder);
+                    }
+                    else
+                    {
+                        tempList.InsertRange(0, adder);
+                    }
+                    return tempList;
+                }
+
+                public void Dfs2Operation(NodeOperation<KeyGroup> operation)
                 {
                     foreach (var child in Children)
                     {
-                        child.DfsOperation(operation);
+                        ((KeyLogicNode)child).Dfs2Operation(operation);
                     }
                     if (this.Data != null)
                     {
@@ -365,58 +366,122 @@ namespace monoswitch.containers
                     }
                 }
 
-                public void CompositeOperation(NodeStateOperation<KeyGroup> operation)
+                public logicStates Dfs2StateOperation(NodeStateOperation operation)
                 {
                     List<logicStates> tempStates = new List<logicStates>();
-                    logicStates tempB = logicStates.INDETERMINATE;
                     foreach (var child in Children)
                     {
-                        tempB = ((KeyLogicNode)child).DfsOperation(operation);
-                        //should we do something if tempB is false?
-                        tempStates.Add(tempB);
+                        tempStates.Add(((KeyLogicNode)child).Dfs2StateOperation(operation));
                     }
-                    if (this.Data != null)
+                    logicStates adder = operation(this);
+                    if(this.m_last)
                     {
-                        tempB = operation(this);
-                        //should we do something if tempB is false?
-                        tempStates.Add(tempB);
+                        tempStates.Add(adder);
                     }
-                    this.clampedEvaluation();
+                    else
+                    {
+                        tempStates.Insert(0, adder);
+                    }
+                    return KeyLogicManager.evaluate(tempStates, this.log, this.m_clamp, this.m_overwrite);
+                }
+
+                public List<logicStates> Dfs2StatesListOperation(NodeStateListOperation operation)
+                {
+                    List<logicStates> tempList = new List<logicStates>();
+                    List<logicStates> itemList = new List<logicStates>();
+                    foreach (var child in Children)
+                    {
+                        itemList = ((KeyLogicNode)child).DfsStatesListOperation(operation);
+                        tempList.AddRange(itemList);
+                    }
+                    List<logicStates> adder = operation(this);
+                    if (this.m_last)
+                    {
+                        tempList.AddRange(adder);
+                    }
+                    else
+                    {
+                        tempList.InsertRange(0, adder);
+                    }
+                    return tempList;
+                    
                 }
 
                 // Add/Remove via TreeNode
-                public new void AddChild(KeyLogicNode child)
+                public bool AddChild(KeyLogicNode child)
                 {
+                    if (Attached)
+                    {
+
+                    }
+                    var reserveP = child.Parent;
+                    var reserveKRoot = child.KRoot;
                     child.Parent = this;
                     Children.Add(child);
-                    if (Root == null)
-                    {
-                        return;
-                    }
                     child.Root = null;
                     child.KRoot = this.KRoot;
-                    KRoot.OnAttachedToRoot(this);
-                    //Root.OnAttachedToRoot(this);
+                    logicStates res = logicStates.FALSE;
+                    if (Attached)
+                    {
+                        res = KRoot.OnAttachedToRoot(this);
+                    }
+                    if (res != logicStates.TRUE)
+                    {
+                        Children.Remove(child);
+                        child.Parent = reserveP;
+                        child.KRoot = reserveKRoot;
+                        return false;
+                    }
                     if (this.Attached || this.IsRoot)
                     {
-                        DfsOperation(node => KRoot.OnChildrenChanged(node));
+                        res = Dfs2StateOperation(node => KRoot.OnChildrenChanged(node));
                     }
+                    if (res != logicStates.TRUE)
+                    {
+                        Children.Remove(child);
+                        child.Parent = reserveP;
+                        child.KRoot = reserveKRoot;
+                        return false;
+                    }
+                    return true;
                 }
 
-                public new void RemoveChild(KeyLogicNode child)
+                public bool RemoveChild(KeyLogicNode child)
                 {
                     if (child.Parent != this || !Children.Contains(child))
                     {
-                        return;
+                        return false;
                     }
-                    child.Parent = null;
                     Children.Remove(child);
-                    child.KRoot = null;
+                    logicStates res = logicStates.FALSE;
                     if (this.Attached || this.IsRoot)
                     {
-                        DfsOperation(node => KRoot.OnChildrenChanged(node));
+                        res = Dfs2StateOperation(node => KRoot.OnChildrenChanged(node));
                     }
+                    if (res != logicStates.TRUE)
+                    {
+                        Children.Add(child);
+                        return false;
+                    }
+                    child.Parent = null;
+                    child.KRoot = null;
+                    return true;
+                }
 
+                public bool containsNode(KeyLogicNode node)//acts as dfs, recursive
+                {
+                    if (this == node)
+                    {
+                        return true;
+                    }
+                    foreach (KeyLogicNode child in this.Children.Cast<KeyLogicNode>().ToList())
+                    {
+                        if (child.containsNode(node))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
                 }
 
             #endregion
