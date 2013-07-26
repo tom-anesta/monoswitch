@@ -128,15 +128,45 @@ namespace monoswitch.containers
                     {
                         if (this.m_parent != value)
                         {
-                            //if (this.m_groupPairChanged != null && this.m_parent != null)
-                            //{
-                            //    this.m_groupPairChanged -= this.m_parent.;
-                            //}
-                            //this.m_groupPairChanged += this.m_respGroupPairAttemptChanged;
+                            logicStates result = logicStates.TRUE;
+                            if (this.m_parent != null && this.m_parent.Data == this)
+                            {
+                                //remove this from the current parent
+                                result = this.m_parent.setData(null);//setter should remove event listeners
+                                if (result != logicStates.TRUE)
+                                {
+                                    return;//then we can't do anything
+                                }
+                            }
+                            if (value != null)
+                            {
+                                if (value.Data == this)
+                                {
+                                    this.m_parent = value;
+                                    return;
+                                }
+                                result = value.setData(this);
+                                if (result != logicStates.TRUE)
+                                {//put it back in the thing
+                                    if (this.m_parent != null)
+                                    {//well then we already found we could remove it so we can probably put it back
+                                        this.m_parent.setData(this);
+                                    }
+                                }
+                            }
                             this.m_parent = value;
                         }
 
                     }
+                }
+
+                public bool setParentByExternal(KeyGroup replacer)
+                {
+                    if (this.parent != null)
+                    {
+
+                    }
+                    return false;
                 }
 
             #endregion
@@ -169,9 +199,6 @@ namespace monoswitch.containers
 
             #region protected
 
-                //protected event KeyGroupChange groupAttemptChanged;
-                protected event KeyStatePairChange m_groupPairChanged;
-
                 protected logicStates m_respGroupPairAttemptChanged(KeyPair newP, Stack<KeyPair> oldStack)
                 {
                     //if we attempted a change, we need to evaluate
@@ -180,10 +207,6 @@ namespace monoswitch.containers
                     return logicStates.TRUE;
                 }
 
-                protected void m_respGroupPairChanged(KeyPair val)
-                {//do we need the group to do anything on a successfull pair change?  maybe signal the switch
-
-                }
 
                 protected logicStates m_respGroupAttemptChanged (KeyPair kPair, KeyGroup kGroup)
                 {
@@ -255,10 +278,8 @@ namespace monoswitch.containers
                     {
                         this.m_delegator = new KeyDelegator();
                     }
-                    this.m_parent = node;
-                    node.Data = this;//check for validity here
+                    this.parent = node;
                     //set parent to null if failure in logicnode
-
                     this.groupAttemptChanged += this.m_respGroupAttemptChanged;
                 }
 
@@ -270,7 +291,8 @@ namespace monoswitch.containers
                     {
                         this.m_list.Add(kp);
                     }
-                    this.m_parent = keyGroup.m_parent;
+                    //this.parent = keyGroup.parent;
+                    this.parent = null;//two key groups cannot have the same logic node parent.  only one key group allowed per logic node
                     this.groupAttemptChanged += this.m_respGroupAttemptChanged;
                 }
 
@@ -279,7 +301,7 @@ namespace monoswitch.containers
                 //iTreeNode
                 public TreeNode<KeyGroup> GetTreeNode()
                 {
-                    return this.m_parent;
+                    return this.parent;
                 }
 
                 //structure methods
@@ -303,7 +325,7 @@ namespace monoswitch.containers
                         {
                             //handle adding event listeners
                             adder.stateChangeAttempt += this.m_respGroupPairAttemptChanged;
-                            adder.stateChangeSuccess += this.m_respGroupPairChanged;
+                            //adder.stateChangeSuccess += this.m_respGroupPairChanged;
                             return true;
                         }
                         
@@ -339,7 +361,7 @@ namespace monoswitch.containers
                         else
                         {//handle removing event listeners
                             remover.stateChangeAttempt -= this.m_respGroupPairAttemptChanged;
-                            remover.stateChangeSuccess -= this.m_respGroupPairChanged;
+                            //remover.stateChangeSuccess -= this.m_respGroupPairChanged;
                             return true;
                         }
                     }

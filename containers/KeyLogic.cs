@@ -47,11 +47,21 @@ namespace monoswitch.containers
                 {
                     get
                     {
-                        return this.m_selectSet;
+                        if (this.IsRoot || this.Parent == null)
+                        {
+                            return this.m_selectSet;
+                        }
+                        else
+                        {
+                            return this.getSet;
+                        }
                     }
                     set
                     {
-                        this.m_selectSet = value;
+                        if (this.IsRoot || this.Parent == null)
+                        {
+                            this.m_selectSet = value;
+                        }
                     }
                 }
 
@@ -179,6 +189,11 @@ namespace monoswitch.containers
                         return (KRoot != null);
                     }
                 }
+                new public KeyGroup Data
+                {
+                    get;
+                    protected set;
+                }
 
                 public logics log
                 {
@@ -230,8 +245,6 @@ namespace monoswitch.containers
                     }
                 }
 
-
-
             #endregion
 
             #region internal
@@ -276,16 +289,20 @@ namespace monoswitch.containers
                 {
                     get
                     {
-                        KeyLogicNode test = (KeyLogicNode)this.Parent;
-                        while (Parent != null && !Parent.IsRoot)
+                        if (!this.Attached || this.KRoot == null)
                         {
-                            Parent = Parent.Parent;
+                            KeyLogicNode test = (KeyLogicNode)this.Parent;
+                            while (Parent != null && !Parent.IsRoot)
+                            {
+                                Parent = Parent.Parent;
+                            }
+                            if (Parent == null)
+                            {
+                                return null;
+                            }
+                            return ((KeyLogicRoot)Parent).selectSet;
                         }
-                        if (Parent == null)
-                        {
-                            return null;
-                        }
-                        return ((KeyLogicRoot)Parent).selectSet;
+                        return this.KRoot.selectSet;
                     }
                 }
 
@@ -325,6 +342,7 @@ namespace monoswitch.containers
                 }
                 public logicStates evaluation()
                 {
+                    logicStates currState = this.state;
                     List<logicStates> sList = new List<logicStates>();
                     foreach (KeyLogicNode cVal in this.Children.Cast<KeyLogicNode>().ToList())
                     {
@@ -341,7 +359,14 @@ namespace monoswitch.containers
                             sList.Add(this.Data.evaluate());
                         }
                     }
-                    return KeyLogicManager.evaluate(sList, this.m_log, this.m_clamp, this.m_overwrite);
+                    logicStates result = KeyLogicManager.evaluate(sList, this.m_log, this.m_clamp, this.m_overwrite);
+                    if (result != currState)
+                    {
+                        this.m_state = result;
+                        //signal and return the updated evaluation from the root
+                        return this.KRoot.Dfs2StateOperation(node => node.evaluation());
+                    }
+                    return result;
                 }
 
                 public logicStates DfsStateOperation(NodeStateOperation operation)
@@ -504,7 +529,6 @@ namespace monoswitch.containers
                     child.KRoot = null;
                     return true;
                 }
-
                 public bool containsNode(KeyLogicNode node)//acts as dfs, recursive
                 {
                     if (this == node)
@@ -519,6 +543,27 @@ namespace monoswitch.containers
                         }
                     }
                     return false;
+                }
+                public logicStates setData(KeyGroup sVal)
+                {
+                    KeyGroup older = this.Data;
+                    this.Data = sVal;
+                    logicStates result = this.Dfs2StateOperation(node => node.evaluation());
+                    if (result == logicStates.FALSE)
+                    {
+                        this.Data = older;
+                        return logicStates.FALSE;
+                    }
+                    else
+                    {
+                        if (older != null)
+                        {//remove event listeners
+                            older.parent = null;
+                        }
+                        //add event listeners to it
+                        this.Data.parent = this;
+                    }
+                    return logicStates.TRUE;
                 }
 
             #endregion
