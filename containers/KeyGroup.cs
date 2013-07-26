@@ -11,9 +11,9 @@ using Ruminate.DataStructures;
 namespace monoswitch.containers
 {
 
-    public delegate void KeyStatePairChange(KeyPair nPair, KeyPair oPair);
+    public delegate logicStates KeyStatePairChange(KeyPair nPair, Stack<KeyPair> oldStack);
     public delegate void KeyStatePairSuccess(KeyPair pair);
-    public delegate void KeyGroupChange(KeyPair kPair, KeyGroup kGroup, logicStates oldState, ref logicStates refState);
+    public delegate logicStates KeyGroupChange(KeyPair kPair, KeyGroup kGroup);
 
     public class KeyGroup : ITreeNode<KeyGroup>
     {
@@ -128,11 +128,12 @@ namespace monoswitch.containers
                     {
                         if (this.m_parent != value)
                         {
-                            if (this.m_groupPairChanged != null)
-                            {
-                                this.m_groupPairChanged = null;
-                            }
-                            this.m_groupPairChanged += this.m_respGroupPairChanged;
+                            //if (this.m_groupPairChanged != null && this.m_parent != null)
+                            //{
+                            //    this.m_groupPairChanged -= this.m_parent.;
+                            //}
+                            //this.m_groupPairChanged += this.m_respGroupPairAttemptChanged;
+                            this.m_parent = value;
                         }
 
                     }
@@ -158,7 +159,7 @@ namespace monoswitch.containers
 
             #region public
 
-                public event KeyGroupChange groupChanged;
+                public event KeyGroupChange groupAttemptChanged;
 
             #endregion
 
@@ -168,13 +169,32 @@ namespace monoswitch.containers
 
             #region protected
 
-                protected event KeyGroupChange m_groupAttemptChanged;
+                //protected event KeyGroupChange groupAttemptChanged;
                 protected event KeyStatePairChange m_groupPairChanged;
 
-                protected void m_respGroupPairChanged(KeyPair newP, KeyPair oldP)
+                protected logicStates m_respGroupPairAttemptChanged(KeyPair newP, Stack<KeyPair> oldStack)
                 {
+                    //if we attempted a change, we need to evaluate
+                    logicStates orig = this.state;
+                    this.evaluate();
+                    return logicStates.TRUE;
+                }
 
+                protected void m_respGroupPairChanged(KeyPair val)
+                {//do we need the group to do anything on a successfull pair change?  maybe signal the switch
 
+                }
+
+                protected logicStates m_respGroupAttemptChanged (KeyPair kPair, KeyGroup kGroup)
+                {
+                    //does this invalidate us?
+                    logicStates orig = this.state;
+                    this.evaluate();
+                    if(this.state == orig)//then no change and we can return true
+                    {
+                        return logicStates.TRUE;//change is valid
+                    }
+                    return logicStates.TRUE;//get from keylogic
                 }
 
             #endregion
@@ -203,6 +223,7 @@ namespace monoswitch.containers
                         this.m_delegator = new KeyDelegator();
                     }
                     this.m_state = logicStates.INDETERMINATE;
+                    this.groupAttemptChanged += this.m_respGroupAttemptChanged;
                 }
 
                 public KeyGroup(KeyDelegator delegator, List<Keys> kList) : this(delegator)
@@ -237,6 +258,8 @@ namespace monoswitch.containers
                     this.m_parent = node;
                     node.Data = this;//check for validity here
                     //set parent to null if failure in logicnode
+
+                    this.groupAttemptChanged += this.m_respGroupAttemptChanged;
                 }
 
                 public KeyGroup(KeyGroup keyGroup)
@@ -248,6 +271,7 @@ namespace monoswitch.containers
                         this.m_list.Add(kp);
                     }
                     this.m_parent = keyGroup.m_parent;
+                    this.groupAttemptChanged += this.m_respGroupAttemptChanged;
                 }
 
                 
@@ -265,28 +289,24 @@ namespace monoswitch.containers
                     {
                         KeyPair adder = this.m_delegator.key(kVal);
                         this.m_list.Add(adder);
-                        //now is it invalidated?
-                        logicStates tempState = this.m_state;
-                        this.evaluate();
-                        if (this.m_state != tempState)
+                        logicStates result = logicStates.TRUE;
+                        if (this.groupAttemptChanged != null)
                         {
-                            logicStates addingAttempt = logicStates.TRUE;
-                            if (this.m_groupAttemptChanged != null)
-                            {
-                                this.m_groupAttemptChanged(adder, this, tempState, ref addingAttempt);
-                            }
-                            if (addingAttempt != logicStates.TRUE)//if changed to false we are invalidated
-                            {//remove it and the event listeners
-                                this.m_list.Remove(adder);
-                                this.evaluate();//this should fix it
-                            }
-                            else
-                            {
-                                //handle adding event listeners
-                                adder.stateChangeAttempt += this.m_respGroupPairChanged;
-                            }
-                        }//if invalidated remove it and return false
-                        return true;
+                            result = groupAttemptChanged(adder, this);//will tell if it is invalidated
+                        }
+                        if (result != logicStates.TRUE)//if changed to false we are invalidated
+                        {//remove it
+                            this.m_list.Remove(adder);
+                            this.evaluate();//this should fix it
+                        }
+                        else
+                        {
+                            //handle adding event listeners
+                            adder.stateChangeAttempt += this.m_respGroupPairAttemptChanged;
+                            adder.stateChangeSuccess += this.m_respGroupPairChanged;
+                            return true;
+                        }
+                        
                     }
                     return false;
                 }
@@ -306,29 +326,22 @@ namespace monoswitch.containers
                     {
                         this.m_list.Remove(remover);//first remove
                         //now is it invalidated?
-                        logicStates tempState = this.m_state;
-                        this.evaluate();
-                        if (this.m_state != tempState)
+                        logicStates result = logicStates.TRUE;
+                        if(this.groupAttemptChanged != null)
                         {
-                            logicStates removingAttempt = logicStates.TRUE;
-                            if (this.m_groupAttemptChanged != null)
-                            {
-                                this.m_groupAttemptChanged(remover, this, tempState, ref removingAttempt);
-                            }
-                            if (removingAttempt != logicStates.TRUE)//if changed to false we are invalidated
-                            {//if invalidated add it again and return false
-                                this.m_list.Add(remover);
-                                //event listeners
-                                this.evaluate();//this should fix it
-                            }
-                            else
-                            {//handle removing event listeners
-                                remover.stateChangeAttempt -= this.m_groupPairChanged;
-                            }
+                            result = this.groupAttemptChanged(remover, this);
                         }
-                        
-                        
-
+                        if (result != logicStates.TRUE)
+                        {
+                            this.m_list.Add(remover);
+                            this.evaluate();//this should fix it
+                        }
+                        else
+                        {//handle removing event listeners
+                            remover.stateChangeAttempt -= this.m_respGroupPairAttemptChanged;
+                            remover.stateChangeSuccess -= this.m_respGroupPairChanged;
+                            return true;
+                        }
                     }
                     return false;
                 }
@@ -349,7 +362,7 @@ namespace monoswitch.containers
                     {//do them all
                         foreach (KeyPair kPair in this.m_list)
                         {
-                            kPair.state = KeyState.Up;
+                            kPair.setState(KeyState.Up, null);
                         }
                     }
                     else
@@ -358,11 +371,11 @@ namespace monoswitch.containers
                         {
                             if (dVal.Contains(kPair.key))
                             {
-                                kPair.state = KeyState.Up;
+                                kPair.setState(KeyState.Up, null);
                             }
                         }
                     }
-                    this.evaluate();
+                    //this.evaluate();//done on change success
                 }
 
                 public void activate(List<Keys> aVal)
@@ -371,7 +384,7 @@ namespace monoswitch.containers
                     {//do them all
                         foreach (KeyPair kPair in this.m_list)
                         {
-                            kPair.state = KeyState.Down;
+                            kPair.setState(KeyState.Down, null);
                         }
                     }
                     else
@@ -380,11 +393,11 @@ namespace monoswitch.containers
                         {
                             if (aVal.Contains(kPair.key))
                             {
-                                kPair.state = KeyState.Down;
+                                kPair.setState(KeyState.Down, null);
                             }
                         }
                     }
-                    this.evaluate();
+                    //this.evaluate();//done on change success
                 }
 
                 public logicStates evaluate()//double check the state
@@ -490,47 +503,8 @@ namespace monoswitch.containers
                     get
                     {
                         return this.m_state;
-                    }
-                    set
-                    {
-                        KeyState assignState = value;
-                        if (this.m_state != assignState)
-                        {
-                            KeyPair oldPair = new KeyPair(this.key, this.state);//get your old pair
-                            this.m_state = assignState;
-                            if (this.stateChangeAttempt != null)
-                            {
-                                this.stateChangeAttempt(this, new KeyPair(this.m_key, ((this.m_state == KeyState.Up) ? KeyState.Down : KeyState.Up )));
-                            }
-                            //else//if we have nothing to check for
-                            //{
-                                if (this.stateChangeSuccess != null)
-                                {
-                                    this.stateChangeSuccess(this);//signal the game
-                                }
-                            //}
-                            /*
-                            if (  )
-                            {
-                                this.m_state = value;
-                                if (this.stateChangeSuccess != null)
-                                {
-                                    bool outVal = true;
-                                    if (this.m_state == KeyState.Down)
-                                    {
-                                        outVal = true;
-                                    }
-                                    else if (this.m_state == KeyState.Up)
-                                    {
-                                        outVal = false;
-                                    }
-                                    this.stateChangeSuccess(this, ref outVal);
-                                }
-                            }
-                            */
-                            //otherwise don't change
-                        }
-                    }
+                    }//set handled in public methods for recursion
+                    
                 }
 
             #endregion
@@ -565,25 +539,92 @@ namespace monoswitch.containers
                     }
                 }
 
+                public logicStates setState(KeyState sVal, Stack<KeyPair> oldPairs)
+                {
+                    if(sVal == this.state)
+                    {
+                        return logicStates.TRUE;//well then we succeeded in setting
+                    }
+                    if(oldPairs == null)
+                    {
+                        oldPairs = new Stack<KeyPair>();
+                    }
+                    if (oldPairs.Select(x => x.key).ToList().Contains(this.key))//if this is a loop we can't change it from what we intend to change it anyway without reversing our intentions
+                    {
+                        return logicStates.FALSE;
+                    }
+                    KeyPair oldPair = new KeyPair(this.key, this.state);//get your old pair
+                    this.m_state = sVal;
+                    if (this.stateChangeAttempt != null)
+                    {
+                        oldPairs.Push(oldPair);
+                        this.stateChangeAttempt(this, oldPairs);
+                    }
+                    if (this.m_state == sVal)//success
+                    {
+                        if (this.stateChangeSuccess != null)
+                        {
+                            this.stateChangeSuccess(this);//signal the game
+                        }
+                        if (this.stateChangeAttempt != null)
+                        {
+                            //pop off the stack if we popped it on
+                            oldPairs.Pop();
+                        }
+                        return logicStates.TRUE;
+                    }
+                    //pop off the stack if we popped it on
+                    if (this.stateChangeAttempt != null)
+                    {
+                        oldPairs.Pop();
+                    }
+                    return logicStates.FALSE;
+                }
+
+                /*
+                //else//if we have nothing to check for
+                //{
+                //}
+                /*
+                if (  )
+                {
+                    this.m_state = value;
+                    if (this.stateChangeSuccess != null)
+                    {
+                        bool outVal = true;
+                        if (this.m_state == KeyState.Down)
+                        {
+                            outVal = true;
+                        }
+                        else if (this.m_state == KeyState.Up)
+                        {
+                            outVal = false;
+                        }
+                        this.stateChangeSuccess(this, ref outVal);
+                    }
+                }
+                */
+                //otherwise don't change
+
             #endregion
 
-            #region internal
+                #region internal
 
-            #endregion
+                #endregion
 
-            #region protected
+                #region protected
 
-            #endregion
+                #endregion
 
-            #region private
+                #region private
 
-            #endregion
+                #endregion
 
         #endregion
 
-        #region methods
+                #region methods
 
-            #region public
+                #region public
 
                 //constructor
                 public KeyPair(Keys kVal, KeyState kState)
