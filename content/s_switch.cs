@@ -173,6 +173,8 @@ namespace monoswitch.content
                 public event switchEvent OnToggle;
                 public event switchEvent OffToggle;
 
+                
+
             #endregion
 
             #region internal
@@ -189,6 +191,32 @@ namespace monoswitch.content
                 protected internal new virtual void ExitHover()
                 {
                     this.deHighlight();
+                }
+
+                protected internal virtual void respKeyChange(KeyPair kPair)
+                {
+                    if (this.m_group.isTrue)
+                    {
+                        if(this.switchedOn == false)
+                        {
+                            this.m_switchedOn = true;
+                        }
+                        if (this.OnToggle != null)
+                        {
+                            this.OnToggle(this);
+                        }
+                    }
+                    if (this.m_group.isFalse)
+                    {
+                        if (this.switchedOn == true)
+                        {
+                            this.m_switchedOn = true;
+                        }
+                        if (this.OffToggle != null)
+                        {
+                            this.OffToggle(this);
+                        }
+                    }
                 }
 
             #endregion
@@ -209,16 +237,33 @@ namespace monoswitch.content
 
                 public s_switch(KeyDelegator kdel, List<Keys> kList)
                 {
+                    //set graphics
                     this.Area = new Rectangle(0, 0, 0, 0);
                     this.label = label;
                     this.textPadding = 0;
                     //set events
                     this.OnToggle += this.pressSwitch;
                     this.OffToggle += this.unpressSwitch;
-                    //set monoswitchstuff
+                    //set controls
                     this.m_switchedOn = false;
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, 0);
                     this.setGroup(kdel, kList);
+                    this.m_commited = false;
+                }
+
+                public s_switch(KeyGroup kgroup)
+                {
+                    //set controls
+                    this.Area = new Rectangle(0, 0, 0, 0);
+                    this.label = label;
+                    this.textPadding = 0;
+                    //set events
+                    this.OnToggle += this.pressSwitch;
+                    this.OffToggle += this.unpressSwitch;
+                    //set controls
+                    this.m_switchedOn = false;
+                    this.m_scanningRate = new TimeSpan(0, 0, 0, 0, 0);
+                    this.setGroup(kgroup);
                     this.m_commited = false;
                 }
 
@@ -237,6 +282,22 @@ namespace monoswitch.content
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, Math.Abs(scanR));
                 }
 
+                public s_switch(KeyDelegator kdel, List<Keys> kList, TimeSpan scanR)
+                    : this(kdel, kList)
+                {
+                    this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
+                }
+
+                public s_switch(KeyGroup kg, int scanR) : this(kg)
+                {
+                    this.m_scanningRate = new TimeSpan(0, 0, 0, 0, Math.Abs(scanR));
+                }
+
+                public s_switch(KeyGroup kg, TimeSpan scanR) : this(kg)
+                {
+                    this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
+                }
+
                 /// <summary>
                 /// Creates a new button at the location specified. The button defaults to
                 /// the height of the RenderRule and width of the label.
@@ -252,29 +313,48 @@ namespace monoswitch.content
 
                 public s_switch(KeyDelegator kdel, List<Keys> kList, int x, int y, string label, int padding = 2)
                 {
+                    //set graphics
                     this.Area = new Rectangle(x, y, 0, 0);
                     this.label = label;
                     this.textPadding = padding;
                     //set events
                     this.OnToggle += this.pressSwitch;
                     this.OffToggle += this.unpressSwitch;
-                    //set switch important variables
+                    //set controls
                     this.m_switchedOn = false;
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, 0);
                     setGroup(kdel, kList);
                     this.m_commited = false;
                 }
 
-                public s_switch(KeyDelegator kdel, int x, int y, string label, TimeSpan scanR, int padding = 2)
-                    : this(kdel, x, y, label, padding)
+                public s_switch(KeyGroup kgroup, int x, int y, string label, int padding = 2)
+                {
+                    //set graphics
+                    this.Area = new Rectangle(x, y, 0, 0);
+                    this.label = label;
+                    this.textPadding = padding;
+                    //set events
+                    this.OnToggle += this.pressSwitch;
+                    this.OffToggle += this.unpressSwitch;
+                    //set controls
+                    this.m_switchedOn = false;
+                    this.m_scanningRate = new TimeSpan(0, 0, 0, 0, 0);
+                    setGroup(kgroup);
+                    this.m_commited = false;
+                }
+
+                public s_switch(KeyDelegator kdel, int x, int y, string label, TimeSpan scanR, int padding = 2) : this(kdel, x, y, label, padding)
                 {
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
                 }
 
-
                 //int not allowed as an input due to padding
-                public s_switch(KeyDelegator kdel, List<Keys> kList, int x, int y, string label, TimeSpan scanR, int padding = 2)
-                    : this(kdel, kList, x, y, label, padding)
+                public s_switch(KeyDelegator kdel, List<Keys> kList, int x, int y, string label, TimeSpan scanR, int padding = 2) : this(kdel, kList, x, y, label, padding)
+                {
+                    this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
+                }
+
+                public s_switch(KeyGroup kgroup, int x, int y, string label, TimeSpan scanR, int padding = 2) : this(kgroup, x, y, label, padding)
                 {
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
                 }
@@ -294,40 +374,62 @@ namespace monoswitch.content
 
                 public s_switch(KeyDelegator kdel, List<Keys> kList, int x, int y, int width, string label)
                 {
+                    //set graphics
                     this.Area = new Rectangle(x, y, 0, 0);
                     this.width = width;
                     this.label = label;
-
                     //set events
                     this.OnToggle += this.pressSwitch;
                     this.OffToggle += this.unpressSwitch;
-
+                    //setcontrols
                     this.m_switchedOn = false;
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, 0);
                     setGroup(kdel, kList);
                     this.m_commited = false;
                 }
 
-                public s_switch(KeyDelegator kdel, int x, int y, int width, string label, TimeSpan scanR)
-                    :this(kdel, x, y, width, label)
+                public s_switch(KeyGroup kgroup, int x, int y, int width, string label)
+                {
+                    //set graphics
+                    this.Area = new Rectangle(x, y, 0, 0);
+                    this.width = width;
+                    this.label = label;
+                    //set events
+                    this.OnToggle += this.pressSwitch;
+                    this.OffToggle += this.unpressSwitch;
+                    //set controls
+                    this.m_switchedOn = false;
+                    this.m_scanningRate = new TimeSpan(0, 0, 0, 0, 0);
+                    setGroup(kgroup);
+                    this.m_commited = false;
+                }
+
+                public s_switch(KeyDelegator kdel, int x, int y, int width, string label, TimeSpan scanR) :this(kdel, x, y, width, label)
                 {
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
                 }
 
-                public s_switch(KeyDelegator kdel, List<Keys> kList, int x, int y, int width, string label, TimeSpan scanR)
-                    : this(kdel, kList, x, y, width, label)
+                public s_switch(KeyDelegator kdel, List<Keys> kList, int x, int y, int width, string label, TimeSpan scanR) : this(kdel, kList, x, y, width, label)
                 {
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
                 }
 
-                public s_switch(KeyDelegator kdel, int x, int y, int width, string label, int scanR)
-                    :this(kdel, x, y, width, label)
+                public s_switch(KeyGroup kgroup, int x, int y, int width, string label, TimeSpan scanR) : this(kgroup, x, y, width, label)
+                {
+                    this.m_scanningRate = new TimeSpan(0, 0, 0, 0, (int)scanR.TotalMilliseconds);
+                }
+
+                public s_switch(KeyDelegator kdel, int x, int y, int width, string label, int scanR) : this(kdel, x, y, width, label)
                 {
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, Math.Abs(scanR));
                 }
 
-                public s_switch(KeyDelegator kdel, List<Keys> kList, int x, int y, int width, string label, int scanR)
-                    : this(kdel, kList, x, y, width, label)
+                public s_switch(KeyDelegator kdel, List<Keys> kList, int x, int y, int width, string label, int scanR) : this(kdel, kList, x, y, width, label)
+                {
+                    this.m_scanningRate = new TimeSpan(0, 0, 0, 0, Math.Abs(scanR));
+                }
+
+                public s_switch(KeyGroup kgroup, int x, int y, int width, string label, int scanR) : this(kgroup, x, y, width, label)
                 {
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, Math.Abs(scanR));
                 }
@@ -354,7 +456,7 @@ namespace monoswitch.content
                 //ends initialization
                 public Boolean commit()
                 {
-                    if (this.m_group.Count < 1)
+                    if (this.m_group == null || this.m_group.Count < 1)
                     {
                         this.m_commited = false;
                         return this.m_commited;
@@ -438,24 +540,110 @@ namespace monoswitch.content
 
                 private void setGroup(KeyDelegator kdel, List<Keys> kList)
                 {
-                    if (kList.Count < 1)
+                    if (this.m_group != null)
                     {
-                        this.m_group = new KeyGroup(kdel);
+                        //remove this event listeners
+                        if (this.switchnode != null && this.switchnode.parents != null && this.switchnode.parents.Count > 1)
+                        {
+                            foreach (selectionSet setVal in this.switchnode.parents)
+                            {
+                                if (setVal.containsNode(this.m_switchnode) && this.m_group != null)
+                                {
+                                    foreach (KeyPair kp in this.m_group.pairs)
+                                    {
+                                        if (setVal.containsPairBySwitch(kp))
+                                        {
+                                            kp.stateChangeSuccess -= setVal.respondKeyChanged;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        foreach (KeyPair kp in this.m_group.pairs)
+                        {
+                            kp.stateChangeSuccess -= this.respKeyChange;
+                        }
+                    }
+                    KeyGroup rGroup = new KeyGroup(kdel, kList);
+                    if(kList != null && kList.Count > 0)
+                    {
+                        if (this.switchnode != null && this.switchnode.parents != null && this.switchnode.parents.Count > 1)
+                        {
+                            foreach(selectionSet setVal in this.switchnode.parents)
+                            {
+                                foreach (KeyPair kp in rGroup.pairs)
+                                {
+                                    if (!setVal.containsPairBySwitch(kp))
+                                    {
+                                        kp.stateChangeSuccess += setVal.respondKeyChanged;
+                                    }
+                                }
+                            }
+                        }
+                        foreach (KeyPair kp in rGroup.pairs)
+                        {
+                            kp.stateChangeSuccess += this.respKeyChange;
+                        }
                     }
                     else
                     {
-                        this.m_group = new KeyGroup(kdel, kList);
+                        rGroup = new KeyGroup(kdel);
                     }
+                    this.m_group = rGroup;
+                }
+
+                private void setGroup(KeyGroup kGroup)
+                {
+                    if (kGroup == this.m_group)
+                    {
+                        return;
+                    }
+                    if (this.m_group != null)
+                    {
+                        //remove this event listeners
+                        if (this.switchnode != null && this.switchnode.parents != null && this.switchnode.parents.Count > 1)
+                        {
+                            foreach (selectionSet setVal in this.switchnode.parents)
+                            {
+                                if (setVal.containsNode(this.m_switchnode) && this.m_group != null)
+                                {
+                                    foreach (KeyPair kp in this.m_group.pairs)
+                                    {
+                                        if (setVal.containsPairBySwitch(kp))
+                                        {
+                                            kp.stateChangeSuccess -= setVal.respondKeyChanged;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        foreach (KeyPair kp in this.m_group.pairs)
+                        {
+                            kp.stateChangeSuccess -= this.respKeyChange;
+                        }
+                    }
+                    
                     if (this.switchnode != null && this.switchnode.parents != null && this.switchnode.parents.Count > 1)
                     {
-                        foreach(selectionSet setVal in this.switchnode.parents)
+                        foreach (selectionSet setVal in this.switchnode.parents)
                         {
-                            foreach (KeyPair kp in this.m_group.pairs)
+                            if (setVal.containsNode(this.m_switchnode) && this.m_group != null)
                             {
-                                kp.stateChangeSuccess += setVal.respondKeyChanged;
+                                foreach (KeyPair kp in kGroup.pairs)
+                                {
+                                    if (!setVal.containsPairBySwitch(kp))
+                                    {
+                                        kp.stateChangeSuccess += setVal.respondKeyChanged;
+                                    }
+                                }
                             }
                         }
                     }
+                    foreach (KeyPair kp in kGroup.pairs)
+                    {
+                        kp.stateChangeSuccess += this.respKeyChange;
+                    }
+                    this.m_group = kGroup;
                 }
 
                 private void pressSwitch(s_switch widge)

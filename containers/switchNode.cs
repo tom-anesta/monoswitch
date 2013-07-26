@@ -25,7 +25,6 @@ namespace monoswitch.containers
                 protected List<switchNode> m_successors;
                 protected List<switchNode> m_predecessors;
                 protected List<selectionSet> m_parents;//the selectionsets that use this switch node
-
                 protected switchNode m_lastPredecessor;//the last node that led into this one
                 protected switchNode m_lastSuccessor;//the last node that led out of this one.
                 protected switchNode m_intendedSuccessor;//where the node is currently pointing for next move
@@ -562,6 +561,46 @@ namespace monoswitch.containers
                     this.m_parents.RemoveAt(index);
                     //return
                     return true;
+                }
+
+                public bool containsNodeDfs(switchNode val, List<switchNode> ends, List<switchNode> lChecker = null)
+                {
+                    if (this == val)
+                    {
+                        return true;
+                    }
+                    if (ends.Contains(this) || (lChecker != null && lChecker.Contains(this)) )//for lChecker will return loop
+                    {
+                        return false;
+                    }
+                    foreach (switchNode sn in this.successors)
+                    {
+                        if (sn.containsNodeDfs(val, ends, ((lChecker != null) ? ( (new List<switchNode>(lChecker)).Concat(new switchNode[]{this}).ToList() ) : new List<switchNode>(new switchNode[]{this}) ) ))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                public bool containsPairDfs(KeyPair val, List<switchNode> ends, List<switchNode> lChecker = null)
+                {
+                    if (this.m_child.controllers != null && this.m_child.controllers.pairs.Contains(val))
+                    {
+                        return true;
+                    }
+                    if (ends.Contains(this) || (lChecker != null && lChecker.Contains(this)))//for lChecker will return loop
+                    {
+                        return false;
+                    }
+                    foreach (switchNode sn in this.successors)
+                    {
+                        if (sn.containsPairDfs(val, ends, ((lChecker != null) ? ((new List<switchNode>(lChecker)).Concat(new switchNode[] { this }).ToList()) : new List<switchNode>(new switchNode[] { this }))))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
                 }
 
             #endregion

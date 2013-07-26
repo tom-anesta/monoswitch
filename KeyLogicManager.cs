@@ -106,7 +106,7 @@ namespace monoswitch
             //NOT: [false] (only applicable to end nodes?)
             */
 
-                private static bool m_inited;
+                private static bool m_inited = false;
                 private static Dictionary<logics, List<methods>> m_methodDict;
                 private static Dictionary<logics, logicStates> m_indEvalDict;
                 private static Dictionary<Tuple<logics, logicStates>, List<Tuple<logicStates, logicStates>>> m_evalDict;
@@ -267,7 +267,7 @@ namespace monoswitch
                      KeyLogicManager.m_evalDict[Tuple.Create(logics.NOT, logicStates.INDETERMINATE)] = KeyLogicManager.s_NotInds.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.NONE, logicStates.TRUE)] = KeyLogicManager.s_NoneTrues.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.NONE, logicStates.FALSE)] = KeyLogicManager.s_NoneTrues.ToList();
-                    KeyLogicManager.m_evalDict[Tuple.Create(logics.NOT, logicStates.INDETERMINATE)] = KeyLogicManager.s_NoneInds.ToList();
+                    KeyLogicManager.m_evalDict[Tuple.Create(logics.NONE, logicStates.INDETERMINATE)] = KeyLogicManager.s_NoneInds.ToList();
 
                     //mark as inited
                     KeyLogicManager.m_inited = true;
@@ -290,7 +290,6 @@ namespace monoswitch
                                 indList[i] = KeyLogicManager.m_indEvalDict[lType];
                             }
                         }
-
                     }
                     logDirections dir = logDirections.RIGHT;
                     DirectionAttribute dirAtt = KeyLogicManager.GetDirection(lType);
@@ -310,6 +309,7 @@ namespace monoswitch
                         while (statesRight.Count > 1)
                         {
                             val = KeyLogicManager.evaluate(statesRight[0], statesRight[1], lType);//no reason to clamp if we've already done
+                            //Console.WriteLine("from right, evaluates to " + val);
                             if (val == logicStates.FALSE)
                             {
                                 return logicStates.FALSE;
@@ -326,13 +326,14 @@ namespace monoswitch
                     {
                         List<logicStates> statesLeft = successClamp ? indList.ToList() : logList.ToList();
                         logicStates val = logicStates.NONE;
-                        if(statesLeft.Count > 0)
+                        if(statesLeft.Count > 1)
                         {
                             val = statesLeft[statesLeft.Count-1];
                         }
                         while (statesLeft.Count > 1)
                         {
-                            val = KeyLogicManager.evaluate(statesLeft[statesLeft.Count-2], statesLeft[statesLeft.Count-1], lType);//no reason to clamp if we've already done
+                            val = KeyLogicManager.evaluate(statesLeft[statesLeft.Count-2], statesLeft[statesLeft.Count-1], lType);//no reason to clamp if we've already don
+                            //Console.WriteLine("from left, evaluates to " + val);
                             if (val == logicStates.FALSE)
                             {
                                 return logicStates.FALSE;
@@ -357,6 +358,7 @@ namespace monoswitch
                     {
                         return logicStates.TRUE;
                     }
+                    //Console.WriteLine("no false or true or indeterminate present in results, returning none");
                     return logicStates.NONE;
                 }
 
@@ -368,6 +370,7 @@ namespace monoswitch
                     }
                     if (!KeyLogicManager.m_methodDict.ContainsKey(lType) || !KeyLogicManager.m_indEvalDict.ContainsKey(lType))
                     {
+                        //Console.WriteLine("dictionaries missing logic type");
                         return logicStates.FALSE;
                     }
                     if(clamp && KeyLogicManager.m_indEvalDict.ContainsKey(lType))
@@ -384,11 +387,11 @@ namespace monoswitch
                     if (KeyLogicManager.m_evalDict.ContainsKey(Tuple.Create(lType, logicStates.TRUE)) && KeyLogicManager.m_evalDict.ContainsKey(Tuple.Create(lType, logicStates.FALSE)) && KeyLogicManager.m_evalDict.ContainsKey(Tuple.Create(lType, logicStates.INDETERMINATE)))
                     {
                         Tuple<logicStates, logicStates> eVal = Tuple.Create(left, right);
-                        if(KeyLogicManager.m_evalDict[Tuple.Create(lType, logicStates.TRUE)].Contains(eVal))
+                        if (KeyLogicManager.m_evalDict[Tuple.Create(lType, logicStates.TRUE)].Contains(eVal))
                         {
                             return logicStates.TRUE;
                         }
-                        else if(KeyLogicManager.m_evalDict[Tuple.Create(lType, logicStates.FALSE)].Contains(eVal))
+                        else if (KeyLogicManager.m_evalDict[Tuple.Create(lType, logicStates.FALSE)].Contains(eVal))
                         {
                             return logicStates.FALSE;
                         }
@@ -398,13 +401,40 @@ namespace monoswitch
                         }
                         else
                         {
+                            //Console.WriteLine("cannot evaluate because item is not present in true, false, or ind");
                             return logicStates.NONE;
                         }
                     }
                     else
                     {
+                        //Console.WriteLine("cannot evaluate because missing definition for true false and ind");
                         return logicStates.NONE;
                     }
+                    /*
+                    List<Tuple<logics, logicStates>> refList = new List<Tuple<logics,logicStates>>();//must get the dictionary objects from the dictionary
+                    refList = KeyLogicManager.m_evalDict.Keys.Where(x => (x.Item1 == lType)).ToList();
+                    if (refList.Count != 3)//if we don't have true, false, and indeterminate, we are done
+                    {
+                        return logicStates.NONE;
+                    }
+                    if(KeyLogicManager.m_evalDict[refList[0]].Where(x => ( (x.Item1 == left) && (x.Item2 == right) ) ).ToList().Count > 0 )
+                    {
+                        return refList[0].Item2;
+                    }
+                    else if (KeyLogicManager.m_evalDict[refList[1]].Where(x => ((x.Item1 == left) && (x.Item2 == right))).ToList().Count > 0)
+                    {
+                        return refList[1].Item2;
+                    }
+                    else if (KeyLogicManager.m_evalDict[refList[2]].Where(x => ((x.Item1 == left) && (x.Item2 == right))).ToList().Count > 0)
+                    {
+                        return refList[2].Item2;
+                    }
+                    else
+                    {
+                        return logicStates.NONE;
+                    }
+                    */
+                   
                 }
 
                 //http://stackoverflow.com/questions/5097766/how-to-get-custom-attribute-values-for-enums

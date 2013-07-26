@@ -204,7 +204,13 @@ namespace monoswitch.containers
                     set
                     {
                         this.m_log = value;
-                        this.DfsOperation(node => this.OnLogicChanged(node));
+                        this.DfsOperation(node =>
+                        {
+                            if (this.OnLogicChanged != null)
+                            {
+                                this.OnLogicChanged(node);
+                            }
+                        });
                     }
                 }
 
@@ -225,7 +231,10 @@ namespace monoswitch.containers
                     set
                     {
                         this.m_method = value;
-                        this.DfsOperation(node => this.OnMethodChanged(node));
+                        this.DfsOperation(node =>
+                        {
+                            this.OnMethodChanged(node);
+                        });
                     }
                 }
 
@@ -339,6 +348,7 @@ namespace monoswitch.containers
                     this.m_last = lst;
                     this.m_overwrite = ovrw;
                     this.m_clamp = clmp;
+                    this.KRoot = null;
                 }
                 public logicStates evaluation()
                 {
@@ -359,12 +369,26 @@ namespace monoswitch.containers
                             sList.Add(this.Data.evaluate());
                         }
                     }
+                    while (sList.Count < 2)
+                    {
+                        if (!this.m_last)
+                        {
+                            sList.Add(logicStates.NONE);
+                        }
+                        else
+                        {
+                            sList.Insert(0, logicStates.NONE);
+                        }
+                    }
                     logicStates result = KeyLogicManager.evaluate(sList, this.m_log, this.m_clamp, this.m_overwrite);
                     if (result != currState)
                     {
                         this.m_state = result;
                         //signal and return the updated evaluation from the root
-                        return this.KRoot.Dfs2StateOperation(node => node.evaluation());
+                        if (Attached)
+                        {
+                            return this.KRoot.Dfs2StateOperation(node => node.evaluation());
+                        }
                     }
                     return result;
                 }
@@ -496,7 +520,14 @@ namespace monoswitch.containers
                     }
                     if (this.Attached || this.IsRoot)
                     {
-                        res = Dfs2StateOperation(node => KRoot.OnChildrenChanged(node));
+                        res = Dfs2StateOperation(node =>
+                        {
+                            if (KRoot.OnChildrenChanged != null)
+                            {
+                                return KRoot.OnChildrenChanged(node);
+                            }
+                            return logicStates.TRUE;
+                        });
                     }
                     if (res != logicStates.TRUE)
                     {

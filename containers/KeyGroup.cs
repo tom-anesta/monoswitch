@@ -464,6 +464,8 @@ namespace monoswitch.containers
                     return this.m_state;
                 }
 
+                
+
             #endregion
 
             #region internal
@@ -602,31 +604,6 @@ namespace monoswitch.containers
                     }
                     return logicStates.FALSE;
                 }
-
-                /*
-                //else//if we have nothing to check for
-                //{
-                //}
-                /*
-                if (  )
-                {
-                    this.m_state = value;
-                    if (this.stateChangeSuccess != null)
-                    {
-                        bool outVal = true;
-                        if (this.m_state == KeyState.Down)
-                        {
-                            outVal = true;
-                        }
-                        else if (this.m_state == KeyState.Up)
-                        {
-                            outVal = false;
-                        }
-                        this.stateChangeSuccess(this, ref outVal);
-                    }
-                }
-                */
-                //otherwise don't change
 
             #endregion
 

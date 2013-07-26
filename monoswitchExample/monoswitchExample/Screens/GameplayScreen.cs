@@ -124,9 +124,7 @@ namespace monoswitchExample
                     this.m_inited = false;
                     this.m_timer = null;
                     this.m_selectSet = null;
-                    //this.m_nlss = null;
                     this.m_game = game;
-
                     this.m_isDiscrete = disc;
                     this.m_isComposite = comp;
                     
@@ -166,27 +164,59 @@ namespace monoswitchExample
                     this.m_selectSet = new selectionSet(this.m_game, skin, text, Keys.E, KeyState.Down, KDELEGATOR);
                     if(!this.m_isDiscrete && !this.m_isComposite)//if using basic switches
                     {
-
+                        //DATA: SWITCHES AND GROUP
                         List<Keys> list1 = new List<Keys>();
                         list1.Add(Keys.D);
-                        s_switch temp1 = new s_switch(KDELEGATOR, list1, 10, 10, 150, "right");
-                        switchNode temp1Node = new switchNode(temp1);
+                        KeyGroup group1 = new KeyGroup(KDELEGATOR, list1);
+                        s_switch temp1 = new s_switch(group1, 10, 10, 150, "right");
                         List<Keys> list2 = new List<Keys>();
                         list2.Add(Keys.W);
-                        s_switch temp2 = new s_switch(KDELEGATOR, list2, 160, 10, 150, "up");
-                        switchNode temp2Node = new switchNode(temp2);
+                        KeyGroup group2 = new KeyGroup(KDELEGATOR, list2);
+                        s_switch temp2 = new s_switch(group2, 160, 10, 150, "up");
                         List<Keys> list3 = new List<Keys>();
                         list3.Add(Keys.A);
-                        s_switch temp3 = new s_switch(KDELEGATOR, list3, 310, 10, 150, "left");
-                        switchNode temp3Node = new switchNode(temp3);
+                        KeyGroup group3 = new KeyGroup(KDELEGATOR, list3);
+                        s_switch temp3 = new s_switch(group3, 310, 10, 150, "left");
                         List<Keys> list4 = new List<Keys>();
                         list4.Add(Keys.S);
-                        s_switch temp4 = new s_switch(KDELEGATOR, list4, 460, 10, 150, "down");
+                        KeyGroup group4 = new KeyGroup(KDELEGATOR, list4);
+                        s_switch temp4 = new s_switch(group4, 460, 10, 150, "down");
+                        
+                        //NODES BASE GROUPS AND SWITCHNODES
+                        KeyLogicNode noder = new KeyLogicNode(KDELEGATOR, true, true, true);
+                        noder.log = logics.NONE;
+                        noder.setData(group1);
+                        KeyLogicNode nodeu = new KeyLogicNode(KDELEGATOR, true, true, true);
+                        nodeu.log = logics.NONE;
+                        nodeu.setData(group2);
+                        KeyLogicNode nodel = new KeyLogicNode(KDELEGATOR, true, true, true);
+                        nodel.log = logics.NONE;
+                        nodel.setData(group3);
+                        KeyLogicNode noded = new KeyLogicNode(KDELEGATOR, true, true, true);
+                        noded.log = logics.NONE;
+                        noded.setData(group4);
+                        switchNode temp1Node = new switchNode(temp1);
+                        switchNode temp2Node = new switchNode(temp2);
+                        switchNode temp3Node = new switchNode(temp3);
                         switchNode temp4Node = new switchNode(temp4);
+                        
+                        //SET UP, ASSIGN SUCCESSORS AND BUILD LOGIC HIERARCHY
                         temp1Node.addSuccessor(temp2Node);
                         temp2Node.addSuccessor(temp3Node);
                         temp3Node.addSuccessor(temp4Node);
                         temp4Node.addSuccessor(temp1Node);
+                        KeyLogicNode lrxor = new KeyLogicNode(KDELEGATOR, true, true, true);
+                        lrxor.log = logics.XOR;
+                        lrxor.AddChild(nodel);
+                        lrxor.AddChild(noder);
+                        KeyLogicNode udxor = new KeyLogicNode(KDELEGATOR, true, true, true);
+                        udxor.log = logics.XOR;
+                        udxor.AddChild(nodeu);
+                        udxor.AddChild(noded);
+
+                        //FINALIZE
+                        this.m_selectSet.addLogic(lrxor);
+                        this.m_selectSet.addLogic(udxor);
                         switchNode[] nodeArr = { temp1Node, temp2Node, temp3Node, temp4Node };
                         this.m_selectSet.assignNodes(nodeArr, KDELEGATOR);
                         this.m_selectSet.Commit(0, 0);
@@ -364,18 +394,11 @@ namespace monoswitchExample
                     {
                         this.m_selectSet.Draw();
                     }
-                    /*
-                    if (this.m_nlss != null)
-                    {
-                        this.m_nlss.Draw();
-                    }
-                    */
                     if (this.m_transitionPosition > 0 || this.m_pauseAlpha > 0)
                     {
                         float alpha = MathHelper.Lerp(1f - TransitionAlpha, 1f, this.m_pauseAlpha / 2);
                         ScreenManager.FadeBackBufferToBlack(alpha);
                     }
-                    
                 }
 
             #endregion
@@ -450,10 +473,8 @@ namespace monoswitchExample
 
                 protected bool circleIntersects(star sVal1, star sVal2, float scale)
                 {
-                    //float midX = this.ScreenManager.GraphicsDevice.Viewport.X + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width / 2;
                     float eighthX = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width / 8;
                     float eighth8X = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width - eighthX;
-                    //float midY = this.ScreenManager.GraphicsDevice.Viewport.Y + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 2;
                     float eighthY = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 8;
                     float eighth8Y = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height - eighthY;
                     float dif = Math.Abs(sVal1.radius * scale) + Math.Abs(sVal2.radius * scale);
@@ -545,10 +566,8 @@ namespace monoswitchExample
 
                 protected bool circleIntersects(star sVal1, Player pVal1, float scale)
                 {
-                    //float midX = this.ScreenManager.GraphicsDevice.Viewport.X + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width / 2;
                     float eighthX = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width / 8;
                     float eighth8X = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width - eighthX;
-                    //float midY = this.ScreenManager.GraphicsDevice.Viewport.Y + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 2;
                     float eighthY = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 8;
                     float eighth8Y = this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height - eighthY;
                     float dif = Math.Abs(sVal1.radius * scale) + Math.Abs(pVal1.radius * scale);
@@ -666,22 +685,18 @@ namespace monoswitchExample
                 {
                     if (e.KeyCode == Keys.D)
                     {
-                        Console.WriteLine("signalling right");
                         this.m_player.dpressed = true;
                     }
                     else if (e.KeyCode == Keys.W)
                     {
-                        Console.WriteLine("signalling up");
                         this.m_player.wpressed = true;
                     }
                     else if (e.KeyCode == Keys.A)
                     {
-                        Console.WriteLine("signalling left");
                         this.m_player.apressed = true;
                     }
                     else if (e.KeyCode == Keys.S)
                     {
-                        Console.WriteLine("signalling down");
                         this.m_player.spressed = true;
                     }
 
@@ -691,22 +706,18 @@ namespace monoswitchExample
                 {
                     if (e.KeyCode == Keys.D)
                     {
-                        Console.WriteLine("signalling no longer right");
                         this.m_player.dpressed = false;
                     }
                     else if (e.KeyCode == Keys.W)
                     {
-                        Console.WriteLine("signalling no longer up");
                         this.m_player.wpressed = false;
                     }
                     else if (e.KeyCode == Keys.A)
                     {
-                        Console.WriteLine("signalling no longer left");
                         this.m_player.apressed = false;
                     }
                     else if (e.KeyCode == Keys.S)
                     {
-                        Console.WriteLine("signalling no longer down");
                         this.m_player.spressed = false;
                     }
 

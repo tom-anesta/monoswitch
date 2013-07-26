@@ -466,7 +466,6 @@ namespace monoswitch.containers
 
                 public virtual bool Commit(int p_x, int p_y, switchNode starter = null, int? p_width = null, int? p_height = null)
                 {
-                    //Console.WriteLine("committing now");
                     int act_width = 0;
                     int act_height = 0;
                     bool widthAssigned = false;
@@ -523,7 +522,6 @@ namespace monoswitch.containers
                         this.m_panel.Children = new Widget[] { this.m_scroller };
                     }
                     this.Widgets = new Widget[] { this.m_panel };
-                    //Console.WriteLine("the size is now w: " + this.m_panel.AbsoluteArea.Width + ", h: " + this.m_panel.AbsoluteArea.Height);
                     //assign the current node to the inputmanager
                     if (starter != null && this.m_beginnings.Contains(starter))
                     {
@@ -551,7 +549,6 @@ namespace monoswitch.containers
                         return;
                     }
                     int pref_time = Math.Min(this.m_cutoffTime, ((int)this.m_currentNode.child.scanningRate.TotalMilliseconds > selectionSet.DEFAULT_MIN_SCANNINGRATE) ? (int)this.m_currentNode.child.scanningRate.TotalMilliseconds : (int)this.m_scanningRate.TotalMilliseconds);
-                    Console.WriteLine("the pref time at start is " + pref_time);
                     this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, pref_time);
                 }
 
@@ -761,6 +758,42 @@ namespace monoswitch.containers
                     }
                     min = Math.Min(min, 0);
                     return (int)Math.Abs(max - min);
+                }
+
+                public virtual bool addLogic(KeyLogicNode node)
+                {
+                    return this.m_keyRoot.AddChild(node);
+                }
+
+                public virtual bool removeLogic(KeyLogicNode node)
+                {
+                    return this.m_keyRoot.RemoveChild(node);
+                }
+
+                public bool containsNode(switchNode node)
+                {
+                    List<switchNode> vals = this.m_beginnings.ToList();
+                    foreach (switchNode val in vals)
+                    {
+                        if(val.containsNodeDfs(node, this.m_endings.ToList()))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                public bool containsPairBySwitch(KeyPair kpair)
+                {
+                    List<switchNode> vals = this.m_beginnings.ToList();
+                    foreach (switchNode val in vals)
+                    {
+                        if (val.containsPairDfs(kpair, this.m_endings.ToList()))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
                 }
 
             #endregion
