@@ -177,6 +177,19 @@ namespace monoswitch.containers
                 public event KeyEventHandler sendKeyUp;
                 public event KeyEventHandler sendKeyDown;
 
+                public void respondKeyChanged(KeyPair kPair)
+                {
+                    if (kPair.state == KeyState.Up)
+                    {
+                        this.sendKeyUp(this, new KeyEventArgs(kPair.key));
+                    }
+                    else if (kPair.state == KeyState.Down)
+                    {
+                        this.sendKeyDown(this, new KeyEventArgs(kPair.key));
+                    }
+                }
+
+                /*
                 //public void
                 public void respondSwitchDown(s_switch val)
                 {
@@ -198,7 +211,6 @@ namespace monoswitch.containers
                         kuList.RemoveAt(0);
                     }
                 }
-
                 public void respondSwitchUp(s_switch val)
                 {
                     //initialize variables
@@ -219,6 +231,7 @@ namespace monoswitch.containers
                         kuList.RemoveAt(0);
                     }
                 }
+                */
 
             #endregion
 
@@ -650,7 +663,7 @@ namespace monoswitch.containers
                     if (testList.Length == 1 && testList[0] != null)
                     {
                         switchNode tVal = testList[0];
-                        if( tVal.successors.Count == 1 && tVal.predecessors.Count == 1 && tVal.successors[0] == tVal && testList[0].predecessors[0] == tVal && tVal.child.group.delegator == kDel)
+                        if( tVal.successors.Count == 1 && tVal.predecessors.Count == 1 && tVal.successors[0] == tVal && testList[0].predecessors[0] == tVal && tVal.child.controllers.delegator == kDel)
                         {
                             return true;
                         }
@@ -829,6 +842,7 @@ namespace monoswitch.containers
                 protected void InitRoot()
                 {
                     this.m_keyRoot = new KeyLogicRoot(this.m_keyDelegator);
+                    this.m_keyRoot.selectSet = this;
                     this.m_keyRoot.OnAttachedToRoot += node =>
                     {
                         return node.Dfs2StateOperation(opNode => opNode.evaluation());
@@ -838,24 +852,6 @@ namespace monoswitch.containers
                         return node.Dfs2StateOperation(opNode => opNode.evaluation());
                     };
                 }
-                /*
-                private void InitKRoot()
-                {
-                    Dom = new Root<Widget>();
-                    Dom.OnAttachedToRoot += node =>
-                    {
-                        node.DfsOperationChildren(prepareNode => prepareNode.Data.Prepare(this));
-                        node.DfsOperationChildren(childNode =>
-                        {
-                            if (childNode.Parent != null && childNode.Parent.Root != childNode.Parent)
-                            {
-                                childNode.Parent.Data.Layout();
-                            }
-                        });
-                    };
-                    Dom.OnChildrenChanged += node => node.DfsOperation(innerNode => innerNode.Data.Layout());
-                }
-                */
 
             #endregion
 

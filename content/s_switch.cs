@@ -45,6 +45,7 @@ namespace monoswitch.content
                 protected bool m_switchedOn;
                 protected int m_textPadding;
                 protected int m_width;
+                protected switchNode m_switchnode;
 
             #endregion
 
@@ -136,11 +137,15 @@ namespace monoswitch.content
                     }
                 }
 
-                public KeyGroup group
+                public switchNode switchnode
                 {
                     get
                     {
-                        return new KeyGroup(this.m_group);
+                        return this.m_switchnode;
+                    }
+                    set
+                    {
+                        this.m_switchnode = value;
                     }
                 }
                 
@@ -369,17 +374,32 @@ namespace monoswitch.content
                     if (m_switchedOn)
                     {
                         this.m_group.activate(new List<Keys>());
-                        if (OnToggle != null)
+                        if (this.m_group.isFalse)//if activation failed completely
                         {
-                            OnToggle(this);
+                            this.m_switchedOn = false;
                         }
+                        else if(this.m_group.isTrue)
+                        {
+                            if (OnToggle != null)
+                            {
+                                OnToggle(this);
+                            }
+                        }
+                        //otherwise its on but we don't see it
                     }
                     else
                     {
                         this.m_group.deactivate(new List<Keys>());
-                        if (OffToggle != null)
+                        if (this.m_group.isTrue)//if deactivation failed completely
                         {
-                            OffToggle(this);
+                            this.m_switchedOn = true;
+                        }
+                        else if (this.m_group.isFalse)
+                        {
+                            if (OffToggle != null)
+                            {
+                                OffToggle(this);
+                            }
                         }
                     }
                 }
@@ -425,6 +445,16 @@ namespace monoswitch.content
                     else
                     {
                         this.m_group = new KeyGroup(kdel, kList);
+                    }
+                    if (this.switchnode != null && this.switchnode.parents != null && this.switchnode.parents.Count > 1)
+                    {
+                        foreach(selectionSet setVal in this.switchnode.parents)
+                        {
+                            foreach (KeyPair kp in this.m_group.pairs)
+                            {
+                                kp.stateChangeSuccess += setVal.respondKeyChanged;
+                            }
+                        }
                     }
                 }
 

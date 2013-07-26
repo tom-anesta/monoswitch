@@ -63,7 +63,48 @@ namespace monoswitch.containers
                     }
                     set
                     {
+                        if (value == this.m_child)
+                        {
+                            return;
+                        }
+                        if (this.m_child != null)
+                        {//remove event listeners
+                            if (this.m_parents != null && this.m_parents.Count > 0)
+                            {
+                                foreach (selectionSet setVal in this.m_parents)
+                                {
+                                    if (this.child.controllers != null)
+                                    {
+                                        foreach (KeyPair kp in this.m_child.controllers.pairs)
+                                        {
+                                            if (this.m_child.controllers.parent.getSet == setVal)
+                                            {
+                                                kp.stateChangeSuccess -= setVal.respondKeyChanged;//remove
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            this.m_child.switchnode = null;
+                        }
                         this.m_child = value;
+                        if (this.m_parents != null && this.m_parents.Count > 0)
+                        {
+                            foreach (selectionSet setVal in this.m_parents)
+                            {
+                                if (this.child.controllers != null)
+                                {
+                                    foreach (KeyPair kp in this.m_child.controllers.pairs)
+                                    {
+                                        if (this.m_child.controllers.parent.getSet == setVal)
+                                        {
+                                            kp.stateChangeSuccess += setVal.respondKeyChanged;//add
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        this.m_child.switchnode = this;
                     }
                 }
 
@@ -180,11 +221,31 @@ namespace monoswitch.containers
 
         #endregion
 
-        #region methods
+            #region events
 
-            #region public
+                #region public
 
-            //CONSTRUCTOR
+                #endregion
+
+                #region internal
+
+                #endregion
+
+                #region protected
+
+                #endregion
+
+                #region private
+
+                #endregion
+
+            #endregion
+
+            #region methods
+
+                #region public
+
+                //CONSTRUCTOR
 
                 public switchNode()
                 {
@@ -473,8 +534,12 @@ namespace monoswitch.containers
                     //add to the list
                     this.m_parents.Add(p_val);
                     //add event handlers
-                    this.child.OnToggle += p_val.respondSwitchDown;
-                    this.child.OffToggle += p_val.respondSwitchUp;
+                    //this.child.OnToggle += p_val.respondSwitchDown;
+                    //this.child.OffToggle += p_val.respondSwitchUp;
+                    foreach (KeyPair kP in this.child.controllers.pairs)
+                    {
+                        kP.stateChangeSuccess += p_val.respondKeyChanged;
+                    }
                     //return
                     return true;
                 }
@@ -487,8 +552,12 @@ namespace monoswitch.containers
                     }
                     int index = this.m_parents.IndexOf(p_val);
                     //remove event handlers
-                    this.child.OffToggle -= p_val.respondSwitchUp;
-                    this.child.OnToggle -= p_val.respondSwitchDown;
+                    //this.child.OffToggle -= p_val.respondSwitchUp;
+                    //this.child.OnToggle -= p_val.respondSwitchDown;
+                    foreach (KeyPair kP in this.child.controllers.pairs)
+                    {
+                        kP.stateChangeSuccess -= p_val.respondKeyChanged;
+                    }
                     //remove the item
                     this.m_parents.RemoveAt(index);
                     //return
@@ -511,25 +580,7 @@ namespace monoswitch.containers
 
         #endregion
 
-        #region events
 
-            #region public
-
-            #endregion
-
-            #region internal
-
-            #endregion
-
-            #region protected
-
-            #endregion
-
-            #region private
-
-            #endregion
-
-        #endregion
 
     }
 }

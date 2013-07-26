@@ -29,6 +29,8 @@ namespace monoswitch.containers
 
             #region protected
 
+                protected selectionSet m_selectSet;
+
             #endregion
 
             #region private
@@ -40,6 +42,18 @@ namespace monoswitch.containers
         #region properties
 
             #region public
+
+                public selectionSet selectSet
+                {
+                    get
+                    {
+                        return this.m_selectSet;
+                    }
+                    set
+                    {
+                        this.m_selectSet = value;
+                    }
+                }
 
             #endregion
 
@@ -251,21 +265,29 @@ namespace monoswitch.containers
                     set;
                 }
 
-                public bool isNode(KeyLogicNode node, bool intended)
+                public bool isNode(KeyLogicNode node, bool intended)//may want to get rid of this or modify
                 {
                     if (this == node)
                         return intended;
                     return !intended;
                 }
 
-                //respond to the thing
-                public bool testValid()
+                public selectionSet getSet
                 {
-                    List<Boolean> valList = new List<bool>();
-                    return true;
+                    get
+                    {
+                        KeyLogicNode test = (KeyLogicNode)this.Parent;
+                        while (Parent != null && !Parent.IsRoot)
+                        {
+                            Parent = Parent.Parent;
+                        }
+                        if (Parent == null)
+                        {
+                            return null;
+                        }
+                        return ((KeyLogicRoot)Parent).selectSet;
+                    }
                 }
-
-                
 
                 
 
@@ -510,8 +532,6 @@ namespace monoswitch.containers
             #endregion
 
             #region private
-
-                
 
             #endregion
 

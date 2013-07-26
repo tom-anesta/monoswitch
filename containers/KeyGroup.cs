@@ -12,6 +12,7 @@ namespace monoswitch.containers
 {
 
     public delegate void KeyStatePairChange(KeyPair nPair, KeyPair oPair);
+    public delegate void KeyStatePairSuccess(KeyPair pair);
     public delegate void KeyGroupChange(KeyPair kPair, KeyGroup kGroup, logicStates oldState, ref logicStates refState);
 
     public class KeyGroup : ITreeNode<KeyGroup>
@@ -107,7 +108,14 @@ namespace monoswitch.containers
                     {
                         return ((List<Keys>)(this.m_list.Where(x => x.state == KeyState.Up)).Select(x => x.key).ToList<Keys>());//get the keys that are up
                     }
+                }
 
+                public List<KeyPair> pairs
+                {
+                    get
+                    {
+                        return this.m_list.ToList();
+                    }
                 }
 
                 public KeyLogicNode parent
@@ -354,6 +362,7 @@ namespace monoswitch.containers
                             }
                         }
                     }
+                    this.evaluate();
                 }
 
                 public void activate(List<Keys> aVal)
@@ -375,6 +384,7 @@ namespace monoswitch.containers
                             }
                         }
                     }
+                    this.evaluate();
                 }
 
                 public logicStates evaluate()//double check the state
@@ -496,7 +506,7 @@ namespace monoswitch.containers
                             //{
                                 if (this.stateChangeSuccess != null)
                                 {
-                                    this.stateChangeSuccess(oldPair, this);//not sure what to do yet
+                                    this.stateChangeSuccess(this);//signal the game
                                 }
                             //}
                             /*
@@ -544,8 +554,8 @@ namespace monoswitch.containers
             #region public
 
                 public event KeyStatePairChange stateChangeAttempt;//when we check to see if this state can change
-                public event KeyStatePairChange stateChangeSuccess;//when this state changes successfully based on its own command
-                public event KeyStatePairChange externalStateChange;//when this state is forced to change based on logical operations
+                public event KeyStatePairSuccess stateChangeSuccess;//when this state changes successfully based on its own command
+                //public event KeyStatePairChange externalStateChange;//when this state is forced to change based on logical operations
 
                 public void respondExternalStateChange(KeyPair nPair, KeyPair oPair)
                 {
