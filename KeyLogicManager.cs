@@ -393,6 +393,7 @@ namespace monoswitch
                         }
                         else if (KeyLogicManager.m_evalDict[Tuple.Create(lType, logicStates.FALSE)].Contains(eVal))
                         {
+                            Console.WriteLine("returning an evaluation of false");
                             return logicStates.FALSE;
                         }
                         else if (KeyLogicManager.m_evalDict[Tuple.Create(lType, logicStates.INDETERMINATE)].Contains(eVal))

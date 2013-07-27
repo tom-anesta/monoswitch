@@ -165,6 +165,7 @@ namespace monoswitchExample
                     if(!this.m_isDiscrete && !this.m_isComposite)//if using basic switches
                     {
                         //DATA: SWITCHES AND GROUP
+                        Console.WriteLine("step1begin");
                         List<Keys> list1 = new List<Keys>();
                         list1.Add(Keys.D);
                         KeyGroup group1 = new KeyGroup(KDELEGATOR, list1);
@@ -181,20 +182,25 @@ namespace monoswitchExample
                         list4.Add(Keys.S);
                         KeyGroup group4 = new KeyGroup(KDELEGATOR, list4);
                         s_switch temp4 = new s_switch(group4, 460, 10, 150, "down");
+                        Console.WriteLine("step1end");
                         
                         //NODES BASE GROUPS AND SWITCHNODES
                         KeyLogicNode noder = new KeyLogicNode(KDELEGATOR, true, true, true);
                         noder.log = logics.NONE;
                         noder.setData(group1);
+                        Console.WriteLine("state in noder is " + noder.state);
                         KeyLogicNode nodeu = new KeyLogicNode(KDELEGATOR, true, true, true);
                         nodeu.log = logics.NONE;
                         nodeu.setData(group2);
+                        Console.WriteLine("state in nodeu is " + nodeu.state);
                         KeyLogicNode nodel = new KeyLogicNode(KDELEGATOR, true, true, true);
                         nodel.log = logics.NONE;
                         nodel.setData(group3);
+                        Console.WriteLine("state in nodel is " + nodel.state);
                         KeyLogicNode noded = new KeyLogicNode(KDELEGATOR, true, true, true);
                         noded.log = logics.NONE;
                         noded.setData(group4);
+                        Console.WriteLine("state in noded is " + noded.state);
                         switchNode temp1Node = new switchNode(temp1);
                         switchNode temp2Node = new switchNode(temp2);
                         switchNode temp3Node = new switchNode(temp3);
@@ -209,10 +215,12 @@ namespace monoswitchExample
                         lrxor.log = logics.XOR;
                         lrxor.AddChild(nodel);
                         lrxor.AddChild(noder);
+                        Console.WriteLine("state in lrxor is " + lrxor.state);
                         KeyLogicNode udxor = new KeyLogicNode(KDELEGATOR, true, true, true);
                         udxor.log = logics.XOR;
                         udxor.AddChild(nodeu);
                         udxor.AddChild(noded);
+                        Console.WriteLine("state in udxor is " + udxor.state);
 
                         //FINALIZE
                         this.m_selectSet.addLogic(lrxor);

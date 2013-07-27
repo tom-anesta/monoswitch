@@ -11,9 +11,10 @@ using Ruminate.DataStructures;
 namespace monoswitch.containers
 {
 
-    public delegate logicStates KeyStatePairChange(KeyPair nPair, Stack<KeyPair> oldStack);
-    public delegate void KeyStatePairSuccess(KeyPair pair);
+    public delegate logicStates KeyPairStateChange(KeyPair nPair, Stack<KeyPair> oldStack);
+    public delegate void KeyStatePairFailOrSuccess(KeyPair pair);
     public delegate logicStates KeyGroupChange(KeyPair kPair, KeyGroup kGroup);
+    public delegate logicStates KeyGroupStateChange(KeyGroup group);
 
     public class KeyGroup : ITreeNode<KeyGroup>
     {
@@ -190,6 +191,9 @@ namespace monoswitch.containers
             #region public
 
                 public event KeyGroupChange groupAttemptChanged;
+                public event KeyGroupChange signalGroupHasChanged;
+                public event KeyGroupStateChange groupAttemptStateChanged;
+                public event KeyGroupStateChange groupAttemptStateChangedFailure;
 
             #endregion
 
@@ -203,21 +207,38 @@ namespace monoswitch.containers
                 {
                     //if we attempted a change, we need to evaluate
                     logicStates orig = this.state;
-                    this.evaluate();
-                    return logicStates.TRUE;
+                    this.m_state = this.evaluate();
+                    if (this.m_state != orig)//signal the logic nodes
+                    {
+                        if (this.groupAttemptStateChanged != null)
+                        {
+                            return groupAttemptStateChanged(this);
+                        }
+                    }
+                    return logicStates.TRUE;//if no errors or change, it's fine
                 }
 
+                protected void m_respGroupPairChangeFailure(KeyPair failedP)
+                {
+                    if (this.groupAttemptStateChangedFailure != null)
+                    {
+                        this.groupAttemptStateChangedFailure(this);
+                    }
+                }
 
                 protected logicStates m_respGroupAttemptChanged (KeyPair kPair, KeyGroup kGroup)
                 {
                     //does this invalidate us?
                     logicStates orig = this.state;
                     this.evaluate();
-                    if(this.state == orig)//then no change and we can return true
+                    if(this.state != orig)
                     {
-                        return logicStates.TRUE;//change is valid
+                        if (this.signalGroupHasChanged != null)
+                        {
+                            return this.signalGroupHasChanged(kPair, this);
+                        }
                     }
-                    return logicStates.TRUE;//get from keylogic
+                    return logicStates.TRUE;//if no errors is fine
                 }
 
             #endregion
@@ -325,6 +346,15 @@ namespace monoswitch.containers
                         {
                             //handle adding event listeners
                             adder.stateChangeAttempt += this.m_respGroupPairAttemptChanged;
+                            adder.stateChangeFailure += this.m_respGroupPairChangeFailure;
+                            if (this.parent != null && this.parent.KRoot != null && this.parent.KRoot.getSet != null)
+                            {
+                                selectionSet set = this.parent.KRoot.getSet;
+                                foreach (KeyPair kp in this.pairs)
+                                {
+                                    kp.stateChangeSuccess += set.respondKeyChanged;//remove
+                                }
+                            }
                             //adder.stateChangeSuccess += this.m_respGroupPairChanged;
                             return true;
                         }
@@ -361,7 +391,15 @@ namespace monoswitch.containers
                         else
                         {//handle removing event listeners
                             remover.stateChangeAttempt -= this.m_respGroupPairAttemptChanged;
-                            //remover.stateChangeSuccess -= this.m_respGroupPairChanged;
+                            remover.stateChangeFailure -= this.m_respGroupPairChangeFailure;
+                            if (this.parent != null && this.parent.KRoot != null && this.parent.KRoot.getSet != null)
+                            {
+                                selectionSet set = this.parent.KRoot.getSet;
+                                foreach (KeyPair kp in this.pairs)
+                                {
+                                    kp.stateChangeSuccess -= set.respondKeyChanged;//remove
+                                }
+                            }
                             return true;
                         }
                     }
@@ -451,10 +489,12 @@ namespace monoswitch.containers
                     }
                     else if (trueFound)
                     {
+                        Console.WriteLine("evaluating a group to true");
                         this.m_state = logicStates.TRUE;
                     }
                     else if (falseFound)
                     {
+                        Console.WriteLine("evaluating a group to false");
                         this.m_state = logicStates.FALSE;
                     }
                     else
@@ -551,8 +591,9 @@ namespace monoswitch.containers
 
             #region public
 
-                public event KeyStatePairChange stateChangeAttempt;//when we check to see if this state can change
-                public event KeyStatePairSuccess stateChangeSuccess;//when this state changes successfully based on its own command
+                public event KeyPairStateChange stateChangeAttempt;//when we check to see if this state can change
+                public event KeyStatePairFailOrSuccess stateChangeSuccess;//when this state changes successfully based on its own command
+                public event KeyStatePairFailOrSuccess stateChangeFailure;//when this state fails, we want to re evaluate the logic so it is correct after we set it back
                 //public event KeyStatePairChange externalStateChange;//when this state is forced to change based on logical operations
 
                 public void respondExternalStateChange(KeyPair nPair, KeyPair oPair)
@@ -579,10 +620,16 @@ namespace monoswitch.containers
                     }
                     KeyPair oldPair = new KeyPair(this.key, this.state);//get your old pair
                     this.m_state = sVal;
+                    logicStates result = logicStates.TRUE;
                     if (this.stateChangeAttempt != null)
                     {
                         oldPairs.Push(oldPair);
-                        this.stateChangeAttempt(this, oldPairs);
+                        result = this.stateChangeAttempt(this, oldPairs);//move oldpairs to below when changing, this should evaluate
+                    }
+                    if (result != logicStates.TRUE)//later put here to attempt a change if one is needed to resolve
+                    {
+                        this.m_state = oldPairs.Pop().state;
+                        return logicStates.FALSE;
                     }
                     if (this.m_state == sVal)//success
                     {

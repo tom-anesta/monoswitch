@@ -287,6 +287,34 @@ namespace monoswitch.containers
                     set;
                 }
 
+                public logicStates evalGroupChanged(KeyPair kPair, KeyGroup kGroup)
+                {
+                    logicStates eval = this.state;
+                    this.evaluation();
+                    if (eval != this.state)
+                    {
+                        if (Attached)
+                        {
+                            return this.KRoot.Dfs2StateOperation(node => node.evaluation());
+                        }
+                    }
+                    return logicStates.TRUE;
+                }
+
+                public logicStates evalPairChanged(KeyGroup group)
+                {
+                    logicStates eval = this.state;
+                    this.evaluation();
+                    if (eval != this.state)
+                    {
+                        if (Attached)
+                        {
+                            return this.KRoot.Dfs2StateOperation(node => node.evaluation());
+                        }
+                    }
+                    return logicStates.TRUE;
+                }
+
                 public bool isNode(KeyLogicNode node, bool intended)//may want to get rid of this or modify
                 {
                     if (this == node)
@@ -369,6 +397,7 @@ namespace monoswitch.containers
                             sList.Add(this.Data.evaluate());
                         }
                     }
+                    /*
                     while (sList.Count < 2)
                     {
                         if (!this.m_last)
@@ -380,6 +409,7 @@ namespace monoswitch.containers
                             sList.Insert(0, logicStates.NONE);
                         }
                     }
+                    */
                     logicStates result = KeyLogicManager.evaluate(sList, this.m_log, this.m_clamp, this.m_overwrite);
                     if (result != currState)
                     {
@@ -577,12 +607,29 @@ namespace monoswitch.containers
                 }
                 public logicStates setData(KeyGroup sVal)
                 {
+                    Console.WriteLine("setting the data");
                     KeyGroup older = this.Data;
+                    logicStates pastState = this.state;
                     this.Data = sVal;
-                    logicStates result = this.Dfs2StateOperation(node => node.evaluation());
-                    if (result == logicStates.FALSE)
+                    this.evaluation();
+                    logicStates result = logicStates.TRUE;
+                    if (Attached)
+                    {
+                        result = this.KRoot.Dfs2StateOperation(node => node.evaluation());
+                    }
+                    else
+                    {
+                        KeyLogicNode par = this;
+                        while (par.Parent != null)
+                        {
+                            par = (KeyLogicNode)par.Parent;
+                        }
+                        result = par.Dfs2StateOperation(node => node.evaluation());
+                    }
+                    if (result == logicStates.FALSE && this.log != logics.NONE)
                     {
                         this.Data = older;
+                        this.evaluation();
                         return logicStates.FALSE;
                     }
                     else
@@ -590,10 +637,15 @@ namespace monoswitch.containers
                         if (older != null)
                         {//remove event listeners
                             older.parent = null;
+                            older.signalGroupHasChanged -= this.evalGroupChanged;
+                            older.groupAttemptStateChanged -= this.evalPairChanged;
                         }
                         //add event listeners to it
                         this.Data.parent = this;
+                        this.Data.signalGroupHasChanged += this.evalGroupChanged;
+                        this.Data.groupAttemptStateChanged += this.evalPairChanged;
                     }
+                    Console.WriteLine("after setting data the state is " + this.state);
                     return logicStates.TRUE;
                 }
 
