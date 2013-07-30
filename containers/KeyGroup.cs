@@ -489,12 +489,12 @@ namespace monoswitch.containers
                     }
                     else if (trueFound)
                     {
-                        Console.WriteLine("evaluating a group to true");
+                        //Console.WriteLine("evaluating a group to true");
                         this.m_state = logicStates.TRUE;
                     }
                     else if (falseFound)
                     {
-                        Console.WriteLine("evaluating a group to false");
+                        //Console.WriteLine("evaluating a group to false");
                         this.m_state = logicStates.FALSE;
                     }
                     else
@@ -625,6 +625,7 @@ namespace monoswitch.containers
                     {
                         oldPairs.Push(oldPair);
                         result = this.stateChangeAttempt(this, oldPairs);//move oldpairs to below when changing, this should evaluate
+                        Console.WriteLine("the result of an attempted state change is " + result);
                     }
                     if (result != logicStates.TRUE)//later put here to attempt a change if one is needed to resolve
                     {

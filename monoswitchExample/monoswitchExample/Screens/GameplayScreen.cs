@@ -165,7 +165,6 @@ namespace monoswitchExample
                     if(!this.m_isDiscrete && !this.m_isComposite)//if using basic switches
                     {
                         //DATA: SWITCHES AND GROUP
-                        Console.WriteLine("step1begin");
                         List<Keys> list1 = new List<Keys>();
                         list1.Add(Keys.D);
                         KeyGroup group1 = new KeyGroup(KDELEGATOR, list1);
@@ -182,22 +181,22 @@ namespace monoswitchExample
                         list4.Add(Keys.S);
                         KeyGroup group4 = new KeyGroup(KDELEGATOR, list4);
                         s_switch temp4 = new s_switch(group4, 460, 10, 150, "down");
-                        Console.WriteLine("step1end");
-                        
+
+                        Console.WriteLine("step2begin");
                         //NODES BASE GROUPS AND SWITCHNODES
-                        KeyLogicNode noder = new KeyLogicNode(KDELEGATOR, true, true, true);
+                        KeyLogicNode noder = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
                         noder.log = logics.NONE;
                         noder.setData(group1);
                         Console.WriteLine("state in noder is " + noder.state);
-                        KeyLogicNode nodeu = new KeyLogicNode(KDELEGATOR, true, true, true);
+                        KeyLogicNode nodeu = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
                         nodeu.log = logics.NONE;
                         nodeu.setData(group2);
                         Console.WriteLine("state in nodeu is " + nodeu.state);
-                        KeyLogicNode nodel = new KeyLogicNode(KDELEGATOR, true, true, true);
+                        KeyLogicNode nodel = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
                         nodel.log = logics.NONE;
                         nodel.setData(group3);
                         Console.WriteLine("state in nodel is " + nodel.state);
-                        KeyLogicNode noded = new KeyLogicNode(KDELEGATOR, true, true, true);
+                        KeyLogicNode noded = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
                         noded.log = logics.NONE;
                         noded.setData(group4);
                         Console.WriteLine("state in noded is " + noded.state);
@@ -205,29 +204,67 @@ namespace monoswitchExample
                         switchNode temp2Node = new switchNode(temp2);
                         switchNode temp3Node = new switchNode(temp3);
                         switchNode temp4Node = new switchNode(temp4);
-                        
+                        Console.WriteLine("step2end");
+
+                        Console.WriteLine("step3begin");
                         //SET UP, ASSIGN SUCCESSORS AND BUILD LOGIC HIERARCHY
                         temp1Node.addSuccessor(temp2Node);
                         temp2Node.addSuccessor(temp3Node);
                         temp3Node.addSuccessor(temp4Node);
                         temp4Node.addSuccessor(temp1Node);
-                        KeyLogicNode lrxor = new KeyLogicNode(KDELEGATOR, true, true, true);
+                        KeyLogicNode lrxor = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
                         lrxor.log = logics.XOR;
+                        Console.WriteLine("state in lrxor is " + lrxor.state);
                         lrxor.AddChild(nodel);
+                        Console.WriteLine("state in lrxor is " + lrxor.state);
+                        Console.WriteLine("the number of children in lrxor is " + lrxor.Children.Count);
                         lrxor.AddChild(noder);
                         Console.WriteLine("state in lrxor is " + lrxor.state);
-                        KeyLogicNode udxor = new KeyLogicNode(KDELEGATOR, true, true, true);
+                        Console.WriteLine("the number of children in lrxor is " + lrxor.Children.Count);
+                        Console.WriteLine("the parents of the children in lrxor are ");
+                        foreach (var child in lrxor.Children)
+                        {
+                            Console.WriteLine(child.Parent.ToString());
+                        }
+                        KeyLogicNode udxor = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
                         udxor.log = logics.XOR;
+                        Console.WriteLine("state in udxor is " + udxor.state);
                         udxor.AddChild(nodeu);
+                        Console.WriteLine("state in udxor is " + udxor.state);
+                        Console.WriteLine("the number of children in udxor is " + udxor.Children.Count);
                         udxor.AddChild(noded);
                         Console.WriteLine("state in udxor is " + udxor.state);
+                        Console.WriteLine("the number of children in udxor is " + udxor.Children.Count);
+                        Console.WriteLine("the parents of the children in udxor are ");
+                        foreach (var child in udxor.Children)
+                        {
+                            Console.WriteLine(child.Parent.ToString());
+                        }
+                        Console.WriteLine("step3end");
 
+                        Console.WriteLine("step4begin");
                         //FINALIZE
-                        this.m_selectSet.addLogic(lrxor);
-                        this.m_selectSet.addLogic(udxor);
+                        bool r1 = this.m_selectSet.addLogic(lrxor);
+                        bool r2 = this.m_selectSet.addLogic(udxor);
+                        Console.WriteLine("the results from add are: " + r1 + " and " + r2);
+                        Console.WriteLine("the number of children in root is " + this.m_selectSet.root.Children.Count);
+                        Console.WriteLine("the parents of the children in root are ");
+                        foreach (var child in this.m_selectSet.root.Children)
+                        {
+                            Console.WriteLine(child.Parent.ToString());
+                        }
+                        Console.WriteLine("the roots of all items are ");
+                        Console.WriteLine("root: " + this.m_selectSet.root.KRoot.ToString());
+                        Console.WriteLine("level 1 item 1: " + lrxor.KRoot);
+                        Console.WriteLine("level 1 item 2: " + udxor.KRoot);
+                        Console.WriteLine("level 2 item 1: " + noder.KRoot);
+                        Console.WriteLine("level 2 item 2: " + nodeu.KRoot);
+                        Console.WriteLine("level 2 item 3: " + nodel.KRoot);
+                        Console.WriteLine("level 2 item 4: " + noded.KRoot);
                         switchNode[] nodeArr = { temp1Node, temp2Node, temp3Node, temp4Node };
                         this.m_selectSet.assignNodes(nodeArr, KDELEGATOR);
                         this.m_selectSet.Commit(0, 0);
+                        Console.WriteLine("step4end");
                     }
                     else if(this.m_isDiscrete && !this.m_isComposite)
                     {

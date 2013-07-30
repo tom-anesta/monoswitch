@@ -151,6 +151,14 @@ namespace monoswitch.containers
                     }
                 }
 
+                public KeyLogicRoot root
+                {
+                    get
+                    {
+                        return this.m_keyRoot;
+                    }
+                }
+
             #endregion
 
             #region internal
@@ -876,11 +884,11 @@ namespace monoswitch.containers
                 {
                     this.m_keyRoot = new KeyLogicRoot(this.m_keyDelegator);
                     this.m_keyRoot.selectSet = this;
-                    this.m_keyRoot.OnAttachedToRoot += node =>
+                    this.m_keyRoot.OnAttachedToRootAttempt += node =>
                     {
                         return node.Dfs2StateOperation(opNode => opNode.evaluation());
                     };
-                    this.m_keyRoot.OnAttachedToRoot += node =>
+                    this.m_keyRoot.OnChildrenChanged += node =>
                     {
                         return node.Dfs2StateOperation(opNode => opNode.evaluation());
                     };

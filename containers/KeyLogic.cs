@@ -10,6 +10,7 @@ using monoswitch;
 namespace monoswitch.containers
 {
 
+    public delegate void KLNodeOperation (KeyLogicNode node);
     public delegate logicStates NodeStateOperation(KeyLogicNode node);
     public delegate List<logicStates> NodeStateListOperation(KeyLogicNode node);
     //public delegate bool NodeBoolOperation(KeyLogicNode node, bool intended);
@@ -85,7 +86,7 @@ namespace monoswitch.containers
 
             #region public
 
-                public NodeStateOperation OnAttachedToRoot { get; set; }
+                public NodeStateOperation OnAttachedToRootAttempt { get; set; }
                 public NodeStateOperation OnChildrenChanged { get; set; }
 
             #endregion
@@ -108,7 +109,7 @@ namespace monoswitch.containers
 
             #region public
 
-                public KeyLogicRoot(KeyDelegator kDel) : base(kDel)
+                public KeyLogicRoot(KeyDelegator kDel) : base(kDel, int.MaxValue)
                 {
                     KRoot = this;
                     Root = null;
@@ -140,6 +141,10 @@ namespace monoswitch.containers
 
             #region public
 
+                //static
+                public static int MINMAXOBJ = 1;
+
+                //memberlike properties
                 public KeyLogicRoot KRoot
                 {
                     get;
@@ -162,6 +167,7 @@ namespace monoswitch.containers
                 protected bool m_last;//is the keygroup associated with this node placed last in a list evaluation or first?
                 protected bool m_overwrite;
                 protected bool m_clamp;
+                protected int m_maxObj;
 
             #endregion
 
@@ -254,6 +260,14 @@ namespace monoswitch.containers
                     }
                 }
 
+                public int maxObj
+                {
+                    get
+                    {
+                        return this.m_maxObj;
+                    }
+                }
+
             #endregion
 
             #region internal
@@ -303,45 +317,27 @@ namespace monoswitch.containers
 
                 public logicStates evalPairChanged(KeyGroup group)
                 {
+                    Console.WriteLine("attempting state pair examination from logic");
                     logicStates eval = this.state;
                     this.evaluation();
                     if (eval != this.state)
                     {
                         if (Attached)
                         {
-                            return this.KRoot.Dfs2StateOperation(node => node.evaluation());
+                            Console.WriteLine("attempting DFS");
+                            eval = this.KRoot.Dfs2StateOperation(node => node.evaluation());
+                            Console.WriteLine("eval is " + eval);
+                            return eval;
+                        }
+                        else
+                        {
+                            Console.WriteLine("big problem no root");
                         }
                     }
                     return logicStates.TRUE;
                 }
 
-                public bool isNode(KeyLogicNode node, bool intended)//may want to get rid of this or modify
-                {
-                    if (this == node)
-                        return intended;
-                    return !intended;
-                }
-
-                public selectionSet getSet
-                {
-                    get
-                    {
-                        if (!this.Attached || this.KRoot == null)
-                        {
-                            KeyLogicNode test = (KeyLogicNode)this.Parent;
-                            while (Parent != null && !Parent.IsRoot)
-                            {
-                                Parent = Parent.Parent;
-                            }
-                            if (Parent == null)
-                            {
-                                return null;
-                            }
-                            return ((KeyLogicRoot)Parent).selectSet;
-                        }
-                        return this.KRoot.selectSet;
-                    }
-                }
+                
 
                 
 
@@ -366,7 +362,7 @@ namespace monoswitch.containers
             #region public
                 
                 //constructor
-                public KeyLogicNode(KeyDelegator kDel, bool clmp = false, bool ovrw = false, bool lst = false) : base(null)
+                public KeyLogicNode(KeyDelegator kDel, int maxO, bool clmp = false, bool ovrw = false, bool lst = false) : base(null)
                 {
                     this.m_delegator = kDel;
                     this.m_log = logics.NONE;
@@ -377,6 +373,12 @@ namespace monoswitch.containers
                     this.m_overwrite = ovrw;
                     this.m_clamp = clmp;
                     this.KRoot = null;
+                    this.Root = null;
+                    if (maxO < KeyLogicNode.MINMAXOBJ)
+                    {
+                        maxO = KeyLogicNode.MINMAXOBJ;
+                    }
+                    this.m_maxObj = maxO;
                 }
                 public logicStates evaluation()
                 {
@@ -397,19 +399,6 @@ namespace monoswitch.containers
                             sList.Add(this.Data.evaluate());
                         }
                     }
-                    /*
-                    while (sList.Count < 2)
-                    {
-                        if (!this.m_last)
-                        {
-                            sList.Add(logicStates.NONE);
-                        }
-                        else
-                        {
-                            sList.Insert(0, logicStates.NONE);
-                        }
-                    }
-                    */
                     logicStates result = KeyLogicManager.evaluate(sList, this.m_log, this.m_clamp, this.m_overwrite);
                     if (result != currState)
                     {
@@ -423,7 +412,7 @@ namespace monoswitch.containers
                     return result;
                 }
 
-                public logicStates DfsStateOperation(NodeStateOperation operation)
+                public logicStates DfsStateOperation(NodeStateOperation operation, int maxObj = 2)
                 {
                     List<logicStates> tempStates = new List<logicStates>();
                     logicStates adder = operation(this);
@@ -431,34 +420,96 @@ namespace monoswitch.containers
                     {
                         tempStates.Add(((KeyLogicNode)child).DfsStateOperation(operation));
                     }
-                    if(this.m_last)
+                    if(this.m_last && tempStates.Count < maxObj)
                     {
                         tempStates.Add(adder);
                     }
-                    else
+                    else if (tempStates.Count < maxObj)
                     {
                         tempStates.Insert(0, adder);
                     }
                     return KeyLogicManager.evaluate(tempStates, this.log, this.m_clamp, this.m_overwrite);
                 }
 
-                public List<logicStates> DfsStatesListOperation(NodeStateListOperation operation)
+                public logicStates DfsStateOperationChildren(NodeStateOperation operation, int maxObj = 2)
+                {
+                    List<logicStates> tempStates = new List<logicStates>();
+                    logicStates adder = operation(this);
+                    foreach (var child in Children)
+                    {
+                        tempStates.Add(((KeyLogicNode)child).DfsStateOperation(operation, maxObj));
+                    }
+                    return KeyLogicManager.evaluate(tempStates, this.log, this.m_clamp, this.m_overwrite);
+                }
+
+                public List<logicStates> DfsStatesListOperation(NodeStateListOperation operation, int maxObj = 2)
                 {
                     List<logicStates> tempList = new List<logicStates>();
                     List<logicStates> itemList = new List<logicStates>();
+                    int tracker = 0;
                     List<logicStates> adder = operation(this);
                     foreach (var child in Children)
                     {
-                        itemList = ((KeyLogicNode)child).DfsStatesListOperation(operation);
+                        itemList = ((KeyLogicNode)child).DfsStatesListOperation(operation, maxObj);
                         tempList.AddRange(itemList);
+                        tracker++;
                     }
-                    if (this.m_last)
+                    if (this.m_last && tracker < maxObj)
                     {
                         tempList.AddRange(adder);
                     }
-                    else
+                    else if (tracker < maxObj)
                     {
                         tempList.InsertRange(0, adder);
+                    }
+                    return tempList;
+                }
+
+                public logicStates DfsFilteredListStateOperation(NodeStateListOperation operation, List<logicStates> disqualifiers, int maxObj = 2)
+                {
+                    List<logicStates> tempList = new List<logicStates>();
+                    List<logicStates> adder = operation(this);
+                    foreach(var child in this.Children)
+                    {
+                        tempList.Add(((KeyLogicNode)child).DfsFilteredListStateOperation(operation, disqualifiers, maxObj));
+                    }
+                    if (this.m_last && tempList.Count < maxObj)
+                    {
+                        tempList.AddRange(adder);
+                    }
+                    else if (tempList.Count < maxObj)
+                    {
+                        tempList.InsertRange(0, adder);
+                    }
+                    if (tempList.Intersect(disqualifiers) != new List<logicStates>())
+                    {
+                        return logicStates.FALSE;
+                    }
+                    return logicStates.TRUE;
+                }
+
+                public logicStates DfsFilteredListStateOperationChildren(NodeStateListOperation operation, List<logicStates> disqualifiers, int maxObj = 2)
+                {
+                    List<logicStates> tempList = new List<logicStates>();
+                    foreach (var child in this.Children)
+                    {
+                        tempList.Add(((KeyLogicNode)child).DfsFilteredListStateOperation(operation, disqualifiers, maxObj));
+                    }
+                    if (tempList.Intersect(disqualifiers) != new List<logicStates>())
+                    {
+                        return logicStates.FALSE;
+                    }
+                    return logicStates.TRUE;
+                }
+
+                public List<logicStates> DfsStatesListOperationChildren(NodeStateListOperation operation, int maxObj = 2)
+                {
+                    List<logicStates> tempList = new List<logicStates>();
+                    List<logicStates> itemList = new List<logicStates>();
+                    foreach (var child in Children)
+                    {
+                        itemList = ((KeyLogicNode)child).DfsStatesListOperation(operation, maxObj);
+                        tempList.AddRange(itemList);
                     }
                     return tempList;
                 }
@@ -475,7 +526,7 @@ namespace monoswitch.containers
                     }
                 }
 
-                public logicStates Dfs2StateOperation(NodeStateOperation operation)
+                public logicStates Dfs2StateOperation(NodeStateOperation operation, int maxObj = 2)
                 {
                     List<logicStates> tempStates = new List<logicStates>();
                     foreach (var child in Children)
@@ -483,37 +534,99 @@ namespace monoswitch.containers
                         tempStates.Add(((KeyLogicNode)child).Dfs2StateOperation(operation));
                     }
                     logicStates adder = operation(this);
-                    if(this.m_last)
+                    if(this.m_last && tempStates.Count < maxObj)
                     {
                         tempStates.Add(adder);
                     }
-                    else
+                    else if (tempStates.Count < maxObj)
                     {
                         tempStates.Insert(0, adder);
                     }
                     return KeyLogicManager.evaluate(tempStates, this.log, this.m_clamp, this.m_overwrite);
                 }
 
-                public List<logicStates> Dfs2StatesListOperation(NodeStateListOperation operation)
+                public logicStates Dfs2StateOperationChildren(NodeStateOperation operation, int maxObj = 2)
                 {
-                    List<logicStates> tempList = new List<logicStates>();
-                    List<logicStates> itemList = new List<logicStates>();
+                    List<logicStates> tempStates = new List<logicStates>();
                     foreach (var child in Children)
                     {
-                        itemList = ((KeyLogicNode)child).DfsStatesListOperation(operation);
-                        tempList.AddRange(itemList);
+                        tempStates.Add(((KeyLogicNode)child).Dfs2StateOperation(operation, maxObj));
+                    }
+                    return KeyLogicManager.evaluate(tempStates, this.log, this.m_clamp, this.m_overwrite);
+                }
+
+                public logicStates Dfs2FilteredListStateOperation(NodeStateListOperation operation, List<logicStates> disqualifiers, int maxObj = 2)
+                {
+                    List<logicStates> tempList = new List<logicStates>();
+                    foreach (var child in this.Children)
+                    {
+                        tempList.Add(((KeyLogicNode)child).Dfs2FilteredListStateOperation(operation, disqualifiers, maxObj));
                     }
                     List<logicStates> adder = operation(this);
-                    if (this.m_last)
+                    if (this.m_last && tempList.Count < maxObj)
                     {
                         tempList.AddRange(adder);
                     }
-                    else
+                    else if (tempList.Count < maxObj)
+                    {
+                        tempList.InsertRange(0, adder);
+                    }
+                    if (tempList.Intersect(disqualifiers) != new List<logicStates>())
+                    {
+                        return logicStates.FALSE;
+                    }
+                    return logicStates.TRUE;
+                }
+
+                public logicStates Dfs2FilteredListStateOperationChildren(NodeStateListOperation operation, List<logicStates> disqualifiers, int maxObj = 2)
+                {
+                    List<logicStates> tempList = new List<logicStates>();
+                    foreach (var child in this.Children)
+                    {
+                        tempList.Add(((KeyLogicNode)child).Dfs2FilteredListStateOperation(operation, disqualifiers, maxObj));
+                    }
+                    if (tempList.Intersect(disqualifiers) != new List<logicStates>())
+                    {
+                        return logicStates.FALSE;
+                    }
+                    return logicStates.TRUE;
+                }
+
+                public List<logicStates> Dfs2StatesListOperation(NodeStateListOperation operation, int maxObj = 2)
+                {
+                    List<logicStates> tempList = new List<logicStates>();
+                    List<logicStates> itemList = new List<logicStates>();
+                    int tracker = 0;
+                    foreach (var child in Children)
+                    {
+                        itemList = ((KeyLogicNode)child).Dfs2StatesListOperation(operation, maxObj);
+                        tempList.AddRange(itemList);
+                        tracker++;
+                    }
+                    List<logicStates> adder = operation(this);
+                    if (this.m_last && tracker < maxObj)
+                    {
+                        tempList.AddRange(adder);
+                    }
+                    else if (tracker < maxObj)
                     {
                         tempList.InsertRange(0, adder);
                     }
                     return tempList;
-                    
+                }
+
+                public List<logicStates> Dfs2StatesListOperationChildern(NodeStateListOperation operation, int maxObj = 2)
+                {
+                    List<logicStates> tempList = new List<logicStates>();
+                    List<logicStates> itemList = new List<logicStates>();
+                    int tracker = 0;
+                    foreach (var child in Children)
+                    {
+                        itemList = ((KeyLogicNode)child).Dfs2StatesListOperation(operation, maxObj);
+                        tempList.AddRange(itemList);
+                        tracker++;
+                    }
+                    return tempList;
                 }
 
                 // Add/Remove via TreeNode
@@ -526,20 +639,17 @@ namespace monoswitch.containers
                             return false;
                         }
                     }
-                    else
-                    {
-
-                    }
                     var reserveP = child.Parent;
                     var reserveKRoot = child.KRoot;
                     child.Parent = this;
                     Children.Add(child);
                     child.Root = null;
                     child.KRoot = this.KRoot;
-                    logicStates res = logicStates.FALSE;
+                    logicStates res = logicStates.TRUE;
+                    this.evaluation();
                     if (Attached)
                     {
-                        res = KRoot.OnAttachedToRoot(this);
+                        res = KRoot.OnAttachedToRootAttempt(this);
                     }
                     if (res != logicStates.TRUE)
                     {
@@ -576,7 +686,7 @@ namespace monoswitch.containers
                         return false;
                     }
                     Children.Remove(child);
-                    logicStates res = logicStates.FALSE;
+                    logicStates res = logicStates.TRUE;
                     if (this.Attached || this.IsRoot)
                     {
                         res = Dfs2StateOperation(node => KRoot.OnChildrenChanged(node));
@@ -607,7 +717,6 @@ namespace monoswitch.containers
                 }
                 public logicStates setData(KeyGroup sVal)
                 {
-                    Console.WriteLine("setting the data");
                     KeyGroup older = this.Data;
                     logicStates pastState = this.state;
                     this.Data = sVal;
@@ -645,8 +754,39 @@ namespace monoswitch.containers
                         this.Data.signalGroupHasChanged += this.evalGroupChanged;
                         this.Data.groupAttemptStateChanged += this.evalPairChanged;
                     }
-                    Console.WriteLine("after setting data the state is " + this.state);
                     return logicStates.TRUE;
+                }
+                public void setKRoot(KeyLogicRoot kr)
+                {
+                    this.KRoot = kr;
+                }
+
+                public bool isNode(KeyLogicNode node)//may want to get rid of this or modify
+                {
+                    if (this == node)
+                        return true;
+                    return false;
+                }
+
+                public selectionSet getSet
+                {
+                    get
+                    {
+                        if (!this.Attached)
+                        {
+                            KeyLogicNode test = (KeyLogicNode)this.Parent;
+                            while (Parent != null && !Parent.IsRoot)
+                            {
+                                Parent = Parent.Parent;
+                            }
+                            if (Parent == null)
+                            {
+                                return null;
+                            }
+                            return ((KeyLogicRoot)Parent).selectSet;
+                        }
+                        return this.KRoot.selectSet;
+                    }
                 }
 
             #endregion
