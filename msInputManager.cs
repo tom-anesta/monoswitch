@@ -28,8 +28,8 @@ namespace monoswitch
 
             #region protected
 
-                protected Keys m_signalKey;
-                protected KeyState m_signalState;
+                protected Object m_signalKey;
+                protected genericStates m_signalState;
 
             #endregion
 
@@ -78,57 +78,6 @@ namespace monoswitch
                         _hoverWidget = value;
                     }
                 }
-                
-                /*
-                internal Widget PressedWidget
-                {
-                    get
-                    {
-                        return _pressedWidget;
-                    }
-                    private set
-                    {
-                        if (value == _pressedWidget)
-                        {
-                            return;
-                        }
-                        if (value != null)
-                        {
-                            value.EnterPressed();
-                        }
-                        if (_pressedWidget != null)
-                        {
-                            _pressedWidget.ExitPressed();
-                        }
-                        _pressedWidget = value;
-                    }
-                }
-
-                
-                internal Widget FocusedWidget
-                {
-                    get
-                    {
-                        return _focusedWidget;
-                    }
-                    private set
-                    {
-                        if (value == _focusedWidget)
-                        {
-                            return;
-                        }
-                        if (value != null)
-                        {
-                            value.EnterFocus();
-                        }
-                        if (_focusedWidget != null)
-                        {
-                            _focusedWidget.ExitFocus();
-                        }
-                        _focusedWidget = value;
-                    }
-                }  
-                */
 
             #endregion
 
@@ -173,37 +122,61 @@ namespace monoswitch
         // Ties into the events in InputSystem. Top events are asynchronous and
                 // used for state management. The rest of them are synchronous and used to
                 // trigger user specified event handlers.
-                internal msInputManager(Game game, Root<Widget> dom, Keys signal, KeyState sigState)
+                internal msInputManager(Game game, Root<Widget> dom, IKeyObject obj)
                 {
-                    this.m_signalKey = signal;
-                    this.m_signalState = sigState;
-
                     _dom = dom;
                     InputSystem.Initialize(game.Window);
-
                     /* ## Input Events to Manage Internal State ## */
                     //removing all code involving mousemove
+                    this.m_signalKey = obj.key;
+                    this.m_signalState = obj.state;
 
                     /* ## Input Events to fire the focused widget's event handlers ## */
-                    if (this.m_signalState == KeyState.Down)
+                    if (obj.keyType == (typeof (Keys)))
                     {
-                        InputSystem.KeyDown += delegate(Object o, KeyEventArgs e)
+                        if (this.m_signalState == genericStates.DOWN)
                         {
-                            if (HoverWidget != null && e.KeyCode == this.m_signalKey)
+                            InputSystem.KeyDown += delegate(Object o, KeyEventArgs e)
                             {
-                                HoverWidget.toggleSwitch();
-                            }
-                        };
+                                if (HoverWidget != null && e.KeyCode == (Keys)this.m_signalKey)
+                                {
+                                    HoverWidget.toggleSwitch();
+                                }
+                            };
+                        }
+                        else if (this.m_signalState == genericStates.UP)
+                        {
+                            InputSystem.KeyUp += delegate(Object o, KeyEventArgs e)
+                            {
+                                if (HoverWidget != null && e.KeyCode == (Keys)this.m_signalKey)
+                                {
+                                    HoverWidget.toggleSwitch();
+                                }
+                            };
+                        }
                     }
-                    else if (this.m_signalState == KeyState.Up)
+                    else if (obj.keyType == (typeof(MouseButton)))
                     {
-                        InputSystem.KeyUp += delegate(Object o, KeyEventArgs e)
+                        if (this.m_signalState == genericStates.DOWN)
                         {
-                            if (HoverWidget != null && e.KeyCode == this.m_signalKey)
+                            InputSystem.MouseDown += delegate(Object o, MouseEventArgs e)
                             {
-                                HoverWidget.toggleSwitch();
-                            }
-                        };
+                                if (HoverWidget != null && e.Button == (MouseButton)this.m_signalKey)
+                                {
+                                    HoverWidget.toggleSwitch();
+                                }
+                            };
+                        }
+                        else if (this.m_signalState == genericStates.UP)
+                        {
+                            InputSystem.MouseUp += delegate(Object o, MouseEventArgs e)
+                            {
+                                if (HoverWidget != null && e.Button == (MouseButton)this.m_signalKey)
+                                {
+                                    HoverWidget.toggleSwitch();
+                                }
+                            };
+                        }
                     }
 
                 }

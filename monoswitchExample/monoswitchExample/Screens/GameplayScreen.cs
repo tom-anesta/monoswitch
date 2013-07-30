@@ -161,7 +161,9 @@ namespace monoswitchExample
 
                     //do the selection set
                     KeyDelegator KDELEGATOR = new KeyDelegator();
-                    this.m_selectSet = new selectionSet(this.m_game, skin, text, Keys.E, KeyState.Down, KDELEGATOR);
+                    mkey signal = new mkey(MouseButton.Left);
+                    signal.state = monoswitch.genericStates.DOWN;
+                    this.m_selectSet = new selectionSet(this.m_game, skin, text, signal, KDELEGATOR);
                     if(!this.m_isDiscrete && !this.m_isComposite)//if using basic switches
                     {
                         //DATA: SWITCHES AND GROUP

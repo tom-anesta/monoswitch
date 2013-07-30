@@ -51,8 +51,6 @@ namespace monoswitch.containers
                 //display and control related
                 protected switchNode m_startingNode;//the node to start/restart the selection set at
                 protected switchNode m_currentNode;//the current node that will be selected or deselected on input
-                protected Keys m_signalKey;
-                protected KeyState m_signalState;
                 //the input manager
                 protected msInputManager m_msInMan;
                 //elements
@@ -263,15 +261,13 @@ namespace monoswitch.containers
 
                 //CONSTRUCTOR
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
                     //handle fixing the input
-                    this.m_signalKey = p_activatorKey;
-                    this.m_signalState = p_akstate;
-                    this.m_msInMan = new msInputManager(p_game, this.Dom, this.m_signalKey, this.m_signalState);
+                    this.m_msInMan = new msInputManager(p_game, this.Dom, p_activatorKey);
                     this.InputManager = null;//remove the input manager
 
                     this.m_scanningRate = new TimeSpan(0, 0, 0, 0, selectionSet.DEFAULT_SCANNINGRATE);
@@ -286,19 +282,15 @@ namespace monoswitch.containers
                     this.m_currentNode = null;
                     this.m_panel = null;
                     this.m_scroller = null;
-                    this.m_signalKey = Keys.F9;
-                    this.m_signalState = KeyState.Down;
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
                     //handle fixing the input
-                    this.m_signalKey = p_activatorKey;
-                    this.m_signalState = p_akstate;
-                    this.m_msInMan = new msInputManager(p_game, this.Dom, this.m_signalKey, this.m_signalState);
+                    this.m_msInMan = new msInputManager(p_game, this.Dom, p_activatorKey);
                     this.InputManager = null;//remove the input manager
                     
                     if((int)p_scanR.TotalMilliseconds >= selectionSet.DEFAULT_MIN_SCANNINGRATE)
@@ -322,19 +314,15 @@ namespace monoswitch.containers
                     this.m_scroller = null;
                     this.m_maxHeight = null;
                     this.m_maxWidth = null;
-                    this.m_signalKey = Keys.F9;
-                    this.m_signalState = KeyState.Down;
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, int p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, int p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
                     //handle fixing the input
-                    this.m_signalKey = p_activatorKey;
-                    this.m_signalState = p_akstate;
-                    this.m_msInMan = new msInputManager(p_game, this.Dom, this.m_signalKey, this.m_signalState);
+                    this.m_msInMan = new msInputManager(p_game, this.Dom, p_activatorKey);
                     this.InputManager = null;//remove the input manager
 
                     if (p_scanR >= selectionSet.DEFAULT_MIN_SCANNINGRATE)
@@ -354,51 +342,49 @@ namespace monoswitch.containers
                     this.m_maxWidth = null;
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, IEnumerable<switchNode> p_intendedNodes, KeyDelegator kDel, int p_scanR = 0, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, IEnumerable<switchNode> p_intendedNodes, KeyDelegator kDel, int p_scanR = 0, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
                     switchNode[] arr = p_intendedNodes.ToArray();
-                    delayedArrayConstructor(p_game, p_activatorKey, p_akstate, arr, p_scanR);
+                    delayedArrayConstructor(p_game, p_activatorKey, arr, p_scanR);
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, IList<switchNode> p_intendedNodes, KeyDelegator kDel, int p_scanR = 0, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, IList<switchNode> p_intendedNodes, KeyDelegator kDel, int p_scanR = 0, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
                     switchNode[] arr = p_intendedNodes.ToArray();
-                    delayedArrayConstructor(p_game, p_activatorKey, p_akstate, arr, p_scanR);
+                    delayedArrayConstructor(p_game, p_activatorKey, arr, p_scanR);
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, IEnumerable<switchNode> p_intendedNodes, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, IEnumerable<switchNode> p_intendedNodes, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
                     switchNode[] arr = p_intendedNodes.ToArray();
-                    delayedArrayConstructor(p_game, p_activatorKey, p_akstate, arr, p_scanR);
+                    delayedArrayConstructor(p_game, p_activatorKey, arr, p_scanR);
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, IList<switchNode> p_intendedNodes, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, IList<switchNode> p_intendedNodes, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
                     switchNode[] arr = p_intendedNodes.ToArray();
-                    delayedArrayConstructor(p_game, p_activatorKey, p_akstate, arr, p_scanR);
+                    delayedArrayConstructor(p_game, p_activatorKey, arr, p_scanR);
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, switchNode[] p_intendedNodes, int p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, switchNode[] p_intendedNodes, int p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
                     //handle fixing the input
-                    this.m_signalKey = p_activatorKey;
-                    this.m_signalState = p_akstate;
-                    this.m_msInMan = new msInputManager(p_game, this.Dom, this.m_signalKey, this.m_signalState);
+                    this.m_msInMan = new msInputManager(p_game, this.Dom, p_activatorKey);
                     this.InputManager = null;//remove the input manager
 
                     if (p_scanR >= selectionSet.DEFAULT_MIN_SCANNINGRATE)
@@ -430,15 +416,13 @@ namespace monoswitch.containers
                     this.m_commited = false;
                 }
 
-                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, switchNode[] p_intendedNodes, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
+                public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, switchNode[] p_intendedNodes, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
                     //handle fixing the input
-                    this.m_signalKey = p_activatorKey;
-                    this.m_signalState = p_akstate;
-                    this.m_msInMan = new msInputManager(p_game, this.Dom, this.m_signalKey, this.m_signalState);
+                    this.m_msInMan = new msInputManager(p_game, this.Dom, p_activatorKey);
                     this.InputManager = null;//remove the input manager
 
                     if ((int)p_scanR.TotalMilliseconds >= selectionSet.DEFAULT_MIN_SCANNINGRATE)
@@ -812,12 +796,10 @@ namespace monoswitch.containers
 
             #region protected
 
-                protected void delayedArrayConstructor(Game p_game, Keys p_activatorKey, KeyState p_akstate, switchNode[] p_intendedNodes, int p_scanR)
+                protected void delayedArrayConstructor(Game p_game, IKeyObject p_activatorKey, switchNode[] p_intendedNodes, int p_scanR)
                 {
                     //handle fixing the input
-                    this.m_signalKey = p_activatorKey;
-                    this.m_signalState = p_akstate;
-                    this.m_msInMan = new msInputManager(p_game, this.Dom, this.m_signalKey, this.m_signalState);
+                    this.m_msInMan = new msInputManager(p_game, this.Dom, p_activatorKey);
                     this.InputManager = null;//remove the input manager
 
                     if (p_scanR >= selectionSet.DEFAULT_MIN_SCANNINGRATE)
@@ -843,12 +825,10 @@ namespace monoswitch.containers
                     this.m_commited = false;
                 }
 
-                protected void delayedArrayConstructor(Game p_game, Keys p_activatorKey, KeyState p_akstate, switchNode[] p_intendedNodes, TimeSpan p_scanR)
+                protected void delayedArrayConstructor(Game p_game, IKeyObject p_activatorKey, switchNode[] p_intendedNodes, TimeSpan p_scanR)
                 {
                     //handle fixing the input
-                    this.m_signalKey = p_activatorKey;
-                    this.m_signalState = p_akstate;
-                    this.m_msInMan = new msInputManager(p_game, this.Dom, this.m_signalKey, this.m_signalState);
+                    this.m_msInMan = new msInputManager(p_game, this.Dom, p_activatorKey);
                     this.InputManager = null;//remove the input manager
 
                     if (p_scanR.Milliseconds >= selectionSet.DEFAULT_MIN_SCANNINGRATE && p_scanR.Seconds == 0 && p_scanR.Minutes == 0 && p_scanR.Hours == 0 && p_scanR.Days == 0)

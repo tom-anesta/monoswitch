@@ -60,8 +60,11 @@
     <Compile Include="content\composite_switch.cs" />
     <Compile Include="content\discretecomposite_switch.cs" />
     <Compile Include="content\discrete_switch.cs" />
+    <Compile Include="IKeyObject.cs" />
     <Compile Include="KeyDelegator.cs" />
     <Compile Include="KeyLogicManager.cs" />
+    <Compile Include="kkey.cs" />
+    <Compile Include="mkey.cs" />
     <Compile Include="msInputManager.cs" />
     <Compile Include="containers\selectionSet.cs" />
     <Compile Include="containers\switchNode.cs" />
