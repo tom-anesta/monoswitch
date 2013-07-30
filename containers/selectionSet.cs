@@ -892,6 +892,14 @@ namespace monoswitch.containers
                     {
                         return node.Dfs2StateOperation(opNode => opNode.evaluation());
                     };
+                    this.m_keyRoot.OnAttachedToRootSuccess += node =>
+                    {
+                        node.Dfs2Operation(opNode => ((KeyLogicNode)opNode).setKRoot(this.m_keyRoot));
+                    };
+                    this.m_keyRoot.OnRemovedFromRootSuccess += node =>
+                    {
+                        node.Dfs2Operation(opNode => ((KeyLogicNode)opNode).setKRoot(null));
+                    };
                 }
 
             #endregion

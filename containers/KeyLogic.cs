@@ -88,6 +88,8 @@ namespace monoswitch.containers
 
                 public NodeStateOperation OnAttachedToRootAttempt { get; set; }
                 public NodeStateOperation OnChildrenChanged { get; set; }
+                public KLNodeOperation OnAttachedToRootSuccess { get; set; }
+                public KLNodeOperation OnRemovedFromRootSuccess { get; set; }
 
             #endregion
 
@@ -649,25 +651,10 @@ namespace monoswitch.containers
                     this.evaluation();
                     if (Attached)
                     {
-                        res = KRoot.OnAttachedToRootAttempt(this);
-                    }
-                    if (res != logicStates.TRUE)
-                    {
-                        Children.Remove(child);
-                        child.Parent = reserveP;
-                        child.KRoot = reserveKRoot;
-                        return false;
-                    }
-                    if (this.Attached || this.IsRoot)
-                    {
-                        res = Dfs2StateOperation(node =>
+                        if (this.KRoot.OnAttachedToRootAttempt != null)
                         {
-                            if (KRoot.OnChildrenChanged != null)
-                            {
-                                return KRoot.OnChildrenChanged(node);
-                            }
-                            return logicStates.TRUE;
-                        });
+                            res = KRoot.OnAttachedToRootAttempt(this);
+                        }
                     }
                     if (res != logicStates.TRUE)
                     {
@@ -675,10 +662,16 @@ namespace monoswitch.containers
                         child.Parent = reserveP;
                         child.KRoot = reserveKRoot;
                         return false;
+                    }
+                    if (this.Attached)
+                    {
+                        if (this.KRoot.OnAttachedToRootSuccess != null)
+                        {
+                            this.KRoot.OnAttachedToRootSuccess(this);
+                        }
                     }
                     return true;
                 }
-
                 public bool RemoveChild(KeyLogicNode child)
                 {
                     if (child.Parent != this || !Children.Contains(child))
@@ -689,15 +682,18 @@ namespace monoswitch.containers
                     logicStates res = logicStates.TRUE;
                     if (this.Attached || this.IsRoot)
                     {
-                        res = Dfs2StateOperation(node => KRoot.OnChildrenChanged(node));
+                        res = this.KRoot.OnChildrenChanged(this);
                     }
                     if (res != logicStates.TRUE)
                     {
                         Children.Add(child);
                         return false;
                     }
+                    else if(this.Attached || this.IsRoot)
+                    {
+                        this.KRoot.OnRemovedFromRootSuccess(this);
+                    }
                     child.Parent = null;
-                    child.KRoot = null;
                     return true;
                 }
                 public bool containsNode(KeyLogicNode node)//acts as dfs, recursive
