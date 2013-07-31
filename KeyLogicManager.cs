@@ -36,7 +36,8 @@ namespace monoswitch
         [DirectionAttribute(logDirections.RIGHT)]RIGHT,
         [DirectionAttribute(logDirections.BOTH)]BI,//we should to check from both sides
         [DirectionAttribute(logDirections.RIGHT)]NONE,//doesn't really matter
-        [DirectionAttribute(logDirections.BOTH)]NOT
+        [DirectionAttribute(logDirections.RIGHT)]NOT,
+        [DirectionAttribute(logDirections.RIGHT)]AND
     }
     
     //what should we do?
@@ -141,15 +142,15 @@ namespace monoswitch
                 private static readonly Tuple<logicStates, logicStates>[] s_biTrues = { s_falseB, s_trueB, s_noneB, s_nonelt, s_nonelf, s_nonelind, s_nonert, s_nonerf, s_nonerind };//9
                 private static readonly Tuple<logicStates, logicStates>[] s_biFalses = { s_leftT, s_rightT};//11
                 private static readonly Tuple<logicStates, logicStates>[] s_biInds = { s_indlf, s_indlt, s_indrf, s_indrt, s_indB };//16.  bi full
+                private static readonly Tuple<logicStates, logicStates>[] s_AndTrues = { s_trueB, s_nonelt, s_nonert  };//3
+                private static readonly Tuple<logicStates, logicStates>[] s_AndFalses = { s_falseB, s_rightT, s_leftT, s_indrf, s_indlf, s_noneB, s_nonelf, s_nonerf };//11
+                private static readonly Tuple<logicStates, logicStates>[] s_AndInds = { s_nonerind, s_nonelind, s_indB, s_indrt, s_indlt };//16
+                private static readonly Tuple<logicStates, logicStates>[] s_NotTrues = { s_falseB, s_rightT, s_leftT, s_indrf, s_indlf, s_noneB, s_nonelf, s_nonerf };//8
+                private static readonly Tuple<logicStates, logicStates>[] s_NotFalses = { s_trueB, s_nonelt, s_nonert };//3
+                private static readonly Tuple<logicStates, logicStates>[] s_NotInds = { s_nonerind, s_nonelind, s_indB, s_indrt, s_indlt };//5.  not full        
                 private static readonly Tuple<logicStates, logicStates>[] s_NoneTrues = { s_falseB, s_trueB, s_leftT, s_rightT, s_indrt, s_indrf, s_indlt, s_indlf, s_indB, s_noneB, s_nonelt, s_nonelf, s_nonelind, s_nonert, s_nonerf, s_nonerind};//16, none full
                 private static readonly Tuple<logicStates, logicStates>[] s_NoneFalses = { };//0
                 private static readonly Tuple<logicStates, logicStates>[] s_NoneInds = { };//0
-                private static readonly Tuple<logicStates, logicStates>[] s_NotTrues = { s_falseB, s_rightT, s_leftT, s_indrf, s_indlf, s_noneB, s_nonelf, s_nonerf };//8
-                private static readonly Tuple<logicStates, logicStates>[] s_NotFalses = { s_trueB, s_nonelt, s_nonert };//3
-                private static readonly Tuple<logicStates, logicStates>[] s_NotInds = {s_nonerind, s_nonelind, s_indB, s_indrt, s_indlt};//5.  not full
-
-                
-                
 
             #endregion
 
@@ -231,6 +232,7 @@ namespace monoswitch
                     KeyLogicManager.m_methodDict[logics.LEFT] = leftlist;
                     KeyLogicManager.m_methodDict[logics.RIGHT] = leftlist.ToList();
                     KeyLogicManager.m_methodDict[logics.BI] = leftlist.ToList();
+                    KeyLogicManager.m_methodDict[logics.AND] = new List<methods>(new methods[] { methods.ACTIVATE });
                     KeyLogicManager.m_methodDict[logics.NOT] = new List<methods>(new methods[] { methods.DEACTIVATE });
                     KeyLogicManager.m_methodDict[logics.NONE] = new List<methods>(new methods[] { methods.NONE });
                     //assign values to the dictionary for matching
@@ -241,6 +243,7 @@ namespace monoswitch
                     KeyLogicManager.m_indEvalDict[logics.BI] = logicStates.FALSE;
                     KeyLogicManager.m_indEvalDict[logics.NOT] = logicStates.FALSE;
                     KeyLogicManager.m_indEvalDict[logics.NONE] = logicStates.FALSE;
+                    KeyLogicManager.m_indEvalDict[logics.AND] = logicStates.FALSE;
                     //following pairs evaluate to true;
                     /*
                     //XOR: [false, false], [true, false], [false, true]
@@ -255,20 +258,22 @@ namespace monoswitch
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.XOR, logicStates.INDETERMINATE)] = KeyLogicManager.s_xorInds.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.LEFT, logicStates.TRUE)] = KeyLogicManager.s_leftTrues.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.LEFT, logicStates.FALSE)] = KeyLogicManager.s_leftFalses.ToList();
-                     KeyLogicManager.m_evalDict[Tuple.Create(logics.LEFT, logicStates.INDETERMINATE)] = KeyLogicManager.s_leftInds.ToList();
+                    KeyLogicManager.m_evalDict[Tuple.Create(logics.LEFT, logicStates.INDETERMINATE)] = KeyLogicManager.s_leftInds.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.RIGHT, logicStates.TRUE)] = KeyLogicManager.s_rightTrues.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.RIGHT, logicStates.FALSE)] = KeyLogicManager.s_rightFalses.ToList();
-                     KeyLogicManager.m_evalDict[Tuple.Create(logics.RIGHT, logicStates.INDETERMINATE)] = KeyLogicManager.s_rightInds.ToList();
+                    KeyLogicManager.m_evalDict[Tuple.Create(logics.RIGHT, logicStates.INDETERMINATE)] = KeyLogicManager.s_rightInds.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.BI, logicStates.TRUE)] = KeyLogicManager.s_biTrues.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.BI, logicStates.FALSE)] = KeyLogicManager.s_biFalses.ToList();
-                     KeyLogicManager.m_evalDict[Tuple.Create(logics.BI, logicStates.INDETERMINATE)] = KeyLogicManager.s_biInds.ToList();
+                    KeyLogicManager.m_evalDict[Tuple.Create(logics.BI, logicStates.INDETERMINATE)] = KeyLogicManager.s_biInds.ToList();
+                    KeyLogicManager.m_evalDict[Tuple.Create(logics.AND, logicStates.TRUE)] = KeyLogicManager.s_AndTrues.ToList();
+                    KeyLogicManager.m_evalDict[Tuple.Create(logics.AND, logicStates.FALSE)] = KeyLogicManager.s_AndFalses.ToList();
+                    KeyLogicManager.m_evalDict[Tuple.Create(logics.AND, logicStates.INDETERMINATE)] = KeyLogicManager.s_AndInds.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.NOT, logicStates.TRUE)] = KeyLogicManager.s_NotTrues.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.NOT, logicStates.FALSE)] = KeyLogicManager.s_NotFalses.ToList();
-                     KeyLogicManager.m_evalDict[Tuple.Create(logics.NOT, logicStates.INDETERMINATE)] = KeyLogicManager.s_NotInds.ToList();
+                    KeyLogicManager.m_evalDict[Tuple.Create(logics.NOT, logicStates.INDETERMINATE)] = KeyLogicManager.s_NotInds.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.NONE, logicStates.TRUE)] = KeyLogicManager.s_NoneTrues.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.NONE, logicStates.FALSE)] = KeyLogicManager.s_NoneTrues.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.NONE, logicStates.INDETERMINATE)] = KeyLogicManager.s_NoneInds.ToList();
-
                     //mark as inited
                     KeyLogicManager.m_inited = true;
                 }
@@ -358,7 +363,6 @@ namespace monoswitch
                     {
                         return logicStates.TRUE;
                     }
-                    //Console.WriteLine("no false or true or indeterminate present in results, returning none");
                     return logicStates.NONE;
                 }
 
@@ -370,7 +374,7 @@ namespace monoswitch
                     }
                     if (!KeyLogicManager.m_methodDict.ContainsKey(lType) || !KeyLogicManager.m_indEvalDict.ContainsKey(lType))
                     {
-                        //Console.WriteLine("dictionaries missing logic type");
+                        Console.WriteLine("dictionaries missing logic type");
                         return logicStates.FALSE;
                     }
                     if(clamp && KeyLogicManager.m_indEvalDict.ContainsKey(lType))
@@ -410,30 +414,6 @@ namespace monoswitch
                         //Console.WriteLine("cannot evaluate because missing definition for true false and ind");
                         return logicStates.NONE;
                     }
-                    /*
-                    List<Tuple<logics, logicStates>> refList = new List<Tuple<logics,logicStates>>();//must get the dictionary objects from the dictionary
-                    refList = KeyLogicManager.m_evalDict.Keys.Where(x => (x.Item1 == lType)).ToList();
-                    if (refList.Count != 3)//if we don't have true, false, and indeterminate, we are done
-                    {
-                        return logicStates.NONE;
-                    }
-                    if(KeyLogicManager.m_evalDict[refList[0]].Where(x => ( (x.Item1 == left) && (x.Item2 == right) ) ).ToList().Count > 0 )
-                    {
-                        return refList[0].Item2;
-                    }
-                    else if (KeyLogicManager.m_evalDict[refList[1]].Where(x => ((x.Item1 == left) && (x.Item2 == right))).ToList().Count > 0)
-                    {
-                        return refList[1].Item2;
-                    }
-                    else if (KeyLogicManager.m_evalDict[refList[2]].Where(x => ((x.Item1 == left) && (x.Item2 == right))).ToList().Count > 0)
-                    {
-                        return refList[2].Item2;
-                    }
-                    else
-                    {
-                        return logicStates.NONE;
-                    }
-                    */
                    
                 }
 
@@ -486,45 +466,6 @@ namespace monoswitch
             #endregion
 
         #endregion
-
-
-        //applying the following to operations
-        /*
-    
-        //ACTIVATE: 
-            //XOR INVALID
-            //LEFT on attempt [false, true] : [true, true]
-            //RIGHT on attempt [true, false] : [true, true]
-            //BI on attempt [true, false], [false, true] : [true, true]
-            //NONE: INVALID
-            //NOT : INVALID
-        //DEACTIVATE
-            //XOR on attempt [true, true] : [false, false]
-            //LEFT on attempt [false, true] : [false, false]
-            //RIGHT on attempt [true, false] : [false, false]
-            //BI on attempt [true, false], [false, true] : [false, false]
-            //NONE: INVALID
-            //NOT on attempt [true], [false]
-        //FOLLOW
-            //XOR on attempt [true, true] from [true, false] : [false, true]
-            //XOR on attempt [true, true] from [false, true] : [true, false]
-            //LEFT on attempt [false, true] from [false, false] : [true, true] //does activate and deactivate based on situation
-            //LEFT on attempt [false, true] from [true, true] : [false, false] //does activate and deactivate based on situation
-            //RIGHT on attempt [true, false] from [false, false] : [true, true] //does activate and deactivate based on situation
-            //RIGHT on attempt [true, false] from [true, true] : [false, false] //does activate and deactivate based on situation
-            //BI on attempt [true, false] or [false, true] from [false, false] : [true, true] //does activate and deactivate based on situation
-            //BI on attempt [true, false] or [false, true] from [true, true] : [false, false] //does activate and deactivate based on situation
-            //NONE : INVALID
-            //NOT : INVALID
-        //NONE
-            //XOR INVALID
-            //LEFT INVALID
-            //RIGHT INVALID
-            //LEFT INVALID
-            //BI : INVALID
-            //NONE : no action taken
-        */
-
 
     }
 }

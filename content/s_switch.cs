@@ -472,36 +472,44 @@ namespace monoswitch.content
                 //switch the device
                 public void toggleSwitch()
                 {
-                    m_switchedOn = !m_switchedOn;//set it first as our events will depend on this state
-                    if (m_switchedOn)
+                    if (!m_switchedOn)//we are trying to activate
                     {
                         this.m_group.activate(new List<Keys>());
-                        if (this.m_group.isFalse)//if activation failed completely
+                        if (!this.m_group.isTrue)//if activation failed completely
                         {
+                            if (OffToggle != null)
+                            {
+                                OffToggle(this);
+                            }
                             this.m_switchedOn = false;
                         }
-                        else if(this.m_group.isTrue)
+                        else
                         {
                             if (OnToggle != null)
                             {
                                 OnToggle(this);
                             }
+                            this.m_switchedOn = true;
                         }
-                        //otherwise its on but we don't see it
                     }
                     else
                     {
                         this.m_group.deactivate(new List<Keys>());
                         if (this.m_group.isTrue)//if deactivation failed completely
                         {
+                            if (OnToggle != null)
+                            {
+                                OnToggle(this);
+                            }
                             this.m_switchedOn = true;
                         }
-                        else if (this.m_group.isFalse)
+                        else
                         {
                             if (OffToggle != null)
                             {
                                 OffToggle(this);
                             }
+                            this.m_switchedOn = false;
                         }
                     }
                 }

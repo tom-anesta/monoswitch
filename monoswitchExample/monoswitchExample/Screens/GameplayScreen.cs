@@ -221,6 +221,7 @@ namespace monoswitchExample
                         this.m_selectSet.addLogic(udxor);
                         this.m_selectSet.assignNodes(nodeArr, KDELEGATOR);
                         this.m_selectSet.Commit(0, 0);
+                        /*
                         //debug
                         Console.WriteLine("state in noder is " + noder.state);
                         Console.WriteLine("state in nodeu is " + nodeu.state);
@@ -254,7 +255,8 @@ namespace monoswitchExample
                         Console.WriteLine("level 2 item 2: " + nodeu.KRoot);
                         Console.WriteLine("level 2 item 3: " + nodel.KRoot);
                         Console.WriteLine("level 2 item 4: " + noded.KRoot);
-                        
+                        */
+
                     }
                     else if(this.m_isDiscrete && !this.m_isComposite)
                     {

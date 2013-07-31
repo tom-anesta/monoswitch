@@ -241,8 +241,12 @@ namespace monoswitch.containers
                         this.m_method = value;
                         this.DfsOperation(node =>
                         {
-                            this.OnMethodChanged(node);
+                            if (this.OnMethodChanged != null)
+                            {
+                                this.OnMethodChanged(node);
+                            }
                         });
+                        
                     }
                 }
 
@@ -319,24 +323,14 @@ namespace monoswitch.containers
 
                 public logicStates evalPairChanged(KeyGroup group)
                 {
-                    Console.WriteLine("attempting state pair examination from logic");
-                    logicStates eval = this.state;
                     this.evaluation();
-                    if (eval != this.state)
+                    logicStates eval = logicStates.TRUE;
+                    if (Attached)
                     {
-                        if (Attached)
-                        {
-                            Console.WriteLine("attempting DFS");
-                            eval = this.KRoot.Dfs2StateOperation(node => node.evaluation());
-                            Console.WriteLine("eval is " + eval);
-                            return eval;
-                        }
-                        else
-                        {
-                            Console.WriteLine("big problem no root");
-                        }
+                        eval = this.KRoot.Dfs2StateOperation(node => node.evaluation());
+                        this.evaluation();
                     }
-                    return logicStates.TRUE;
+                    return eval;
                 }
 
                 
@@ -402,15 +396,7 @@ namespace monoswitch.containers
                         }
                     }
                     logicStates result = KeyLogicManager.evaluate(sList, this.m_log, this.m_clamp, this.m_overwrite);
-                    if (result != currState)
-                    {
-                        this.m_state = result;
-                        //signal and return the updated evaluation from the root
-                        if (Attached)
-                        {
-                            return this.KRoot.Dfs2StateOperation(node => node.evaluation());
-                        }
-                    }
+                    this.m_state = result;
                     return result;
                 }
 

@@ -864,6 +864,8 @@ namespace monoswitch.containers
                 {
                     this.m_keyRoot = new KeyLogicRoot(this.m_keyDelegator);
                     this.m_keyRoot.selectSet = this;
+                    this.m_keyRoot.log = logics.AND;
+                    this.m_keyRoot.method = methods.ACTIVATE;
                     this.m_keyRoot.OnAttachedToRootAttempt += node =>
                     {
                         return node.Dfs2StateOperation(opNode => opNode.evaluation());
