@@ -166,6 +166,7 @@ namespace monoswitch.containers
                 protected KeyDelegator m_delegator;
                 protected KeyGroup m_group;
                 protected logicStates m_state;
+                protected logicStates m_lastState;
                 protected bool m_last;//is the keygroup associated with this node placed last in a list evaluation or first?
                 protected bool m_overwrite;
                 protected bool m_clamp;
@@ -258,6 +259,14 @@ namespace monoswitch.containers
                     }
                 }
 
+                public logicStates lastState
+                {
+                    get
+                    {
+                        return this.m_lastState;
+                    }
+                }
+
                 public bool last
                 {
                     get
@@ -337,6 +346,10 @@ namespace monoswitch.containers
                 {
                     this.evaluation();
                     logicStates eval = logicStates.FALSE;
+                    if (Attached)
+                    {
+                        eval = this.KRoot.Resolve(logicStates.TRUE, group, oldpairs, oldgroups);
+                    }
                     Console.WriteLine("evaluating pair resolve to false");
                     return eval;
                 }
@@ -372,6 +385,7 @@ namespace monoswitch.containers
                     this.m_log = logics.NONE;
                     this.m_method = methods.DEACTIVATE;
                     this.m_state = logicStates.INDETERMINATE;
+                    this.m_lastState = this.m_state;
                     this.Data = null;
                     this.m_last = lst;
                     this.m_overwrite = ovrw;
@@ -404,7 +418,11 @@ namespace monoswitch.containers
                         }
                     }
                     logicStates result = KeyLogicManager.evaluate(sList, this.m_log, this.m_clamp, this.m_overwrite);
-                    this.m_state = result;
+                    if (this.m_state != result)
+                    {
+                        this.m_lastState = this.m_state;
+                        this.m_state = result;
+                    }
                     return result;
                 }
 
@@ -779,6 +797,36 @@ namespace monoswitch.containers
                         }
                         return this.KRoot.selectSet;
                     }
+                }
+
+                public logicStates Resolve(logicStates goalVal, KeyGroup group, List<KeyPair> oldPairs, List<KeyGroup> oldGroups)
+                {
+                    if (this.evaluation() == goalVal)
+                    {
+                        return logicStates.TRUE;
+                    }
+                    List<Tuple<logicStates, logicStates>> goalQualifiers = KeyLogicManager.qualifiers(this.log, goalVal);
+                    if (goalQualifiers == null)
+                    {
+                        return logicStates.FALSE;
+                    }
+                    logicStates results = logicStates.FALSE;
+                    bool dataEffective = (this.Data != null);
+                    Dictionary<int, logicStates> compareDict = new Dictionary<int,logicStates>();
+                    for (int i = 0; i < this.Children.Count; i++)
+                    {
+                        compareDict[i] = ((KeyLogicNode)this.Children[i]).state;
+                    }
+                    if (compareDict.Count >= this.maxObj)
+                    {
+                        dataEffective = false;
+                    }
+                    if (dataEffective)
+                    {
+                        compareDict[int.MaxValue] = this.Data.evaluate();
+                    }
+                    //stopped here
+                    return logicStates.FALSE;
                 }
 
             #endregion

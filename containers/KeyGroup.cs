@@ -34,6 +34,7 @@ namespace monoswitch.containers
                 protected List<KeyPair> m_list;
                 protected KeyDelegator m_delegator;
                 protected logicStates m_state;
+                protected logicStates m_lastState;
 
             #endregion
 
@@ -210,21 +211,31 @@ namespace monoswitch.containers
                     {
                         oldGroupStack = new List<KeyGroup>();
                     }
+                    logicStates orig = this.state;
+                    if (this.evaluate() == orig)//then we're good here
+                    {
+                        return logicStates.TRUE;
+                    }
                     if(oldGroupStack.Contains(this))//we've already tried to use it or modify it
                     {
                         return logicStates.FALSE;
                     }
-                    logicStates orig = this.state;
                     this.m_state = this.evaluate();
                     logicStates result = logicStates.TRUE;
-                    if (this.m_state != orig)//signal the logic nodes
+                    if (this.groupAttemptStateChanged != null)
                     {
-                        if (this.groupAttemptStateChanged != null)
+                        result = groupAttemptStateChanged(this, oldPairStack, oldGroupStack);
+                        if (result == logicStates.TRUE)
                         {
-                            result = groupAttemptStateChanged(this, oldPairStack, oldGroupStack);
+                            this.m_lastState = orig;
+                            return result;
                         }
                     }
                     this.m_state = this.evaluate();//in order to reset the state after the evaluation
+                    if (this.m_state != orig)
+                    {
+                        this.m_lastState = orig;
+                    }
                     return result;//if no errors or change, it's fine
                 }
 
@@ -528,6 +539,11 @@ namespace monoswitch.containers
                     return this.m_state;
                 }
 
+                public logicStates Resolve(logicStates goalState)
+                {
+                    return logicStates.FALSE;
+                }
+
                 
 
             #endregion
@@ -702,7 +718,6 @@ namespace monoswitch.containers
                     {
                         this.m_state = KeyState.Down;
                     }
-                    return logicStates.FALSE;
                     return logicStates.FALSE;
                 }
 

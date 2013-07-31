@@ -277,6 +277,7 @@ namespace monoswitch
                     //mark as inited
                     KeyLogicManager.m_inited = true;
                 }
+
                 public static logicStates evaluate(List<logicStates> logList, logics lType, bool clamp = false, bool overwrite = false)
                 {//clamp says results should be true or false based on dictionary, overwrite says make the first argument the evaluation of the last two arguments
                     if (!KeyLogicManager.inited)
@@ -444,6 +445,23 @@ namespace monoswitch
                     if (KeyLogicManager.m_methodDict.ContainsKey(logVal))
                     {
                         return KeyLogicManager.m_methodDict[logVal];
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+
+                public static List<Tuple<logicStates, logicStates>> qualifiers(logics ltype, logicStates stype)
+                {
+                    if (!KeyLogicManager.inited)
+                    {
+                        KeyLogicManager.init();
+                    }
+                    Tuple<logics, logicStates> key = Tuple.Create(ltype, stype);
+                    if (KeyLogicManager.m_evalDict.ContainsKey(key))
+                    {
+                        return KeyLogicManager.m_evalDict[key];
                     }
                     else
                     {

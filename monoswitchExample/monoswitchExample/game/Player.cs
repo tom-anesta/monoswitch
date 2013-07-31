@@ -374,7 +374,6 @@ namespace monoswitchExample.game
                                 locy += this.m_port.TitleSafeArea.Height;
                             }
                             this.m_position = new Vector2(locx, locy);
-                            Console.WriteLine("setting location to x: " + this.m_position.X + ", y: " + this.m_position.Y);
                         }
                         //Console.WriteLine("rotation is " + this.m_rotationAngle);
                     }
