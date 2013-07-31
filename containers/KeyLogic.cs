@@ -321,7 +321,7 @@ namespace monoswitch.containers
                     return logicStates.TRUE;
                 }
 
-                public logicStates evalPairChanged(KeyGroup group)
+                public logicStates evalPairChanged(KeyGroup group, List<KeyPair> oldpairs, List<KeyGroup> oldgroups)
                 {
                     this.evaluation();
                     logicStates eval = logicStates.TRUE;
@@ -330,6 +330,14 @@ namespace monoswitch.containers
                         eval = this.KRoot.Dfs2StateOperation(node => node.evaluation());
                         this.evaluation();
                     }
+                    return eval;
+                }
+
+                public logicStates evalPairResolve(KeyGroup group, List<KeyPair> oldpairs, List<KeyGroup> oldgroups)
+                {
+                    this.evaluation();
+                    logicStates eval = logicStates.FALSE;
+                    Console.WriteLine("evaluating pair resolve to false");
                     return eval;
                 }
 
@@ -730,11 +738,13 @@ namespace monoswitch.containers
                             older.parent = null;
                             older.signalGroupHasChanged -= this.evalGroupChanged;
                             older.groupAttemptStateChanged -= this.evalPairChanged;
+                            older.groupAttemptStateChangedFailure -= this.evalPairResolve;
                         }
                         //add event listeners to it
                         this.Data.parent = this;
                         this.Data.signalGroupHasChanged += this.evalGroupChanged;
                         this.Data.groupAttemptStateChanged += this.evalPairChanged;
+                        this.Data.groupAttemptStateChangedFailure += this.evalPairResolve;
                     }
                     return logicStates.TRUE;
                 }

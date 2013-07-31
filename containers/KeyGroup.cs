@@ -11,10 +11,10 @@ using Ruminate.DataStructures;
 namespace monoswitch.containers
 {
 
-    public delegate logicStates KeyPairStateChange(KeyPair nPair, Stack<KeyPair> oldStack);
+    public delegate logicStates KeyPairStateChange(KeyPair nPair, List<KeyPair> oldPairStack, List<KeyGroup> oldGroupStack);
     public delegate void KeyStatePairFailOrSuccess(KeyPair pair);
     public delegate logicStates KeyGroupChange(KeyPair kPair, KeyGroup kGroup);
-    public delegate logicStates KeyGroupStateChange(KeyGroup group);
+    public delegate logicStates KeyGroupStateChange(KeyGroup group, List<KeyPair> oldPairStack, List<KeyGroup> oldGroupStack);
 
     public class KeyGroup : ITreeNode<KeyGroup>
     {
@@ -203,9 +203,17 @@ namespace monoswitch.containers
 
             #region protected
 
-                protected logicStates m_respGroupPairAttemptChanged(KeyPair newP, Stack<KeyPair> oldStack)
+                protected logicStates m_respGroupPairAttemptChanged(KeyPair newP, List<KeyPair> oldPairStack, List<KeyGroup> oldGroupStack)
                 {
                     //if we attempted a change, we need to evaluate
+                    if(oldGroupStack == null)
+                    {
+                        oldGroupStack = new List<KeyGroup>();
+                    }
+                    if(oldGroupStack.Contains(this))//we've already tried to use it or modify it
+                    {
+                        return logicStates.FALSE;
+                    }
                     logicStates orig = this.state;
                     this.m_state = this.evaluate();
                     logicStates result = logicStates.TRUE;
@@ -213,19 +221,36 @@ namespace monoswitch.containers
                     {
                         if (this.groupAttemptStateChanged != null)
                         {
-                            result = groupAttemptStateChanged(this);
+                            result = groupAttemptStateChanged(this, oldPairStack, oldGroupStack);
                         }
                     }
                     this.m_state = this.evaluate();//in order to reset the state after the evaluation
                     return result;//if no errors or change, it's fine
                 }
 
-                protected void m_respGroupPairChangeFailure(KeyPair failedP)
+                protected logicStates m_respGroupPairChangeFailure(KeyPair failedP, List<KeyPair> oldPairStack, List<KeyGroup> oldGroupStack)
                 {
+                    logicStates result = logicStates.TRUE;
+                    if (oldGroupStack == null)
+                    {
+                        oldGroupStack = new List<KeyGroup>();
+                    }
+                    if(oldGroupStack.Contains(this))
+                    {
+                        return logicStates.FALSE;
+                    }
                     if (this.groupAttemptStateChangedFailure != null)
                     {
-                        this.groupAttemptStateChangedFailure(this);
+                        oldGroupStack.Add(this);
+                        result = this.groupAttemptStateChangedFailure(this, oldPairStack, oldGroupStack);
+                        Console.WriteLine("the result for resolve in group is false");
                     }
+                    this.m_state = this.evaluate();
+                    if (result == logicStates.TRUE)//if we were successful pop off stack else we need to hold on to it
+                    {
+                        oldGroupStack.Remove(this);
+                    }
+                    return result;
                 }
 
                 protected logicStates m_respGroupAttemptChanged (KeyPair kPair, KeyGroup kGroup)
@@ -423,7 +448,7 @@ namespace monoswitch.containers
                     {//do them all
                         foreach (KeyPair kPair in this.m_list)
                         {
-                            kPair.setState(KeyState.Up, null);
+                            kPair.setState(KeyState.Up);
                         }
                     }
                     else
@@ -432,7 +457,7 @@ namespace monoswitch.containers
                         {
                             if (dVal.Contains(kPair.key))
                             {
-                                kPair.setState(KeyState.Up, null);
+                                kPair.setState(KeyState.Up);
                             }
                         }
                     }
@@ -592,7 +617,7 @@ namespace monoswitch.containers
 
                 public event KeyPairStateChange stateChangeAttempt;//when we check to see if this state can change
                 public event KeyStatePairFailOrSuccess stateChangeSuccess;//when this state changes successfully based on its own command
-                public event KeyStatePairFailOrSuccess stateChangeFailure;//when this state fails, we want to re evaluate the logic so it is correct after we set it back
+                public event KeyPairStateChange stateChangeFailure;//when this state fails, we want to re evaluate the logic so it is correct after we set it back
                 //public event KeyStatePairChange externalStateChange;//when this state is forced to change based on logical operations
 
                 public void respondExternalStateChange(KeyPair nPair, KeyPair oPair)
@@ -603,7 +628,7 @@ namespace monoswitch.containers
                     }
                 }
 
-                public logicStates setState(KeyState sVal, Stack<KeyPair> oldPairs)
+                public logicStates setState(KeyState sVal, List<KeyPair> oldPairs = null, List<KeyGroup> oldGroups = null)
                 {
                     if(sVal == this.state)
                     {
@@ -611,43 +636,73 @@ namespace monoswitch.containers
                     }
                     if(oldPairs == null)
                     {
-                        oldPairs = new Stack<KeyPair>();
+                        oldPairs = new List<KeyPair>();
                     }
-                    if (oldPairs.Select(x => x.key).ToList().Contains(this.key))//if this is a loop we can't change it from what we intend to change it anyway without reversing our intentions
+                    if (oldGroups == null)
+                    {
+                        oldGroups = new List<KeyGroup>();
+                    }
+                    List<Keys> compareList = oldPairs.Select(x => x.key).ToList();
+                    if (compareList.Contains(this.key))//if this is a loop we can't change it from what we intend to change it anyway without reversing our intentions
                     {
                         return logicStates.FALSE;
                     }
-                    KeyPair oldPair = new KeyPair(this.key, this.state);//get your old pair
                     this.m_state = sVal;
                     logicStates result = logicStates.TRUE;
                     if (this.stateChangeAttempt != null)
                     {
-                        oldPairs.Push(oldPair);
-                        result = this.stateChangeAttempt(this, oldPairs);//move oldpairs to below when changing, this should evaluate
-                    }
-                    if (result != logicStates.TRUE)//later put here to attempt a change if one is needed to resolve
-                    {
-                        this.m_state = oldPairs.Pop().state;
-                        return logicStates.FALSE;
-                    }
-                    if (this.m_state == sVal)//success
-                    {
-                        if (this.stateChangeSuccess != null)
+                        result = this.stateChangeAttempt(this, oldPairs, oldGroups);//move oldpairs to below when changing, this should evaluate
+                        if (result == logicStates.TRUE && this.m_state == sVal)//later put here to attempt a change if one is needed to resolve
                         {
-                            this.stateChangeSuccess(this);//signal the game
+                            if (this.stateChangeSuccess != null)
+                            {
+                                this.stateChangeSuccess(this);//signal the game
+                            }
+                            oldPairs.Remove(this);
+                            return logicStates.TRUE;
                         }
-                        if (this.stateChangeAttempt != null)
-                        {
-                            //pop off the stack if we popped it on
-                            oldPairs.Pop();
-                        }
+                    }
+                    else
+                    {
                         return logicStates.TRUE;
                     }
-                    //pop off the stack if we popped it on
-                    if (this.stateChangeAttempt != null)
+                    if (this.stateChangeFailure != null)
                     {
-                        oldPairs.Pop();
+                        Console.WriteLine("attempting resolve");
+                        oldPairs.Add(this);
+                        result = this.stateChangeFailure(this, oldPairs, oldGroups);
+                        Console.WriteLine("result following resolve is");
+                        if (result == logicStates.TRUE && this.m_state == sVal)//later put here to attempt a change if one is needed to resolve
+                        {
+                            if (this.stateChangeSuccess != null)
+                            {
+                                this.stateChangeSuccess(this);//signal the game
+                            }
+                            oldPairs.Remove(this);
+                            return logicStates.TRUE;
+                        }
                     }
+                    else
+                    {
+                        if (sVal == KeyState.Down)
+                        {
+                            this.m_state = KeyState.Up;
+                        }
+                        else
+                        {
+                            this.m_state = KeyState.Down;
+                        }
+                        return logicStates.FALSE;
+                    }
+                    if (sVal == KeyState.Down)
+                    {
+                        this.m_state = KeyState.Up;
+                    }
+                    else
+                    {
+                        this.m_state = KeyState.Down;
+                    }
+                    return logicStates.FALSE;
                     return logicStates.FALSE;
                 }
 
