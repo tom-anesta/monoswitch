@@ -111,8 +111,9 @@ namespace monoswitch
                 private static Dictionary<logics, List<methods>> m_methodDict;
                 private static Dictionary<logics, logicStates> m_indEvalDict;
                 private static Dictionary<Tuple<logics, logicStates>, List<Tuple<logicStates, logicStates>>> m_evalDict;
+                private static Dictionary<Tuple<logics, methods, logicStates>, List<Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>>> m_methodEvalDict;
                 //evaluation keys
-                //all both falses are true except in not.  otherwise, indeterminate is chosen if could possibley evaluate to false, otherwise to true
+                //all both falses are true except in not.  otherwise, indeterminate is chosen if could possibley evaluate to false, otherwise to true.  total 16
                 private static readonly Tuple<logicStates, logicStates> s_falseB = Tuple.Create(logicStates.FALSE, logicStates.FALSE);
                 private static readonly Tuple<logicStates, logicStates> s_trueB = Tuple.Create(logicStates.TRUE, logicStates.TRUE);
                 private static readonly Tuple<logicStates, logicStates> s_leftT = Tuple.Create(logicStates.TRUE, logicStates.FALSE);
@@ -129,7 +130,281 @@ namespace monoswitch
                 private static readonly Tuple<logicStates, logicStates> s_nonerf = Tuple.Create(logicStates.NONE, logicStates.FALSE);
                 private static readonly Tuple<logicStates, logicStates> s_nonelind = Tuple.Create(logicStates.INDETERMINATE, logicStates.NONE);
                 private static readonly Tuple<logicStates, logicStates> s_nonerind = Tuple.Create(logicStates.NONE, logicStates.INDETERMINATE);
-                //16 different pairs
+                //assign the pairs that are valid for the methods, item two of each item is the previous state.  in description, organizing by item 1
+                //item 1 fb
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_fb = Tuple.Create(s_falseB, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_lt = Tuple.Create(s_falseB, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_rt = Tuple.Create(s_falseB, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_tb = Tuple.Create(s_falseB, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_ib = Tuple.Create(s_falseB, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_ilf = Tuple.Create(s_falseB, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_irf = Tuple.Create(s_falseB, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_ilt = Tuple.Create(s_falseB, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_irt = Tuple.Create(s_falseB, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_nb = Tuple.Create(s_falseB, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_nil = Tuple.Create(s_falseB, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_nir = Tuple.Create(s_falseB, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_nlf = Tuple.Create(s_falseB, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_nrf = Tuple.Create(s_falseB, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_nlt = Tuple.Create(s_falseB, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_fb_nrt = Tuple.Create(s_falseB, s_nonert);//base none done 16 item done
+                //item 2 lt
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_fb = Tuple.Create(s_leftT, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_lt = Tuple.Create(s_leftT, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_rt = Tuple.Create(s_leftT, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_tb = Tuple.Create(s_leftT, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_ib = Tuple.Create(s_leftT, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_ilf = Tuple.Create(s_leftT, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_irf = Tuple.Create(s_leftT, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_ilt = Tuple.Create(s_leftT, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_irt = Tuple.Create(s_leftT, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_nb = Tuple.Create(s_leftT, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_nil = Tuple.Create(s_leftT, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_nir = Tuple.Create(s_leftT, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_nlf = Tuple.Create(s_leftT, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_nrf = Tuple.Create(s_leftT, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_nlt = Tuple.Create(s_leftT, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_lt_nrt = Tuple.Create(s_leftT, s_nonert);//base none done 16 item done
+                //item 3 rt
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_fb = Tuple.Create(s_rightT, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_lt = Tuple.Create(s_rightT, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_rt = Tuple.Create(s_rightT, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_tb = Tuple.Create(s_rightT, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_ib = Tuple.Create(s_rightT, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_ilf = Tuple.Create(s_rightT, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_irf = Tuple.Create(s_rightT, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_ilt = Tuple.Create(s_rightT, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_irt = Tuple.Create(s_rightT, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_nb = Tuple.Create(s_rightT, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_nil = Tuple.Create(s_rightT, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_nir = Tuple.Create(s_rightT, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_nlf = Tuple.Create(s_rightT, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_nrf = Tuple.Create(s_rightT, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_nlt = Tuple.Create(s_rightT, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_rt_nrt = Tuple.Create(s_rightT, s_nonert);//base none done 16 item done
+                //item 4 tb
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_fb = Tuple.Create(s_trueB, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_lt = Tuple.Create(s_trueB, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_rt = Tuple.Create(s_trueB, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_tb = Tuple.Create(s_trueB, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_ib = Tuple.Create(s_trueB, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_ilf = Tuple.Create(s_trueB, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_irf = Tuple.Create(s_trueB, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_ilt = Tuple.Create(s_trueB, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_irt = Tuple.Create(s_trueB, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_nb = Tuple.Create(s_trueB, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_nil = Tuple.Create(s_trueB, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_nir = Tuple.Create(s_trueB, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_nlf = Tuple.Create(s_trueB, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_nrf = Tuple.Create(s_trueB, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_nlt = Tuple.Create(s_trueB, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_tb_nrt = Tuple.Create(s_trueB, s_nonert);//base none done 16 item done
+                //item 5 ib
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_fb = Tuple.Create(s_indB, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_lt = Tuple.Create(s_indB, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_rt = Tuple.Create(s_indB, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_tb = Tuple.Create(s_indB, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_ib = Tuple.Create(s_indB, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_ilf = Tuple.Create(s_indB, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_irf = Tuple.Create(s_indB, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_ilt = Tuple.Create(s_indB, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_irt = Tuple.Create(s_indB, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_nb = Tuple.Create(s_indB, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_nil = Tuple.Create(s_indB, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_nir = Tuple.Create(s_indB, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_nlf = Tuple.Create(s_indB, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_nrf = Tuple.Create(s_indB, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_nlt = Tuple.Create(s_indB, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ib_nrt = Tuple.Create(s_indB, s_nonert);//base none done 16 item done
+                //item 6 ilf
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_fb = Tuple.Create(s_indlf, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_lt = Tuple.Create(s_indlf, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_rt = Tuple.Create(s_indlf, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_tb = Tuple.Create(s_indlf, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_ib = Tuple.Create(s_indlf, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_ilf = Tuple.Create(s_indlf, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_irf = Tuple.Create(s_indlf, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_ilt = Tuple.Create(s_indlf, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_irt = Tuple.Create(s_indlf, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_nb = Tuple.Create(s_indlf, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_nil = Tuple.Create(s_indlf, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_nir = Tuple.Create(s_indlf, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_nlf = Tuple.Create(s_indlf, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_nrf = Tuple.Create(s_indlf, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_nlt = Tuple.Create(s_indlf, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilf_nrt = Tuple.Create(s_indlf, s_nonert);//base none done 16 item done
+                //item 7 irf
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_fb = Tuple.Create(s_indrf, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_lt = Tuple.Create(s_indrf, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_rt = Tuple.Create(s_indrf, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_tb = Tuple.Create(s_indrf, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_ib = Tuple.Create(s_indrf, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_ilf = Tuple.Create(s_indrf, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_irf = Tuple.Create(s_indrf, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_ilt = Tuple.Create(s_indrf, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_irt = Tuple.Create(s_indrf, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_nb = Tuple.Create(s_indrf, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_nil = Tuple.Create(s_indrf, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_nir = Tuple.Create(s_indrf, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_nlf = Tuple.Create(s_indrf, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_nrf = Tuple.Create(s_indrf, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_nlt = Tuple.Create(s_indrf, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irf_nrt = Tuple.Create(s_indrf, s_nonert);//base none done 16 item done
+                //item 8 ilt
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_fb = Tuple.Create(s_indlt, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_lt = Tuple.Create(s_indlt, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_rt = Tuple.Create(s_indlt, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_tb = Tuple.Create(s_indlt, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_ib = Tuple.Create(s_indlt, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_ilf = Tuple.Create(s_indlt, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_irf = Tuple.Create(s_indlt, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_ilt = Tuple.Create(s_indlt, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_irt = Tuple.Create(s_indlt, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_nb = Tuple.Create(s_indlt, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_nil = Tuple.Create(s_indlt, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_nir = Tuple.Create(s_indlt, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_nlf = Tuple.Create(s_indlt, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_nrf = Tuple.Create(s_indlt, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_nlt = Tuple.Create(s_indlt, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_ilt_nrt = Tuple.Create(s_indlt, s_nonert);//base none done 16 item done
+                //item 9 irt
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_fb = Tuple.Create(s_indrt, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_lt = Tuple.Create(s_indrt, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_rt = Tuple.Create(s_indrt, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_tb = Tuple.Create(s_indrt, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_ib = Tuple.Create(s_indrt, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_ilf = Tuple.Create(s_indrt, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_irf = Tuple.Create(s_indrt, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_ilt = Tuple.Create(s_indrt, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_irt = Tuple.Create(s_indrt, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_nb = Tuple.Create(s_indrt, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_nil = Tuple.Create(s_indrt, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_nir = Tuple.Create(s_indrt, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_nlf = Tuple.Create(s_indrt, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_nrf = Tuple.Create(s_indrt, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_nlt = Tuple.Create(s_indrt, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_irt_nrt = Tuple.Create(s_indrt, s_nonert);//base none done 16 item done
+                //item 10 nb
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_fb = Tuple.Create(s_noneB, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_lt = Tuple.Create(s_noneB, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_rt = Tuple.Create(s_noneB, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_tb = Tuple.Create(s_noneB, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_ib = Tuple.Create(s_noneB, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_ilf = Tuple.Create(s_noneB, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_irf = Tuple.Create(s_noneB, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_ilt = Tuple.Create(s_noneB, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_irt = Tuple.Create(s_noneB, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_nb = Tuple.Create(s_noneB, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_nil = Tuple.Create(s_noneB, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_nir = Tuple.Create(s_noneB, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_nlf = Tuple.Create(s_noneB, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_nrf = Tuple.Create(s_noneB, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_nlt = Tuple.Create(s_noneB, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nb_nrt = Tuple.Create(s_noneB, s_nonert);//base none done 16 item done
+                //item 11 nonelind
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_fb = Tuple.Create(s_nonelind, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_lt = Tuple.Create(s_nonelind, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_rt = Tuple.Create(s_nonelind, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_tb = Tuple.Create(s_nonelind, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_ib = Tuple.Create(s_nonelind, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_ilf = Tuple.Create(s_nonelind, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_irf = Tuple.Create(s_nonelind, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_ilt = Tuple.Create(s_nonelind, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_irt = Tuple.Create(s_nonelind, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_nb = Tuple.Create(s_nonelind, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_nil = Tuple.Create(s_nonelind, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_nir = Tuple.Create(s_nonelind, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_nlf = Tuple.Create(s_nonelind, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_nrf = Tuple.Create(s_nonelind, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_nlt = Tuple.Create(s_nonelind, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nil_nrt = Tuple.Create(s_nonelind, s_nonert);//base none done 16 item done
+                //item 12 nonerind
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_fb = Tuple.Create(s_nonerind, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_lt = Tuple.Create(s_nonerind, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_rt = Tuple.Create(s_nonerind, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_tb = Tuple.Create(s_nonerind, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_ib = Tuple.Create(s_nonerind, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_ilf = Tuple.Create(s_nonerind, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_irf = Tuple.Create(s_nonerind, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_ilt = Tuple.Create(s_nonerind, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_irt = Tuple.Create(s_nonerind, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_nb = Tuple.Create(s_nonerind, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_nil = Tuple.Create(s_nonerind, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_nir = Tuple.Create(s_nonerind, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_nlf = Tuple.Create(s_nonerind, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_nrf = Tuple.Create(s_nonerind, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_nlt = Tuple.Create(s_nonerind, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nir_nrt = Tuple.Create(s_nonerind, s_nonert);//base none done 16 item done
+                //item 13 nonelf
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_fb = Tuple.Create(s_nonelf, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_lt = Tuple.Create(s_nonelf, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_rt = Tuple.Create(s_nonelf, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_tb = Tuple.Create(s_nonelf, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_ib = Tuple.Create(s_nonelf, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_ilf = Tuple.Create(s_nonelf, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_irf = Tuple.Create(s_nonelf, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_ilt = Tuple.Create(s_nonelf, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_irt = Tuple.Create(s_nonelf, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_nb = Tuple.Create(s_nonelf, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_nil = Tuple.Create(s_nonelf, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_nir = Tuple.Create(s_nonelf, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_nlf = Tuple.Create(s_nonelf, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_nrf = Tuple.Create(s_nonelf, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_nlt = Tuple.Create(s_nonelf, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlf_nrt = Tuple.Create(s_nonelf, s_nonert);//base none done 16 item done
+                //item 14 nonerf
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_fb = Tuple.Create(s_nonerf, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_lt = Tuple.Create(s_nonerf, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_rt = Tuple.Create(s_nonerf, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_tb = Tuple.Create(s_nonerf, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_ib = Tuple.Create(s_nonerf, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_ilf = Tuple.Create(s_nonerf, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_irf = Tuple.Create(s_nonerf, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_ilt = Tuple.Create(s_nonerf, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_irt = Tuple.Create(s_nonerf, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_nb = Tuple.Create(s_nonerf, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_nil = Tuple.Create(s_nonerf, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_nir = Tuple.Create(s_nonerf, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_nlf = Tuple.Create(s_nonerf, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_nrf = Tuple.Create(s_nonerf, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_nlt = Tuple.Create(s_nonerf, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrf_nrt = Tuple.Create(s_nonerf, s_nonert);//base none done 16 item done
+                //item 15 nonelt
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_fb = Tuple.Create(s_nonelt, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_lt = Tuple.Create(s_nonelt, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_rt = Tuple.Create(s_nonelt, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_tb = Tuple.Create(s_nonelt, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_ib = Tuple.Create(s_nonelt, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_ilf = Tuple.Create(s_nonelt, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_irf = Tuple.Create(s_nonelt, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_ilt = Tuple.Create(s_nonelt, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_irt = Tuple.Create(s_nonelt, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_nb = Tuple.Create(s_nonelt, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_nil = Tuple.Create(s_nonelt, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_nir = Tuple.Create(s_nonelt, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_nlf = Tuple.Create(s_nonelt, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_nrf = Tuple.Create(s_nonelt, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_nlt = Tuple.Create(s_nonelt, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nlt_nrt = Tuple.Create(s_nonelt, s_nonert);//base none done 16 item done
+                //item 16 nonert
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_fb = Tuple.Create(s_nonert, s_falseB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_lt = Tuple.Create(s_nonert, s_leftT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_rt = Tuple.Create(s_nonert, s_rightT);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_tb = Tuple.Create(s_nonert, s_trueB);//base tf done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_ib = Tuple.Create(s_nonert, s_indB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_ilf = Tuple.Create(s_nonert, s_indlf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_irf = Tuple.Create(s_nonert, s_indrf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_ilt = Tuple.Create(s_nonert, s_indlt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_irt = Tuple.Create(s_nonert, s_indrt);//base ind done
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_nb = Tuple.Create(s_nonert, s_noneB);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_nil = Tuple.Create(s_nonert, s_nonelind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_nir = Tuple.Create(s_nonert, s_nonerind);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_nlf = Tuple.Create(s_nonert, s_nonelf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_nrf = Tuple.Create(s_nonert, s_nonerf);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_nlt = Tuple.Create(s_nonert, s_nonelt);
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> s_m_nrt_nrt = Tuple.Create(s_nonert, s_nonert);//base none done 16 item done
+                //finished 16x16 items 256 items
+                //set valid pairs for true, false, and indeterminate 16 different pairs total for each logic
                 private static readonly Tuple<logicStates, logicStates>[] s_xorTrues = { s_falseB, s_leftT, s_rightT, s_indrf, s_indlf, s_nonelf, s_nonelt, s_nonerf, s_nonert, s_nonerind, s_nonelind, s_noneB };//12
                 private static readonly Tuple<logicStates, logicStates>[] s_xorFalses = { s_trueB };//13
                 private static readonly Tuple<logicStates, logicStates>[] s_xorInds = { s_indrt, s_indlt, s_indB };//16.  xor full
@@ -151,6 +426,68 @@ namespace monoswitch
                 private static readonly Tuple<logicStates, logicStates>[] s_NoneTrues = { s_falseB, s_trueB, s_leftT, s_rightT, s_indrt, s_indrf, s_indlt, s_indlf, s_indB, s_noneB, s_nonelt, s_nonelf, s_nonelind, s_nonert, s_nonerf, s_nonerind};//16, none full
                 private static readonly Tuple<logicStates, logicStates>[] s_NoneFalses = { };//0
                 private static readonly Tuple<logicStates, logicStates>[] s_NoneInds = { };//0
+                //set pairs of pairs for the method resolution
+                //xor
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorActivateTrues = {};//blank
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorActivateFalses = { };//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorActivateInds = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorDeactivateTrues = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorDeactivateFalses = {};//blank
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorDeactivateInds = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorFollowTrues = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorFollowFalses = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorFollowInds = {};//things here
+                //left
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftActivateTrues = null;//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftActivateFalses = null;//blank
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftActivateInds = null;//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftDeactivateTrues = null;//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftDeactivateFalses = null;//blank
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftDeactivateInds = null;//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftFollowTrues = null;//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftFollowFalses = null;//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftFollowInds = null;//things here
+                //right
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightActivateTrues = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightActivateFalses = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightActivateInds = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightDeactivateTrues = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightDeactivateFalses = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightDeactivateInds = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightFollowTrues = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightFollowFalses = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightFollowInds = null;
+                //bi
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiActivateTrues = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiActivateFalses = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiActivateInds = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiDeactivateTrues = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiDeactivateFalses = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiDeactivateInds = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiFollowTrues = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiFollowFalses = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiFollowInds = null;
+                //and
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndActivateTrues = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndActivateFalses = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndActivateInds = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndDeactivateTrues = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndDeactivateFalses = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndDeactivateInds = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndFollowTrues = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndFollowFalses = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndFollowInds = null;
+                //not
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_NotActivateTrues = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_NotActivateFalses = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_NotActivateInds = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_NotDeactivateTrues = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_NotDeactivateFalses = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_NotDeactivateInds = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_NotFollowTrues = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_NotFollowFalses = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_NotFollowInds = null;
+                
 
             #endregion
 
@@ -225,15 +562,16 @@ namespace monoswitch
                     KeyLogicManager.m_methodDict = new Dictionary<logics, List<methods>>();
                     KeyLogicManager.m_indEvalDict = new Dictionary<logics, logicStates>();
                     KeyLogicManager.m_evalDict = new Dictionary<Tuple<logics, logicStates>,List<Tuple<logicStates,logicStates>>>();
+                    KeyLogicManager.m_methodEvalDict = new Dictionary<Tuple<logics, methods, logicStates>, List<Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>>>();
                     //assign values to the dictionary for matching methods
                     //XOR, LEFT, RIGHT, BI, NONE, NOT
-                    KeyLogicManager.m_methodDict[logics.XOR] = new List<methods>(new methods[]{methods.DEACTIVATE, methods.FOLLOW});
-                    List<methods> leftlist = new List<methods>(new methods[] { methods.ACTIVATE, methods.DEACTIVATE, methods.FOLLOW });
+                    KeyLogicManager.m_methodDict[logics.XOR] = new List<methods>(new methods[]{methods.DEACTIVATE, methods.FOLLOW, methods.NONE});
+                    List<methods> leftlist = new List<methods>(new methods[] { methods.ACTIVATE, methods.DEACTIVATE, methods.FOLLOW, methods.NONE });
                     KeyLogicManager.m_methodDict[logics.LEFT] = leftlist;
                     KeyLogicManager.m_methodDict[logics.RIGHT] = leftlist.ToList();
                     KeyLogicManager.m_methodDict[logics.BI] = leftlist.ToList();
-                    KeyLogicManager.m_methodDict[logics.AND] = new List<methods>(new methods[] { methods.ACTIVATE });
-                    KeyLogicManager.m_methodDict[logics.NOT] = new List<methods>(new methods[] { methods.DEACTIVATE });
+                    KeyLogicManager.m_methodDict[logics.AND] = new List<methods>(new methods[] { methods.ACTIVATE, methods.NONE });
+                    KeyLogicManager.m_methodDict[logics.NOT] = new List<methods>(new methods[] { methods.DEACTIVATE, methods.NONE });
                     KeyLogicManager.m_methodDict[logics.NONE] = new List<methods>(new methods[] { methods.NONE });
                     //assign values to the dictionary for matching
                     //XOR : false, Left : false, Right : false, BI : false, NOT : false
@@ -274,6 +612,67 @@ namespace monoswitch
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.NONE, logicStates.TRUE)] = KeyLogicManager.s_NoneTrues.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.NONE, logicStates.FALSE)] = KeyLogicManager.s_NoneTrues.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.NONE, logicStates.INDETERMINATE)] = KeyLogicManager.s_NoneInds.ToList();
+                    //set the lists in the method evaluation dictionary
+                    //method evaluation dictionary xor
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.DEACTIVATE, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.DEACTIVATE, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.DEACTIVATE, logicStates.INDETERMINATE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.ACTIVATE, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.ACTIVATE, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.ACTIVATE, logicStates.INDETERMINATE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.FOLLOW, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.FOLLOW, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.FOLLOW, logicStates.INDETERMINATE)] = null;
+                    //method evaluation dictionary left
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.DEACTIVATE, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.DEACTIVATE, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.DEACTIVATE, logicStates.INDETERMINATE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.ACTIVATE, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.ACTIVATE, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.ACTIVATE, logicStates.INDETERMINATE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.FOLLOW, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.FOLLOW, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.FOLLOW, logicStates.INDETERMINATE)] = null;
+                    //method evaluation dictionary right
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.DEACTIVATE, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.DEACTIVATE, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.DEACTIVATE, logicStates.INDETERMINATE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.ACTIVATE, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.ACTIVATE, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.ACTIVATE, logicStates.INDETERMINATE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.FOLLOW, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.FOLLOW, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.FOLLOW, logicStates.INDETERMINATE)] = null;
+                    //method evaluation dictionary bi
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.DEACTIVATE, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.DEACTIVATE, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.DEACTIVATE, logicStates.INDETERMINATE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.ACTIVATE, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.ACTIVATE, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.ACTIVATE, logicStates.INDETERMINATE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.FOLLOW, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.FOLLOW, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.FOLLOW, logicStates.INDETERMINATE)] = null;
+                    //method evaluation dictionary and
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.DEACTIVATE, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.DEACTIVATE, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.DEACTIVATE, logicStates.INDETERMINATE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.ACTIVATE, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.ACTIVATE, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.ACTIVATE, logicStates.INDETERMINATE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.FOLLOW, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.FOLLOW, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.FOLLOW, logicStates.INDETERMINATE)] = null;
+                    //method evaluation dictionary not
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.DEACTIVATE, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.DEACTIVATE, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.DEACTIVATE, logicStates.INDETERMINATE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.ACTIVATE, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.ACTIVATE, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.ACTIVATE, logicStates.INDETERMINATE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.FOLLOW, logicStates.TRUE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.FOLLOW, logicStates.FALSE)] = null;
+                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.FOLLOW, logicStates.INDETERMINATE)] = null;
                     //mark as inited
                     KeyLogicManager.m_inited = true;
                 }
@@ -467,6 +866,21 @@ namespace monoswitch
                     {
                         return null;
                     }
+                }
+
+                public static List<Tuple<Tuple<ILogicState, logicStates>, Tuple<ILogicState, logicStates>>> relevants (Dictionary<ILogicState, logicStates> dict, logics ltype, methods mtype, logicStates stype)
+                {
+                    if (!KeyLogicManager.m_methodDict.ContainsKey(ltype))
+                    {
+                        return new List<Tuple<Tuple<ILogicState, logicStates>, Tuple<ILogicState, logicStates>>>();
+                    }
+                    Tuple<logics, methods, logicStates> key = new Tuple<logics,methods,logicStates>(ltype, mtype, stype);
+                    if (!KeyLogicManager.m_methodEvalDict.ContainsKey(key))
+                    {
+                        return new List<Tuple<Tuple<ILogicState, logicStates>, Tuple<ILogicState, logicStates>>>();
+                    }
+                    List<Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>> compareList = KeyLogicManager.m_methodEvalDict[key];
+                    return new List<Tuple<Tuple<ILogicState, logicStates>, Tuple<ILogicState, logicStates>>>();
                 }
 
             #endregion

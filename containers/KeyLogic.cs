@@ -248,7 +248,6 @@ namespace monoswitch.containers
                                 this.OnMethodChanged(node);
                             }
                         });
-                        
                     }
                 }
 
@@ -912,6 +911,7 @@ namespace monoswitch.containers
                 {
                     if (this.evaluation() == goalVal)
                     {
+                        Console.WriteLine("on requestedResolve we have already reached goal");
                         return logicStates.TRUE;
                     }
                     List<Tuple<logicStates, logicStates>> goalQualifiers = KeyLogicManager.qualifiers(this.log, goalVal);
@@ -920,20 +920,22 @@ namespace monoswitch.containers
                         return logicStates.FALSE;
                     }
                     logicStates results = logicStates.FALSE;
-                    bool dataEffective = (this.Data != null);
-                    Dictionary<int, logicStates> compareDict = new Dictionary<int,logicStates>();
-                    for (int i = 0; i < this.Children.Count; i++)
-                    {
-                        compareDict[i] = ((KeyLogicNode)this.Children[i]).state;
-                    }
-                    if (compareDict.Count >= this.maxObj)
+                    bool dataEffective = (this.Data != null && this.m_lastStates.ContainsKey(this.Data));
+                    if (this.m_lastStates.Count > this.maxObj)
                     {
                         dataEffective = false;
                     }
-                    if (dataEffective)
+                    Tuple<ILogicState, logicStates> dataHolder = (this.m_lastStates.ContainsKey(this.Data) ? Tuple.Create((ILogicState)this.Data, this.m_lastStates[this.Data]) : null);
+                    if (!dataEffective)
                     {
-                        compareDict[int.MaxValue] = this.Data.evaluate();
+                        this.m_lastStates.Remove(this.Data);
                     }
+                    List<Tuple<Tuple<ILogicState, logicStates>, Tuple<ILogicState, logicStates>>> relevants = KeyLogicManager.relevants(this.m_lastStates, this.m_log, this.m_method, goalVal);
+                    if (!dataEffective)
+                    {
+                        this.m_lastStates[dataHolder.Item1] = dataHolder.Item2;
+                    }
+
                     //stopped here
                     return results;
                 }
