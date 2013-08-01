@@ -241,6 +241,7 @@ namespace monoswitchExample
                         {
                             Console.WriteLine(child.Parent.ToString());
                         }
+                        
                         Console.WriteLine("the number of children in root is " + this.m_selectSet.root.Children.Count);
                         Console.WriteLine("the parents of the children in root are ");
                         foreach (var child in this.m_selectSet.root.Children)

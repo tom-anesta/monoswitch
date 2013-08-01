@@ -375,7 +375,6 @@ namespace monoswitchExample.game
                             }
                             this.m_position = new Vector2(locx, locy);
                         }
-                        //Console.WriteLine("rotation is " + this.m_rotationAngle);
                     }
                     this.m_playerAnimation.position = this.m_position;
                     Vector2 outVect;
@@ -383,9 +382,6 @@ namespace monoswitchExample.game
                     this.m_altPosition = outVect;
                     if(this.m_altPlayerAnimation == null && isOutBool)
                     {
-                        //Console.WriteLine("receiving new animation");
-                        //Console.WriteLine("the standard position is " + "x: " + this.m_position.X + ", y: " + this.m_position.Y);
-                        //Console.WriteLine("the alternate position is " + " x: " + this.m_altPosition.X + ", y: " + this.m_altPosition.Y);
                         this.m_altPlayerAnimation = new Animation();
                         this.m_altPlayerAnimation.Initialize(this.m_playerAnimation.spriteStrip, this.m_altPosition, this.m_playerAnimation.frameWidth, this.m_playerAnimation.frameHeight, this.m_playerAnimation.frameCount, this.m_playerAnimation.frameTime, this.m_playerAnimation.color, this.m_playerAnimation.scale, true);
                     }
@@ -394,14 +390,11 @@ namespace monoswitchExample.game
                         this.m_altPosition = outVect;
                         this.m_altPlayerAnimation.position = this.m_altPosition;
                         this.m_altPlayerAnimation.Update(gameTime);
-                        //Console.WriteLine("continuing alt animation at x: " + this.m_altPlayerAnimation.position.X + ", y: " + this.m_altPlayerAnimation.position.Y);
-                        //Console.WriteLine("active state is " + this.m_altPlayerAnimation.active);
                     }
                     else
                     {
                         if (this.m_altPlayerAnimation != null)
                         {
-                            //Console.WriteLine("leaving alt animation");
                             this.m_altPosition = Vector2.Zero;
                             this.m_altPlayerAnimation = null;
                         }

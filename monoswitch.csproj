@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ILogicState.cs" />
     <Compile Include="containers\KeyGroup.cs" />
     <Compile Include="containers\KeyLogic.cs" />
     <Compile Include="content\composite_switch.cs" />

@@ -16,7 +16,7 @@ namespace monoswitch.containers
     public delegate logicStates KeyGroupChange(KeyPair kPair, KeyGroup kGroup);
     public delegate logicStates KeyGroupStateChange(KeyGroup group, List<KeyPair> oldPairStack, List<KeyGroup> oldGroupStack);
 
-    public class KeyGroup : ITreeNode<KeyGroup>
+    public class KeyGroup : ITreeNode<KeyGroup>, ILogicState
     {
         #region members_memberlike_properties
 
@@ -85,6 +85,14 @@ namespace monoswitch.containers
                     get
                     {
                         return this.m_state;
+                    }
+                }
+
+                public logicStates lastState
+                {
+                    get
+                    {
+                        return this.m_lastState;
                     }
                 }
 
@@ -206,6 +214,7 @@ namespace monoswitch.containers
 
                 protected logicStates m_respGroupPairAttemptChanged(KeyPair newP, List<KeyPair> oldPairStack, List<KeyGroup> oldGroupStack)
                 {
+                    Console.WriteLine("attempting state change in group");
                     //if we attempted a change, we need to evaluate
                     if(oldGroupStack == null)
                     {
@@ -214,16 +223,19 @@ namespace monoswitch.containers
                     logicStates orig = this.state;
                     if (this.evaluate() == orig)//then we're good here
                     {
+                        Console.WriteLine("state unchanged");
                         return logicStates.TRUE;
                     }
                     if(oldGroupStack.Contains(this))//we've already tried to use it or modify it
                     {
+                        Console.WriteLine("old group found returning false");
                         return logicStates.FALSE;
                     }
                     this.m_state = this.evaluate();
                     logicStates result = logicStates.TRUE;
                     if (this.groupAttemptStateChanged != null)
                     {
+                        Console.WriteLine("signalling group attempt state change");
                         result = groupAttemptStateChanged(this, oldPairStack, oldGroupStack);
                         if (result == logicStates.TRUE)
                         {
@@ -241,6 +253,7 @@ namespace monoswitch.containers
 
                 protected logicStates m_respGroupPairChangeFailure(KeyPair failedP, List<KeyPair> oldPairStack, List<KeyGroup> oldGroupStack)
                 {
+                    Console.WriteLine("attempting resolve");
                     logicStates result = logicStates.TRUE;
                     if (oldGroupStack == null)
                     {
@@ -248,19 +261,21 @@ namespace monoswitch.containers
                     }
                     if(oldGroupStack.Contains(this))
                     {
+                        Console.WriteLine("stack overflow");
                         return logicStates.FALSE;
                     }
                     if (this.groupAttemptStateChangedFailure != null)
                     {
+                        Console.WriteLine("signaling resolve attempt from group");
                         oldGroupStack.Add(this);
                         result = this.groupAttemptStateChangedFailure(this, oldPairStack, oldGroupStack);
-                        Console.WriteLine("the result for resolve in group is false");
                     }
                     this.m_state = this.evaluate();
                     if (result == logicStates.TRUE)//if we were successful pop off stack else we need to hold on to it
                     {
                         oldGroupStack.Remove(this);
                     }
+                    Console.WriteLine("The result of resolve in keygroup is " + result);
                     return result;
                 }
 
@@ -646,6 +661,7 @@ namespace monoswitch.containers
 
                 public logicStates setState(KeyState sVal, List<KeyPair> oldPairs = null, List<KeyGroup> oldGroups = null)
                 {
+                    Console.WriteLine("attempting state change");
                     if(sVal == this.state)
                     {
                         return logicStates.TRUE;//well then we succeeded in setting
@@ -661,12 +677,14 @@ namespace monoswitch.containers
                     List<Keys> compareList = oldPairs.Select(x => x.key).ToList();
                     if (compareList.Contains(this.key))//if this is a loop we can't change it from what we intend to change it anyway without reversing our intentions
                     {
+                        Console.WriteLine("old key pair found returning false");
                         return logicStates.FALSE;
                     }
                     this.m_state = sVal;
                     logicStates result = logicStates.TRUE;
                     if (this.stateChangeAttempt != null)
                     {
+                        Console.WriteLine("attempting state change");
                         result = this.stateChangeAttempt(this, oldPairs, oldGroups);//move oldpairs to below when changing, this should evaluate
                         if (result == logicStates.TRUE && this.m_state == sVal)//later put here to attempt a change if one is needed to resolve
                         {
@@ -680,6 +698,7 @@ namespace monoswitch.containers
                     }
                     else
                     {
+                        Console.WriteLine("no state change event found");
                         return logicStates.TRUE;
                     }
                     if (this.stateChangeFailure != null)
