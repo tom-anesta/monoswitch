@@ -429,7 +429,24 @@ namespace monoswitch
                 //set pairs of pairs for the method resolution
                 //xor
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorActivateTrues = {};//blank
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorActivateFalses = { };//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorActivateFalses = {
+                s_m_tb_fb, s_m_tb_rt, s_m_tb_ib, s_m_tb_ilf, s_m_tb_irf, s_m_tb_irt, s_m_tb_nb, s_m_tb_nil, s_m_tb_nir, s_m_tb_nlf, s_m_tb_nrf, s_m_tb_nrt,
+                s_m_rt_rt, s_m_rt_fb, s_m_rt_ib, s_m_rt_ilf, s_m_rt_irf, s_m_rt_irt, s_m_rt_nb, s_m_rt_nil, s_m_rt_nir, s_m_rt_nlf, s_m_rt_nrf, s_m_rt_nrt, s_m_rt_lt, s_m_rt_ilt, s_m_rt_nlt, s_m_rt_tb, 
+                s_m_ib_ib, s_m_ib_rt, s_m_ib_fb, s_m_ib_ilf, s_m_ib_irf, s_m_ib_irt, s_m_ib_nb, s_m_ib_nil, s_m_ib_nir, s_m_rt_nlf, s_m_ib_nrf, s_m_ib_nrt, s_m_ib_lt, s_m_ib_ilt, s_m_ib_nlt, s_m_ib_tb, 
+                s_m_ilf_ilf, s_m_ilf_ib, s_m_ilf_rt, s_m_ilf_fb, s_m_ilf_irf, s_m_ilf_irt, s_m_ilf_nb, s_m_ilf_nil, s_m_ilf_nir, s_m_ilf_nlf, s_m_ilf_nrf, s_m_ilf_nrt, s_m_ilf_lt, s_m_ilf_ilt, s_m_ilf_nlt, s_m_ilf_tb, 
+                s_m_irf_irf, s_m_irf_ilf, s_m_irf_ib, s_m_irf_rt, s_m_irf_fb, s_m_irf_irt, s_m_irf_nb, s_m_irf_nil, s_m_irf_nir, s_m_irf_nlf, s_m_irf_nrf, s_m_irf_nrt, s_m_irf_lt, s_m_irf_ilt, s_m_irf_nlt, s_m_irf_tb, 
+                s_m_irt_irt, s_m_irt_irf, s_m_irt_ilf, s_m_irt_ib, s_m_irt_rt, s_m_irt_fb, s_m_irt_nb, s_m_irt_nil, s_m_irt_nir, s_m_irt_nlf, s_m_irt_nrf, s_m_irt_nrt, s_m_irt_lt, s_m_irt_ilt, s_m_irf_nlt, s_m_irt_tb, 
+                s_m_nb_nb, s_m_nb_irt, s_m_nb_irf, s_m_nb_ilf, s_m_nb_ib, s_m_nb_rt, s_m_nb_fb, s_m_nb_nil, s_m_nb_nir, s_m_nb_nlf, s_m_nb_nrf, s_m_nb_nrt, s_m_nb_lt, s_m_nb_ilt, s_m_nb_nlt, s_m_nb_tb, 
+                s_m_nil_nil, s_m_nil_nb, s_m_nil_irt, s_m_nil_irf, s_m_nil_ilf, s_m_nil_ib, s_m_nil_rt, s_m_nil_fb, s_m_nil_nir, s_m_nil_nlf, s_m_nil_nrf, s_m_nil_nrt, s_m_nil_lt, s_m_nil_ilt, s_m_nil_nlt, s_m_nil_tb, 
+                s_m_nir_nir, s_m_nir_nil, s_m_nir_nb, s_m_nir_irt, s_m_nir_irf, s_m_nir_ilf, s_m_nir_ib, s_m_nir_rt, s_m_nir_fb, s_m_nir_nlf, s_m_nir_nrf, s_m_nir_nrt, s_m_nir_lt, s_m_nir_ilt, s_m_nir_nlt, s_m_nir_tb,
+                s_m_nlf_nlf, s_m_nlf_nir, s_m_nlf_nil, s_m_nlf_nb, s_m_nlf_irt, s_m_nlf_irf, s_m_nlf_ilf, s_m_nlf_ib, s_m_nlf_rt, s_m_nlf_fb, s_m_nlf_nrf, s_m_nlf_nrt, s_m_nlf_lt, s_m_nlf_ilt, s_m_nlf_nlt, s_m_nlf_tb, 
+                s_m_nrf_nrf, s_m_nrf_nlf, s_m_nrf_nir, s_m_nrf_nil, s_m_nrf_nb, s_m_nrf_irt, s_m_nrf_irf, s_m_nrf_ilf, s_m_nrf_ib, s_m_nrf_rt, s_m_nrf_fb, s_m_nrf_nrt, s_m_nrf_lt, s_m_nrf_ilt, s_m_nrf_nlt, s_m_nrf_tb, 
+                s_m_nrt_nrt, s_m_nrt_nrf, s_m_nrt_nlf, s_m_nrt_nir, s_m_nrt_nil, s_m_nrt_nb, s_m_nrt_irt, s_m_nrt_irf, s_m_nrt_ilf, s_m_nrt_ib, s_m_nrt_rt, s_m_nrt_fb, s_m_nrt_lt, s_m_nrt_ilt, s_m_nrt_nlt, s_m_nrt_tb, 
+                s_m_lt_fb, s_m_lt_rt, s_m_lt_ib, s_m_lt_ilf, s_m_lt_irf, s_m_lt_irt, s_m_lt_nb, s_m_lt_nil, s_m_lt_nir, s_m_lt_nlf, s_m_lt_nrf, s_m_lt_nrt,
+                s_m_ilt_fb, s_m_ilt_rt, s_m_ilt_ib, s_m_ilt_ilf, s_m_ilt_irf, s_m_ilt_irt, s_m_ilt_nb, s_m_ilt_nil, s_m_ilt_nir, s_m_ilt_nlf, s_m_ilt_nrf, s_m_ilt_nrt,
+                s_m_nlt_fb, s_m_nlt_rt, s_m_nlt_ib, s_m_nlt_ilf, s_m_nlt_irf, s_m_nlt_irt, s_m_nlt_nb, s_m_nlt_nil, s_m_nlt_nir, s_m_nlt_nlf, s_m_nlt_nrf, s_m_nlt_nrt,
+                };
+                //things above, where both left evaluates to trues not permitted all else permitted.  total
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorActivateInds = {};//things here
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorDeactivateTrues = {};//things here
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorDeactivateFalses = {};//blank
