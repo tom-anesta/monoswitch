@@ -515,17 +515,43 @@ namespace monoswitch
                 //ind level 3 line 6 (false to false for other, false or none to ind for victor)
                 //ind level 4 line 7 (false to true for victor, false or none to ind for other)
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorFollowFalses = {};//blank
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorFollowInds = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorFollowInds =
+                {
+                    s_m_fb_irf, s_m_irf_fb, s_m_fb_nil, s_m_nil_fb
+                };
+                //things above must go from true to true, this transforms into indeterminate.  f to f and f to ind, f to f and none to ind, all other conditions already lead to ind
                 //left
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftActivateTrues = null;//things here
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftActivateFalses = null;//blank
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftActivateInds = null;//things here
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftDeactivateTrues = null;//things here
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftDeactivateFalses = null;//blank
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftDeactivateInds = null;//things here
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftFollowTrues = null;//things here
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftFollowFalses = null;//things here
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftFollowInds = null;//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftActivateTrues =
+                {
+                    s_m_rt_nlt, s_m_nlf_nlt, s_m_ilf_nlt, s_m_fb_nlt, 
+                    s_m_rt_ilt, s_m_nlf_ilt, s_m_ilf_ilt, s_m_fb_ilt, 
+                    s_m_rt_lt, s_m_nlf_lt, s_m_ilf_lt, s_m_fb_lt, 
+                    s_m_rt_tb, s_m_nlf_tb, s_m_ilf_tb, s_m_fb_tb,
+                    s_m_ib_ib, s_m_irt_ib, s_m_ib_irt, s_m_ib_irf, s_m_irf_ib, s_m_irt_irt, s_m_irf_irf, s_m_irt_irf, s_m_irf_irt,
+                    s_m_nil_nil, s_m_nil_ib, s_m_ib_nil, s_m_nil_irt, s_m_irt_nil, s_m_nil_irf, s_m_irf_nil, 
+                    s_m_ib_tb, s_m_ib_lt, s_m_ib_nlt, s_m_ib_ilt, 
+                    s_m_irt_tb, s_m_irt_lt, s_m_irt_nlt, s_m_irt_ilt, 
+                    s_m_irf_tb, s_m_irf_lt, s_m_irf_nlt, s_m_irf_ilt, 
+                    s_m_nil_tb, s_m_nil_lt, s_m_nil_nlt, s_m_nil_ilt
+                };
+                //things here, as long as it does not evaluate to true you can use it
+                //falses lines 1 through 4
+                //inds lines 5 both evaluate to ind
+                //inds lines 6 both evaluate to ind, finished with the nones
+                //inds lines 7 to 10 right true left ind
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftActivateFalses = {};//blank
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftActivateInds =
+                {
+
+                };
+                //things above must go from true to true, must get left to ind and right to ind or true with activation
+                //
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftDeactivateTrues = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftDeactivateFalses = {};//blank
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftDeactivateInds = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftFollowTrues = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftFollowFalses = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftFollowInds = {};//things here
                 //right
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightActivateTrues = null;
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightActivateFalses = null;
@@ -547,15 +573,15 @@ namespace monoswitch
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiFollowFalses = null;
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiFollowInds = null;
                 //and
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndActivateTrues = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndActivateFalses = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndActivateInds = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndDeactivateTrues = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndDeactivateFalses = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndDeactivateInds = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndFollowTrues = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndFollowFalses = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndFollowInds = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndActivateTrues = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndActivateFalses = {};//blank
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndActivateInds = {};
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndDeactivateTrues = {};//blank
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndDeactivateFalses = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndDeactivateInds = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndFollowTrues = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndFollowFalses = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndFollowInds = {};//things here
                 //not
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_NotActivateTrues = null;
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_NotActivateFalses = null;
