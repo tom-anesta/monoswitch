@@ -485,11 +485,36 @@ namespace monoswitch
                 //things above, only where both lefts evaluate to true, or anything that is indeterminate are allowed, so false and indeterminate
                 //false line 1 to 4
                 //inds level 1 lines 5 to 8
-                //inds level 2 lines 
+                //inds level 2 lines 9 to 14
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorDeactivateFalses = {};//blank
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorDeactivateInds = {};//things here
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorFollowTrues = {};//things here
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorFollowFalses = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorDeactivateInds =
+                {
+                    s_m_tb_tb, s_m_tb_lt, s_m_tb_ilt, s_m_tb_nlt, 
+                    s_m_lt_lt, s_m_lt_tb, s_m_lt_ilt, s_m_lt_nlt, 
+                    s_m_ilt_ilt, s_m_ilt_tb, s_m_ilt_lt, s_m_ilt_nlt, 
+                    s_m_nlt_nlt, s_m_nlt_tb, s_m_nlt_lt, s_m_nlt_ilt, 
+                };
+                //things above.  only double left trues to evaluate to false allowed
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorFollowTrues =
+                {
+                    s_m_tb_lt, s_m_tb_ilt, s_m_tb_nlt, 
+                    s_m_lt_tb, s_m_ilt_tb, s_m_nlt_tb,
+                    s_m_lt_ilt, s_m_lt_nlt, s_m_ilt_lt, s_m_nlt_lt, 
+                    s_m_ib_lt, s_m_lt_ib, s_m_ib_ilt, s_m_ilt_ib, s_m_ib_nlt, s_m_nlt_ib, 
+                    s_m_ilt_nlt, s_m_nlt_ilt, 
+                    s_m_fb_irf, s_m_fb_nil, s_m_irf_fb, s_m_nil_fb, 
+                    s_m_irf_lt, s_m_lt_irf, s_m_nil_lt, s_m_lt_nil, 
+                };
+                //things above: must not be true must be ind or false.  in false one must be evaluating to true and previously ind/false and the other present and past true or past ind if the first was false to true
+                //in ind one must have evaluated to false before ind and the other must be one order of action lower that this (false to false if false to ind, false to ind or ind to ind if ind to true or false to true
+                //none is treated as further away from true than indeterminate
+                //false level 1 line 1 and 2 (f to t or ind to t for the victor, tb for the other)
+                //false level 2 line 3 (f to t for the victor, ind to t for other)
+                //ind level 1 line 4 (both ind for the other, ind/false to true for the victor)
+                //ind level 2 line 5 (difference between not to true and indeterminate to true)
+                //ind level 3 line 6 (false to false for other, false or none to ind for victor)
+                //ind level 4 line 7 (false to true for victor, false or none to ind for other)
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorFollowFalses = {};//blank
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorFollowInds = {};//things here
                 //left
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftActivateTrues = null;//things here
