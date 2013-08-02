@@ -571,8 +571,37 @@ namespace monoswitch
                 //things above must go from ind to ind, false to false, ind to false
                 //false lines 1 through 4
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftDeactivateFalses = {};//blank
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftDeactivateInds = {};//things here
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftFollowTrues = {};//things here
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftDeactivateInds =
+                {
+                    s_m_tb_tb, s_m_lt_tb, s_m_ilt_tb, s_m_nlt_tb, 
+                    s_m_lt_lt, s_m_tb_lt, s_m_ilt_lt, s_m_nlt_lt, 
+                    s_m_ilt_ilt, s_m_tb_ilt, s_m_lt_ilt, s_m_nlt_ilt, 
+                    s_m_nlt_nlt, s_m_tb_nlt, s_m_lt_nlt, s_m_ilt_nlt, 
+                    
+                    s_m_tb_ib, s_m_lt_ib, s_m_ilt_ib, s_m_nlt_ib,
+                    s_m_tb_irt, s_m_lt_irt, s_m_ilt_irt, s_m_nlt_irt, 
+                    s_m_tb_irf, s_m_lt_irf, s_m_ilt_irf, s_m_nlt_irf, 
+                    s_m_tb_nil, s_m_lt_nil, s_m_ilt_nil, s_m_nlt_nil, 
+
+                    s_m_ib_ib, s_m_irt_ib, s_m_irf_ib, s_m_nil_ib, 
+                    s_m_irt_irt, s_m_ib_irt, s_m_irf_irt, s_m_nil_irt, 
+                    s_m_irf_irf, s_m_ib_irf, s_m_irt_irf, s_m_nil_irf, 
+                    s_m_nil_nil, s_m_ib_nil, s_m_irt_nil, s_m_irf_nil
+                };
+                //things above must be true (true/true) or false (false/true)
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftFollowTrues =
+                {
+                    s_m_irf_tb, s_m_ilf_tb, s_m_nil_tb, s_m_rt_tb, s_m_irt_tb, 
+                    s_m_irf_ib, s_m_ilf_ib, s_m_nil_ib, s_m_rt_ib, s_m_irt_ib, 
+                    s_m_irf_irt, s_m_ilf_irt, s_m_nil_irt, s_m_rt_irt, s_m_irt_irt, 
+                    s_m_irf_irf, s_m_irt_irf, s_m_ilf_irf, s_m_nil_irf, s_m_rt_irf, 
+                    s_m_irf_nil, s_m_irt_nil, s_m_nil_nil, s_m_rt_nil, s_m_ilf_nil, 
+
+                    s_m_fb_irt, s_m_fb_irf, s_m_fb_lt, s_m_fb_ilt, s_m_fb_nil, s_m_fb_nlt, 
+                    s_m_ib_irt, s_m_ib_irf, s_m_ib_lt, s_m_ib_ilt, s_m_ib_nil, s_m_ib_nlt, 
+
+                };
+                //things above.  something must have changed.  must start at false or ind.  must be going towards trues
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftFollowFalses = {};//things here
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftFollowInds = {};//things here
                 //right
