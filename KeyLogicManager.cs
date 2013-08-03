@@ -625,15 +625,101 @@ namespace monoswitch
                 };
                 //things above can start false or true but not ind
                 //right
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightActivateTrues = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightActivateFalses = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightActivateInds = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightDeactivateTrues = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightDeactivateFalses = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightDeactivateInds = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightFollowTrues = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightFollowFalses = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightFollowInds = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightActivateTrues =
+                {
+                    s_m_nlt_rt, s_m_nlt_nlf, s_m_nlt_ilf, s_m_nlt_fb, s_m_nlt_ib, s_m_nlt_irt, s_m_nlt_irf, s_m_nlt_nil, 
+                    s_m_ilt_rt, s_m_ilt_nlf, s_m_ilt_ilf, s_m_ilt_fb, s_m_ilt_ib, s_m_ilt_irt, s_m_ilt_irf, s_m_ilt_nil, 
+                    s_m_lt_rt, s_m_lt_nlf, s_m_lt_ilf, s_m_lt_fb, s_m_lt_ib, s_m_lt_irt, s_m_lt_irf, s_m_lt_nil, 
+                    s_m_tb_rt, s_m_tb_nlf, s_m_tb_ilf, s_m_tb_fb, s_m_tb_ib, s_m_tb_irt, s_m_tb_irf, s_m_tb_nil, 
+                    s_m_ib_ib, s_m_ib_irt, s_m_ib_irf, s_m_ib_nil, 
+                    s_m_irt_ib, s_m_irt_irt, s_m_irt_irf, s_m_irt_nil, 
+                    s_m_irf_ib, s_m_irf_irf, s_m_irf_irt, s_m_irf_nil, 
+                    s_m_nil_nil, s_m_nil_ib, s_m_nil_irt, s_m_nil_irf
+                };
+                //things above copy it and reverse
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightActivateFalses = {};//blank
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightActivateInds =
+                {
+                    s_m_fb_fb, s_m_fb_rt, s_m_fb_irt, s_m_fb_irf, s_m_fb_ib, s_m_fb_nlf, s_m_fb_nil, s_m_fb_ilf, 
+                    s_m_lt_nlf, s_m_lt_ilf, s_m_lt_fb, s_m_lt_rt, 
+                    s_m_irt_nlf, s_m_irt_ilf, s_m_ilt_fb, s_m_ilt_rt, 
+                    s_m_nlf_nlf, s_m_nlf_ilf, s_m_nlf_fb, s_m_nlf_rt, s_m_nlf_irf, s_m_nlf_irt, 
+                    s_m_rt_nlt, s_m_rt_rt, 
+                    s_m_ilf_irt, s_m_ilf_irf, 
+                    s_m_rt_fb, s_m_rt_irf
+                };
+                //things above copy it and reverse
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightDeactivateTrues =
+                {
+                    s_m_tb_fb, s_m_tb_nlf, s_m_tb_ilf, s_m_tb_ib, s_m_tb_nil, 
+                    s_m_lt_fb, s_m_lt_nlf, s_m_lt_ilf, s_m_lt_ib, s_m_lt_nil, 
+                    s_m_ilt_fb, s_m_ilt_nlf, s_m_ilt_ilf, s_m_ilt_ib, s_m_ilt_nil, 
+                    s_m_nlt_fb, s_m_nlt_nlf, s_m_nlt_ilf, s_m_nlt_ib, s_m_nlt_nil, 
+
+                    s_m_tb_ib, s_m_tb_irf, s_m_tb_irt, s_m_tb_nil, 
+                    s_m_lt_ib, s_m_lt_irf, s_m_lt_irt, s_m_lt_nil, 
+                    s_m_ilt_ib, s_m_ilt_irt, s_m_ilt_irt, s_m_ilt_nil, 
+                    s_m_nlt_ib, s_m_nlt_irf, s_m_nlt_irt, s_m_nlt_nil, 
+
+                    s_m_ib_ib, s_m_ib_irf, s_m_ib_irt, s_m_ib_nil, 
+                    s_m_irf_irf, s_m_irf_ib, s_m_irf_irt, s_m_irf_nil, 
+                    s_m_irt_irt, s_m_irt_ib, s_m_irt_irf, s_m_irt_nil, 
+                    s_m_nil_nil, s_m_nil_ib, s_m_nil_irf, s_m_nil_irt
+                };
+                //things above copy it and reverse
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightDeactivateFalses = {};//blank
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightDeactivateInds =
+                {
+                    s_m_tb_tb, s_m_tb_lt, s_m_tb_ilt, s_m_tb_nlt, 
+                    s_m_lt_lt, s_m_lt_tb, s_m_lt_ilt, s_m_lt_nlt, 
+                    s_m_ilt_ilt, s_m_ilt_tb, s_m_ilt_lt, s_m_ilt_nlt, 
+                    s_m_nlt_nlt, s_m_nlt_tb, s_m_nlt_lt, s_m_nlt_ilt, 
+                    
+                    s_m_ib_tb, s_m_ib_lt, s_m_ib_ilt, s_m_ib_nlt,
+                    s_m_irt_tb, s_m_irt_lt, s_m_irt_ilt, s_m_irt_nlt, 
+                    s_m_irf_tb, s_m_irf_lt, s_m_irf_ilt, s_m_irf_nlt, 
+                    s_m_nil_tb, s_m_nil_lt, s_m_nil_ilt, s_m_nil_nlt, 
+
+                    s_m_ib_ib, s_m_ib_irt, s_m_ib_irf, s_m_ib_nil, 
+                    s_m_irt_irt, s_m_irt_ib, s_m_irt_irf, s_m_irt_nil, 
+                    s_m_irf_irf, s_m_irf_ib, s_m_irf_irt, s_m_irf_nil, 
+                    s_m_nil_nil, s_m_nil_ib, s_m_nil_irt, s_m_nil_irf
+                };
+                //things above copy it and reverse
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightFollowTrues =
+                {
+                    s_m_tb_irf, s_m_tb_ilf, s_m_tb_nil, s_m_tb_rt, s_m_tb_irt, 
+                    s_m_ib_irf, s_m_ib_ilf, s_m_ib_nil, s_m_ib_rt, s_m_ib_irt, 
+                    s_m_irt_irf, s_m_irt_irf, s_m_irt_nil, s_m_irt_rt, s_m_irt_irt, 
+                    s_m_irf_irf, s_m_irf_irt, s_m_irf_ilf, s_m_irf_nil, s_m_irf_rt, 
+                    s_m_nil_irf, s_m_nil_irt, s_m_nil_nil, s_m_nil_rt, s_m_nil_ilf, 
+
+                    s_m_irt_fb, s_m_irf_fb, s_m_lt_fb, s_m_ilt_fb, s_m_nil_fb, s_m_nlt_fb, 
+                    s_m_irt_ib, s_m_irf_ib, s_m_lt_ib, s_m_ilt_ib, s_m_nil_ib, s_m_nlt_ib 
+                };
+                //things above copy it and reverse
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightFollowFalses =
+                {
+                    s_m_tb_irt, s_m_tb_irf, s_m_tb_nil, 
+                    s_m_lt_irt, s_m_lt_irf, s_m_lt_nil, 
+                    s_m_ilt_irt, s_m_ilt_irf, s_m_ilt_nil, 
+                    s_m_irf_irt, s_m_irf_irf, s_m_irf_nil, 
+                    s_m_nlt_irt, s_m_nlt_irf, s_m_nil_nlt, 
+                    
+                    s_m_irf_nlf, s_m_irt_nlf, s_m_nil_nlf
+                };
+                //things above copy it and reverse
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_RightFollowInds =
+                {
+                    s_m_irt_tb, s_m_irf_tb, s_m_nil_tb, s_m_nlt_tb, s_m_nlf_tb, 
+                    s_m_irt_ilt, s_m_irf_ilt, s_m_nil_irt, s_m_nlt_ilt, s_m_nlf_ilt,
+                    s_m_irt_nlt, s_m_irf_nlt, s_m_nil_nlt, s_m_nlt_nlt, s_m_nlf_nlt, 
+                    
+                    s_m_fb_irt, s_m_fb_irf, s_m_fb_nil, s_m_fb_nlf, s_m_fb_nlt, 
+                    s_m_ilf_irt, s_m_ilf_irf, s_m_ilf_nil, s_m_ilf_nlf, s_m_ilf_nlt, 
+                    s_m_nlf_irt, s_m_nlf_irf, s_m_nlf_nil, s_m_nlf_nlf, s_m_nlf_nlt, 
+                };
+                //things above copy it and reverse
                 //bi
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiActivateTrues = null;
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiActivateFalses = null;
