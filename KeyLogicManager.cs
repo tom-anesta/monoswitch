@@ -1020,11 +1020,54 @@ namespace monoswitch
                 //things above must be both true
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndFollowTrues =
                 {
-
+                    s_m_irt_irt, s_m_irt_irf, s_m_irt_nil, s_m_irt_ib, 
+                    s_m_irf_irf, s_m_irf_irt, s_m_irf_nil, s_m_irf_ib, 
+                    s_m_nil_nil, s_m_nil_irf, s_m_nil_irt, s_m_nil_ib,
+                    s_m_ib_irf, s_m_ib_nil, s_m_ib_irt,
+                    s_m_tb_irf, s_m_tb_irt, s_m_tb_nil, 
+                    s_m_irf_tb, s_m_irt_tb, s_m_nil_tb, 
+                    s_m_lt_ib, s_m_lt_irf, s_m_lt_irt, s_m_lt_nil, 
+                    s_m_ib_lt, s_m_irt_lt, s_m_irt_lt, s_m_nil_lt, 
+                    s_m_ilt_ib, s_m_ilt_irf, s_m_ilt_irt, s_m_ilt_nil, 
+                    s_m_ib_ilt, s_m_irf_ilt, s_m_irt_ilt, s_m_nil_ilt, 
+                    s_m_nlt_ib, s_m_nlt_irf, s_m_nlt_irt, s_m_nlt_nil, 
+                    s_m_ib_nlt, s_m_irf_nlt, s_m_irf_nlt, s_m_nil_nlt,
+                    s_m_tb_ilf, s_m_tb_nlf, s_m_tb_rt, 
+                    s_m_ilf_tb,  s_m_nlf_tb,  s_m_rt_tb, 
+                    s_m_nlt_fb, s_m_nlt_ilf, s_m_nlt_nlf, s_m_nlt_rt, 
+                    s_m_fb_nlt, s_m_ilf_nlt, s_m_nlf_nlt, s_m_rt_nlt, 
+                    s_m_ilt_fb, s_m_ilt_ilf, s_m_ilt_nlf, s_m_ilt_rt, 
+                    s_m_fb_ilt, s_m_ilf_ilt, s_m_nlf_ilt, s_m_rt_ilt,
+                    s_m_lt_fb, s_m_lt_ilf, s_m_lt_nlf, s_m_lt_rt, 
+                    s_m_fb_lt, s_m_ilf_lt, s_m_nlf_lt, s_m_rt_lt
                 };
-                //things above must be true false with a change or true ind with a change or 
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndFollowFalses = {};//things here
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndFollowInds = {};//things here
+                //things above must be true false with a change or true ind with a change or both ind with a change
+                //both ind lines 1 to 4, 1 ind one false lines 5 to 12
+                //one true one false to line 20
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndFollowFalses =
+                {
+                    s_m_irt_irt, s_m_irt_irf, s_m_irt_nil, s_m_irt_ib, 
+                    s_m_irf_irf, s_m_irf_irt, s_m_irf_nil, s_m_irf_ib, 
+                    s_m_nil_nil, s_m_nil_irf, s_m_nil_irt, s_m_nil_ib,
+                    s_m_ib_irf, s_m_ib_nil, s_m_ib_irt,
+                    s_m_tb_irf, s_m_tb_irt, s_m_tb_nil, 
+                    s_m_irf_tb, s_m_irt_tb, s_m_nil_tb, 
+                    s_m_lt_ib, s_m_lt_irf, s_m_lt_irt, s_m_lt_nil, 
+                    s_m_ib_lt, s_m_irt_lt, s_m_irt_lt, s_m_nil_lt, 
+                    s_m_ilt_ib, s_m_ilt_irf, s_m_ilt_irt, s_m_ilt_nil, 
+                    s_m_ib_ilt, s_m_irf_ilt, s_m_irt_ilt, s_m_nil_ilt, 
+                    s_m_nlt_ib, s_m_nlt_irf, s_m_nlt_irt, s_m_nlt_nil, 
+                    s_m_ib_nlt, s_m_irf_nlt, s_m_irf_nlt, s_m_nil_nlt,
+                };
+                //things above must be one true one ind with a change or both ind with a change
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_AndFollowInds =
+                {
+                    s_m_tb_lt, s_m_tb_ilt, s_m_tb_nlt,
+                    s_m_lt_lt, s_m_lt_tb, s_m_lt_ilt, s_m_lt_nlt, 
+                    s_m_ilt_ilt, s_m_ilt_tb, s_m_ilt_lt, s_m_ilt_nlt, 
+                    s_m_nlt_nlt, s_m_nlt_tb, s_m_nlt_lt, s_m_nlt_ilt,
+                };
+                //things above must be both true with a change
                 //not
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_NotActivateTrues = null;
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_NotActivateFalses = null;
