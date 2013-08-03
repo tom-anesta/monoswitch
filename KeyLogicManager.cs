@@ -721,12 +721,140 @@ namespace monoswitch
                 };
                 //things above copy it and reverse
                 //bi
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiActivateTrues = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiActivateFalses = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiActivateInds = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiDeactivateTrues = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiDeactivateFalses = null;
-                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiDeactivateInds = null;
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiActivateTrues =
+                {
+                    s_m_fb_irt, s_m_fb_irf, s_m_fb_nil, s_m_fb_ib,
+                    s_m_irt_fb, s_m_irf_fb, s_m_nil_fb, s_m_ib_fb, 
+
+                    s_m_rt_irt, s_m_rt_irf, s_m_rt_nil, s_m_rt_ib, 
+                    s_m_irt_rt, s_m_irf_rt, s_m_nil_rt, s_m_ib_rt, 
+                    s_m_ilf_irt, s_m_ilf_irf, s_m_ilf_nil, s_m_ilf_ib, 
+                    s_m_irt_ilf, s_m_irf_ilf, s_m_nil_ilf, s_m_ib_ilf, 
+                    s_m_nlf_irt, s_m_nlf_irf, s_m_nlf_nil, s_m_nlf_ib, 
+                    s_m_irt_nlf, s_m_irf_nlt, s_m_nil_nlf, s_m_ib_nlf, 
+
+                    s_m_irt_irt, s_m_irt_irf, s_m_irt_nil, s_m_irt_ib, 
+                    s_m_irf_irf, s_m_irf_irt, s_m_irf_nil, s_m_irf_ib, 
+                    s_m_nil_nil, s_m_nil_irf, s_m_nil_irt, s_m_nil_ib,
+                    s_m_ib_ib, s_m_ib_irf, s_m_ib_nil, s_m_ib_irt,
+
+                    s_m_tb_fb, s_m_tb_ilf, s_m_tb_nlf, s_m_tb_rt, 
+                    s_m_fb_tb, s_m_ilf_tb,  s_m_nlf_tb,  s_m_rt_tb, 
+
+                    s_m_nlt_fb, s_m_nlt_ilf, s_m_nlt_nlf, s_m_nlt_rt, 
+                    s_m_fb_nlt, s_m_ilf_nlt, s_m_nlf_nlt, s_m_rt_nlt, 
+
+                    s_m_ilt_fb, s_m_ilt_ilf, s_m_ilt_nlf, s_m_ilt_rt, 
+                    s_m_fb_ilt, s_m_ilf_ilt, s_m_nlf_ilt, s_m_rt_ilt,
+
+                    s_m_lt_fb, s_m_lt_ilf, s_m_lt_nlf, s_m_lt_rt, 
+                    s_m_fb_lt, s_m_ilf_lt, s_m_nlf_lt, s_m_rt_lt
+                };
+                //things above cannot be true and must be able to be made true by activation
+                //one indeterminate one both false lines 1 and 2
+                //one indeterminate one partially false lines 4-9
+                //both indeterminate lines 11 to 14
+                //one false one true lines rest
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiActivateFalses = 
+                {
+                    s_m_fb_fb, s_m_fb_ilf, s_m_fb_nlf, s_m_fb_rt, 
+                    s_m_ilf_ilf, s_m_ilf_fb, s_m_ilf_nlf, s_m_ilf_rt, 
+                    s_m_nlf_nlf, s_m_nlf_fb, s_m_nlf_ilf, s_m_nlf_rt, 
+                    s_m_rt_rt, s_m_rt_fb, s_m_rt_nlf, s_m_rt_ilf, 
+
+                    s_m_fb_irt, s_m_fb_irf, s_m_fb_nil, s_m_fb_ib,
+                    s_m_irt_fb, s_m_irf_fb, s_m_nil_fb, s_m_ib_fb, 
+
+                    s_m_rt_irt, s_m_rt_irf, s_m_rt_nil, s_m_rt_ib, 
+                    s_m_irt_rt, s_m_irf_rt, s_m_nil_rt, s_m_ib_rt, 
+                    s_m_ilf_irt, s_m_ilf_irf, s_m_ilf_nil, s_m_ilf_ib, 
+                    s_m_irt_ilf, s_m_irf_ilf, s_m_nil_ilf, s_m_ib_ilf, 
+                    s_m_nlf_irt, s_m_nlf_irf, s_m_nlf_nil, s_m_nlf_ib, 
+                    s_m_irt_nlf, s_m_irf_nlt, s_m_nil_nlf, s_m_ib_nlf, 
+
+                };
+                //things above must have one false and one ind or both false
+                //both false lines 1 to 4
+                //1 false 1 ind the rest
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiActivateInds =
+                {
+                    s_m_fb_fb, s_m_fb_ilf, s_m_fb_nlf, s_m_fb_rt, 
+                    s_m_ilf_ilf, s_m_ilf_fb, s_m_ilf_nlf, s_m_ilf_rt, 
+                    s_m_nlf_nlf, s_m_nlf_fb, s_m_nlf_ilf, s_m_nlf_rt, 
+                    s_m_rt_rt, s_m_rt_fb, s_m_rt_nlf, s_m_rt_ilf, 
+                };
+                //things above must be both false
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiDeactivateTrues = 
+                {
+                    s_m_fb_irt, s_m_fb_irf, s_m_fb_nil, s_m_fb_ib,
+                    s_m_irt_fb, s_m_irf_fb, s_m_nil_fb, s_m_ib_fb,
+                    s_m_rt_irt, s_m_rt_irf, s_m_rt_nil, s_m_rt_ib, 
+                    s_m_irt_rt, s_m_irf_rt, s_m_nil_rt, s_m_ib_rt, 
+                    s_m_ilf_irt, s_m_ilf_irf, s_m_ilf_nil, s_m_ilf_ib, 
+                    s_m_irt_ilf, s_m_irf_ilf, s_m_nil_ilf, s_m_ib_ilf, 
+                    s_m_nlf_irt, s_m_nlf_irf, s_m_nlf_nil, s_m_nlf_ib, 
+                    s_m_irt_nlf, s_m_irf_nlt, s_m_nil_nlf, s_m_ib_nlf,
+ 
+                    s_m_tb_fb, s_m_tb_ilf, s_m_tb_nlf, s_m_tb_rt, 
+                    s_m_fb_tb, s_m_ilf_tb,  s_m_nlf_tb,  s_m_rt_tb, 
+
+                    s_m_nlt_fb, s_m_nlt_ilf, s_m_nlt_nlf, s_m_nlt_rt, 
+                    s_m_fb_nlt, s_m_ilf_nlt, s_m_nlf_nlt, s_m_rt_nlt, 
+
+                    s_m_ilt_fb, s_m_ilt_ilf, s_m_ilt_nlf, s_m_ilt_rt, 
+                    s_m_fb_ilt, s_m_ilf_ilt, s_m_nlf_ilt, s_m_rt_ilt, 
+
+                    s_m_lt_fb, s_m_lt_ilf, s_m_lt_nlf, s_m_lt_rt, 
+                    s_m_fb_lt, s_m_ilf_lt, s_m_nlf_lt, s_m_rt_lt,
+
+                    s_m_irt_irt, s_m_irt_irf, s_m_irt_nil, s_m_irt_ib, 
+                    s_m_irf_irf, s_m_irf_irt, s_m_irf_nil, s_m_irf_ib, 
+                    s_m_nil_nil, s_m_nil_irf, s_m_nil_irt, s_m_nil_ib,
+                    s_m_ib_ib, s_m_ib_irf, s_m_ib_nil, s_m_ib_irt,
+
+                    s_m_tb_irt, s_m_tb_irf, s_m_tb_nil, s_m_tb_ib,
+                    s_m_irt_tb, s_m_irf_tb, s_m_nil_tb, s_m_ib_tb,
+                    s_m_lt_irt, s_m_lt_irf, s_m_lt_nil, s_m_lt_ib, 
+                    s_m_irt_lt, s_m_irf_lt, s_m_nil_lt, s_m_ib_lt, 
+                    s_m_ilt_irt, s_m_ilt_irf, s_m_ilt_nil, s_m_ilt_ib, 
+                    s_m_irt_ilt, s_m_irf_ilt, s_m_nil_ilt, s_m_ib_ilt, 
+                    s_m_nlt_irt, s_m_nlt_irf, s_m_nlt_nil, s_m_nlt_ib, 
+                    s_m_irt_nlt, s_m_irf_nlt, s_m_nil_nlt, s_m_ib_nlt,
+                };
+                //things above as long as both not false and both not true
+                //one ind one false lines 1-8
+                //one false one true lines to 20
+                //both ind lines 22-25
+                //one true one ind the rest
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiDeactivateFalses = 
+                {
+                    s_m_tb_tb, s_m_tb_lt, s_m_tb_ilt, s_m_tb_nlt, 
+                    s_m_lt_lt, s_m_lt_tb, s_m_lt_ilt, s_m_lt_nlt, 
+                    s_m_ilt_ilt, s_m_ilt_tb, s_m_ilt_lt, s_m_ilt_nlt, 
+                    s_m_nlt_nlt, s_m_nlt_tb, s_m_nlt_lt, s_m_nlt_ilt, 
+
+
+                    s_m_tb_irt, s_m_tb_irf, s_m_tb_nil, s_m_tb_ib,
+                    s_m_irt_tb, s_m_irf_tb, s_m_nil_tb, s_m_ib_tb,
+                    s_m_lt_irt, s_m_lt_irf, s_m_lt_nil, s_m_lt_ib, 
+                    s_m_irt_lt, s_m_irf_lt, s_m_nil_lt, s_m_ib_lt, 
+                    s_m_ilt_irt, s_m_ilt_irf, s_m_ilt_nil, s_m_ilt_ib, 
+                    s_m_irt_ilt, s_m_irf_ilt, s_m_nil_ilt, s_m_ib_ilt, 
+                    s_m_nlt_irt, s_m_nlt_irf, s_m_nlt_nil, s_m_nlt_ib, 
+                    s_m_irt_nlt, s_m_irf_nlt, s_m_nil_nlt, s_m_ib_nlt,
+
+                };
+                //things above must be both true or one true one ind
+                //both true lines 1 to 4
+                //the rest one true one ind
+                private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiDeactivateInds =
+                {
+                    s_m_tb_tb, s_m_tb_lt, s_m_tb_ilt, s_m_tb_nlt, 
+                    s_m_lt_lt, s_m_lt_tb, s_m_lt_ilt, s_m_lt_nlt, 
+                    s_m_ilt_ilt, s_m_ilt_tb, s_m_ilt_lt, s_m_ilt_nlt, 
+                    s_m_nlt_nlt, s_m_nlt_tb, s_m_nlt_lt, s_m_nlt_ilt
+                };
+                //things above must both be true
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiFollowTrues = null;
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiFollowFalses = null;
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_BiFollowInds = null;
