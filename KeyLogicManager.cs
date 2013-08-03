@@ -431,37 +431,31 @@ namespace monoswitch
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorActivateTrues = {};//blank, is already true
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorActivateFalses =
                 {
-                    s_m_tb_fb, s_m_tb_rt, s_m_tb_ib, s_m_tb_ilf, s_m_tb_irf, s_m_tb_irt, s_m_tb_nb, s_m_tb_nil, s_m_tb_nir, s_m_tb_nlf, s_m_tb_nrf, s_m_tb_nrt,
-                    s_m_rt_rt, s_m_rt_fb, s_m_rt_ib, s_m_rt_ilf, s_m_rt_irf, s_m_rt_irt, s_m_rt_nb, s_m_rt_nil, s_m_rt_nir, s_m_rt_nlf, s_m_rt_nrf, s_m_rt_nrt, s_m_rt_lt, s_m_rt_ilt, s_m_rt_nlt, s_m_rt_tb, 
-                    s_m_ib_ib, s_m_ib_rt, s_m_ib_fb, s_m_ib_ilf, s_m_ib_irf, s_m_ib_irt, s_m_ib_nb, s_m_ib_nil, s_m_ib_nir, s_m_rt_nlf, s_m_ib_nrf, s_m_ib_nrt, s_m_ib_lt, s_m_ib_ilt, s_m_ib_nlt, s_m_ib_tb, 
-                    s_m_ilf_ilf, s_m_ilf_ib, s_m_ilf_rt, s_m_ilf_fb, s_m_ilf_irf, s_m_ilf_irt, s_m_ilf_nb, s_m_ilf_nil, s_m_ilf_nir, s_m_ilf_nlf, s_m_ilf_nrf, s_m_ilf_nrt, s_m_ilf_lt, s_m_ilf_ilt, s_m_ilf_nlt, s_m_ilf_tb, 
-                    s_m_irf_irf, s_m_irf_ilf, s_m_irf_ib, s_m_irf_rt, s_m_irf_fb, s_m_irf_irt, s_m_irf_nb, s_m_irf_nil, s_m_irf_nir, s_m_irf_nlf, s_m_irf_nrf, s_m_irf_nrt, s_m_irf_lt, s_m_irf_ilt, s_m_irf_nlt, s_m_irf_tb, 
-                    s_m_irt_irt, s_m_irt_irf, s_m_irt_ilf, s_m_irt_ib, s_m_irt_rt, s_m_irt_fb, s_m_irt_nb, s_m_irt_nil, s_m_irt_nir, s_m_irt_nlf, s_m_irt_nrf, s_m_irt_nrt, s_m_irt_lt, s_m_irt_ilt, s_m_irf_nlt, s_m_irt_tb, 
-                    s_m_nb_nb, s_m_nb_irt, s_m_nb_irf, s_m_nb_ilf, s_m_nb_ib, s_m_nb_rt, s_m_nb_fb, s_m_nb_nil, s_m_nb_nir, s_m_nb_nlf, s_m_nb_nrf, s_m_nb_nrt, s_m_nb_lt, s_m_nb_ilt, s_m_nb_nlt, s_m_nb_tb, 
-                    s_m_nil_nil, s_m_nil_nb, s_m_nil_irt, s_m_nil_irf, s_m_nil_ilf, s_m_nil_ib, s_m_nil_rt, s_m_nil_fb, s_m_nil_nir, s_m_nil_nlf, s_m_nil_nrf, s_m_nil_nrt, s_m_nil_lt, s_m_nil_ilt, s_m_nil_nlt, s_m_nil_tb, 
-                    s_m_nir_nir, s_m_nir_nil, s_m_nir_nb, s_m_nir_irt, s_m_nir_irf, s_m_nir_ilf, s_m_nir_ib, s_m_nir_rt, s_m_nir_fb, s_m_nir_nlf, s_m_nir_nrf, s_m_nir_nrt, s_m_nir_lt, s_m_nir_ilt, s_m_nir_nlt, s_m_nir_tb,
-                    s_m_nlf_nlf, s_m_nlf_nir, s_m_nlf_nil, s_m_nlf_nb, s_m_nlf_irt, s_m_nlf_irf, s_m_nlf_ilf, s_m_nlf_ib, s_m_nlf_rt, s_m_nlf_fb, s_m_nlf_nrf, s_m_nlf_nrt, s_m_nlf_lt, s_m_nlf_ilt, s_m_nlf_nlt, s_m_nlf_tb, 
-                    s_m_nrf_nrf, s_m_nrf_nlf, s_m_nrf_nir, s_m_nrf_nil, s_m_nrf_nb, s_m_nrf_irt, s_m_nrf_irf, s_m_nrf_ilf, s_m_nrf_ib, s_m_nrf_rt, s_m_nrf_fb, s_m_nrf_nrt, s_m_nrf_lt, s_m_nrf_ilt, s_m_nrf_nlt, s_m_nrf_tb, 
-                    s_m_nrt_nrt, s_m_nrt_nrf, s_m_nrt_nlf, s_m_nrt_nir, s_m_nrt_nil, s_m_nrt_nb, s_m_nrt_irt, s_m_nrt_irf, s_m_nrt_ilf, s_m_nrt_ib, s_m_nrt_rt, s_m_nrt_fb, s_m_nrt_lt, s_m_nrt_ilt, s_m_nrt_nlt, s_m_nrt_tb, 
-                    s_m_lt_fb, s_m_lt_rt, s_m_lt_ib, s_m_lt_ilf, s_m_lt_irf, s_m_lt_irt, s_m_lt_nb, s_m_lt_nil, s_m_lt_nir, s_m_lt_nlf, s_m_lt_nrf, s_m_lt_nrt,
-                    s_m_ilt_fb, s_m_ilt_rt, s_m_ilt_ib, s_m_ilt_ilf, s_m_ilt_irf, s_m_ilt_irt, s_m_ilt_nb, s_m_ilt_nil, s_m_ilt_nir, s_m_ilt_nlf, s_m_ilt_nrf, s_m_ilt_nrt,
-                    s_m_nlt_fb, s_m_nlt_rt, s_m_nlt_ib, s_m_nlt_ilf, s_m_nlt_irf, s_m_nlt_irt, s_m_nlt_nb, s_m_nlt_nil, s_m_nlt_nir, s_m_nlt_nlf, s_m_nlt_nrf, s_m_nlt_nrt
+                    s_m_tb_fb, s_m_tb_rt, s_m_tb_ib, s_m_tb_ilf, s_m_tb_irf, s_m_tb_irt, s_m_tb_nil, s_m_tb_nlf,
+                    s_m_lt_fb, s_m_lt_rt, s_m_lt_ib, s_m_lt_ilf, s_m_lt_irf, s_m_lt_irt, s_m_lt_nil, s_m_lt_nlf, 
+                    s_m_ilt_fb, s_m_ilt_rt, s_m_ilt_ib, s_m_ilt_ilf, s_m_ilt_irf, s_m_ilt_irt, s_m_ilt_nil, s_m_ilt_nlf,
+                    s_m_nlt_fb, s_m_nlt_rt, s_m_nlt_ib, s_m_nlt_ilf, s_m_nlt_irf, s_m_nlt_irt, s_m_nlt_nil, s_m_nlt_nlf,
+                    
+                    s_m_rt_rt, s_m_rt_fb, s_m_rt_ib, s_m_rt_ilf, s_m_rt_irf, s_m_rt_irt, s_m_rt_nil, s_m_rt_nlf, s_m_rt_lt, s_m_rt_ilt, s_m_rt_nlt, s_m_rt_tb, 
+
+                    s_m_ib_ib, s_m_ib_rt, s_m_ib_fb, s_m_ib_ilf, s_m_ib_irf, s_m_ib_irt, s_m_ib_nil, s_m_rt_nlf, s_m_ib_lt, s_m_ib_ilt, s_m_ib_nlt, s_m_ib_tb, 
+                    s_m_ilf_ilf, s_m_ilf_ib, s_m_ilf_rt, s_m_ilf_fb, s_m_ilf_irf, s_m_ilf_irt, s_m_ilf_nil, s_m_ilf_nlf, s_m_ilf_lt, s_m_ilf_ilt, s_m_ilf_nlt, s_m_ilf_tb, 
+                    s_m_irf_irf, s_m_irf_ilf, s_m_irf_ib, s_m_irf_rt, s_m_irf_fb, s_m_irf_irt, s_m_irf_nil, s_m_irf_nlf, s_m_irf_lt, s_m_irf_ilt, s_m_irf_nlt, s_m_irf_tb, 
+                    s_m_irt_irt, s_m_irt_irf, s_m_irt_ilf, s_m_irt_ib, s_m_irt_rt, s_m_irt_fb, s_m_irt_nil, s_m_irt_nlf, s_m_irt_lt, s_m_irt_ilt, s_m_irf_nlt, s_m_irt_tb, 
+                    s_m_nil_nil, s_m_nil_irt, s_m_nil_irf, s_m_nil_ilf, s_m_nil_ib, s_m_nil_rt, s_m_nil_fb, s_m_nil_nlf, s_m_nil_lt, s_m_nil_ilt, s_m_nil_nlt, s_m_nil_tb, 
+                    s_m_nlf_nlf, s_m_nlf_nil, s_m_nlf_irt, s_m_nlf_irf, s_m_nlf_ilf, s_m_nlf_ib, s_m_nlf_rt, s_m_nlf_fb, s_m_nlf_lt, s_m_nlf_ilt, s_m_nlf_nlt, s_m_nlf_tb                  
                 };
                 //things above, where both left evaluates to trues not permitted all else permitted.  total
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorActivateInds =
                 {
-                    s_m_tb_fb, s_m_tb_rt, s_m_tb_ilf, s_m_tb_nb, s_m_tb_nir, s_m_tb_nlf, s_m_tb_nrf, s_m_tb_nrt, 
-                    s_m_fb_fb, s_m_fb_tb, s_m_fb_rt, s_m_fb_lt, s_m_fb_ib, s_m_fb_ilf, s_m_fb_ilt, s_m_fb_irf, s_m_fb_irt, s_m_fb_nb, s_m_fb_nil, s_m_fb_nir, s_m_fb_nlf, s_m_fb_nlt, s_m_fb_nrf, s_m_fb_nrt, 
-                    s_m_rt_rt, s_m_rt_tb, s_m_rt_fb, s_m_rt_lt, s_m_rt_ib, s_m_rt_ilf, s_m_rt_ilt, s_m_rt_irf, s_m_rt_irt, s_m_rt_nb, s_m_rt_nil, s_m_rt_nir, s_m_rt_nlf, s_m_rt_nlt, s_m_rt_nrf, s_m_rt_nrt, 
-                    s_m_ilf_ilf, s_m_ilf_tb, s_m_ilf_rt, s_m_ilf_fb, s_m_ilf_lt, s_m_ilf_ib, s_m_ilf_ilt, s_m_ilf_irf, s_m_ilf_irt, s_m_ilf_nb, s_m_ilf_nil, s_m_ilf_nir, s_m_ilf_nlf, s_m_ilf_nlt, s_m_ilf_nrf, s_m_ilf_nrt, 
-                    s_m_nb_nb, s_m_nb_tb, s_m_nb_fb, s_m_nb_rt, s_m_nb_lt, s_m_nb_ib, s_m_nb_ilf, s_m_nb_ilt, s_m_nb_irf, s_m_nb_irt, s_m_nb_nil, s_m_nb_nir, s_m_nb_nlf, s_m_nb_nlt, s_m_nb_nrt, s_m_nb_nrt, 
-                    s_m_nir_nir, s_m_nir_tb, s_m_nir_rt, s_m_nir_fb, s_m_nir_lt, s_m_nir_ib, s_m_nir_ilt, s_m_nir_irf, s_m_nir_irt, s_m_nir_nb, s_m_nir_nil, s_m_nir_ilf, s_m_nir_nlf, s_m_nir_nlt, s_m_nir_nrf, s_m_nir_nrt, 
-                    s_m_nlf_nlf, s_m_nlf_tb, s_m_nlf_rt, s_m_nlf_fb, s_m_nlf_lt, s_m_nlf_ib, s_m_nlf_ilt, s_m_nlf_irf, s_m_nlf_irt, s_m_nlf_nb, s_m_nlf_nil, s_m_nlf_ilf, s_m_nlf_nir, s_m_nlf_nlt, s_m_nlf_nrf, s_m_nlf_nrt, 
-                    s_m_nrf_nrf, s_m_nrf_tb, s_m_nrf_rt, s_m_nrf_fb, s_m_nrf_lt, s_m_nrf_ib, s_m_nrf_ilt, s_m_nrf_irf, s_m_nrf_irt, s_m_nrf_nb, s_m_nrf_nil, s_m_nrf_ilf, s_m_nrf_nir, s_m_nrf_nlt, s_m_nrf_nlf, s_m_nrf_nrt, 
-                    s_m_nrt_nrt, s_m_nrt_tb, s_m_nrt_rt, s_m_nrt_fb, s_m_nrt_lt, s_m_nrt_ib, s_m_nrt_ilt, s_m_nrt_irf, s_m_nrt_irt, s_m_nrt_nb, s_m_nrt_nil, s_m_nrt_ilf, s_m_nrt_nir, s_m_nrt_nlt, s_m_nrt_nlf, s_m_nrt_nrf, 
-                    s_m_lt_fb, s_m_lt_rt, s_m_lt_ilf, s_m_lt_nb, s_m_lt_nir, s_m_lt_nlf, s_m_lt_nrf, s_m_lt_nrt, 
-                    s_m_ilt_fb, s_m_ilt_rt, s_m_ilt_ilf, s_m_ilt_nb, s_m_ilt_nir, s_m_ilt_nlf, s_m_ilt_nrf, s_m_ilt_nrt, 
-                    s_m_nlt_fb, s_m_nlt_rt, s_m_nlt_ilf, s_m_nlt_nb, s_m_nlt_nir, s_m_nlt_nlf, s_m_nlt_nrf, s_m_nlt_nrt
+                    s_m_tb_fb, s_m_tb_rt, s_m_tb_ilf, s_m_tb_nlf, 
+                    s_m_lt_fb, s_m_lt_rt, s_m_lt_ilf, s_m_lt_nlf, 
+                    s_m_ilt_fb, s_m_ilt_rt, s_m_ilt_ilf, s_m_ilt_nlf, 
+                    s_m_nlt_fb, s_m_nlt_rt, s_m_nlt_ilf, s_m_nlt_nlf,
+                    s_m_fb_fb, s_m_fb_tb, s_m_fb_rt, s_m_fb_lt, s_m_fb_ib, s_m_fb_ilf, s_m_fb_ilt, s_m_fb_irf, s_m_fb_irt, s_m_fb_nil, s_m_fb_nlf, s_m_fb_nlt, 
+                    s_m_rt_rt, s_m_rt_tb, s_m_rt_fb, s_m_rt_lt, s_m_rt_ib, s_m_rt_ilf, s_m_rt_ilt, s_m_rt_irf, s_m_rt_irt, s_m_rt_nil, s_m_rt_nlf, s_m_rt_nlt,
+                    s_m_ilf_ilf, s_m_ilf_tb, s_m_ilf_rt, s_m_ilf_fb, s_m_ilf_lt, s_m_ilf_ib, s_m_ilf_ilt, s_m_ilf_irf, s_m_ilf_irt, s_m_ilf_nil, s_m_ilf_nlf, s_m_ilf_nlt, 
+                    s_m_nlf_nlf, s_m_nlf_tb, s_m_nlf_rt, s_m_nlf_fb, s_m_nlf_lt, s_m_nlf_ib, s_m_nlf_ilt, s_m_nlf_irf, s_m_nlf_irt, s_m_nlf_nil, s_m_nlf_ilf, s_m_nlf_nlt, 
                 };
                 //tb, lt, ilt, nlt, 
                 //things above, where both left evaluates to trues not permitted, must be able to achieve inds by an activation
@@ -471,16 +465,13 @@ namespace monoswitch
                     s_m_lt_lt, s_m_lt_tb, s_m_lt_ilt, s_m_lt_nlt, 
                     s_m_ilt_ilt, s_m_ilt_tb, s_m_ilt_lt, s_m_ilt_nlt, 
                     s_m_nlt_nlt, s_m_nlt_tb, s_m_nlt_lt, s_m_nlt_ilt, 
-                    s_m_tb_ib, s_m_tb_irf, s_m_tb_irt, s_m_tb_nb, s_m_tb_nrf, s_m_tb_nrt, 
-                    s_m_lt_ib, s_m_lt_irf, s_m_lt_irt, s_m_lt_nb, s_m_lt_nrf, s_m_lt_nrt, 
-                    s_m_ilt_ib, s_m_ilt_irf, s_m_ilt_irt, s_m_ilt_nb, s_m_ilt_nrf, s_m_ilt_nrt, 
-                    s_m_nlt_ib, s_m_nlt_irf, s_m_nlt_irt, s_m_nlt_nb, s_m_nlt_nrf, s_m_nlt_nrt, 
-                    s_m_ib_ib, s_m_ib_tb, s_m_ib_lt, s_m_ib_ilt, s_m_ib_nlt, s_m_ib_irf, s_m_ib_irt, s_m_ib_nb, s_m_ib_nrf, s_m_ib_nrt, 
-                    s_m_irf_irf, s_m_irf_tb, s_m_irf_lt, s_m_irf_ilt, s_m_irf_nlt, s_m_irf_ib, s_m_irf_irt, s_m_irt_nb, s_m_irt_nrf, s_m_irt_nrt, 
-                    s_m_irt_irt, s_m_irt_tb, s_m_irt_lt, s_m_irt_ilt, s_m_irt_nlt, s_m_irt_ib, s_m_irt_irf, s_m_irt_nb, s_m_irt_nrf, s_m_irt_nrt, 
-                    s_m_nb_nb, s_m_nb_tb, s_m_nb_lt, s_m_nb_ilt, s_m_nb_nlt, s_m_nb_ib, s_m_nb_irf, s_m_nb_irt, s_m_nb_nrf, s_m_nb_nrt, 
-                    s_m_nrf_nrf, s_m_nrf_tb, s_m_nrf_lt, s_m_nrf_ilt, s_m_nrf_nlt, s_m_nrf_ib, s_m_nrf_irt, s_m_nrf_nb, s_m_nrf_irt, s_m_nrf_nrt, 
-                    s_m_nrt_nrt, s_m_nrt_tb, s_m_nrt_lt, s_m_nrt_ilt, s_m_nrt_nlt, s_m_nrt_ib, s_m_nrt_irt, s_m_nrt_nb, s_m_nrt_irt, s_m_nrt_nrf
+                    s_m_tb_ib, s_m_tb_irf, s_m_tb_irt, s_m_nlt_tb, 
+                    s_m_lt_ib, s_m_lt_irf, s_m_lt_irt, s_m_nlt_lt,
+                    s_m_ilt_ib, s_m_ilt_irf, s_m_ilt_irt, s_m_nlt_ilt, 
+                    s_m_nlt_ib, s_m_nlt_irf, s_m_nlt_irt, s_m_ib_nlt, 
+                    s_m_ib_ib, s_m_ib_tb, s_m_ib_lt, s_m_ib_ilt, s_m_ib_nlt, s_m_ib_irf, s_m_ib_irt, 
+                    s_m_irf_irf, s_m_irf_tb, s_m_irf_lt, s_m_irf_ilt, s_m_irf_nlt, s_m_irf_ib, s_m_irf_irt, 
+                    s_m_irt_irt, s_m_irt_tb, s_m_irt_lt, s_m_irt_ilt, s_m_irt_nlt, s_m_irt_ib, s_m_irt_irf, 
                 };
                 //things above, only where both lefts evaluate to true, or anything that is indeterminate are allowed, so false and indeterminate
                 //false line 1 to 4
@@ -497,29 +488,75 @@ namespace monoswitch
                 //things above.  only double left trues to evaluate to false allowed
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorFollowTrues =
                 {
-                    s_m_tb_lt, s_m_tb_ilt, s_m_tb_nlt, 
-                    s_m_lt_tb, s_m_ilt_tb, s_m_nlt_tb,
-                    s_m_lt_ilt, s_m_lt_nlt, s_m_ilt_lt, s_m_nlt_lt, 
-                    s_m_ib_lt, s_m_lt_ib, s_m_ib_ilt, s_m_ilt_ib, s_m_ib_nlt, s_m_nlt_ib, 
-                    s_m_ilt_nlt, s_m_nlt_ilt, 
-                    s_m_fb_irf, s_m_fb_nil, s_m_irf_fb, s_m_nil_fb, 
-                    s_m_irf_lt, s_m_lt_irf, s_m_nil_lt, s_m_lt_nil, 
+                    s_m_ib_lt, s_m_ib_ilt, s_m_ib_nlt, 
+                    s_m_lt_ib, s_m_ilt_ib, s_m_nlt_ib, 
+                    s_m_ib_nil, s_m_ib_irf, s_m_ib_irt, 
+                    s_m_nil_ib, s_m_irf_ib, s_m_irt_ib, 
+
+                    s_m_nil_tb, s_m_nil_lt, s_m_nil_ilt, s_m_nil_nlt, 
+                    s_m_tb_nil, s_m_lt_nil, s_m_ilt_nil, s_m_nlt_nil, 
+                    s_m_nil_nil, s_m_nil_irf, s_m_irf_nil, s_m_nil_irt, s_m_irt_nil, 
+
+                    s_m_irf_tb, s_m_irf_lt, s_m_irf_ilt, s_m_irf_nlt, 
+                    s_m_tb_irf, s_m_lt_irf, s_m_ilt_irf, s_m_nlt_irf, 
+                    s_m_irf_irf, s_m_irf_irt, s_m_irt_irf, 
+
+                    s_m_irt_tb, s_m_irt_lt, s_m_irt_ilt, s_m_irt_nlt, 
+                    s_m_tb_irt, s_m_lt_irt,s_m_ilt_irt, s_m_nlt_irt, 
+                    s_m_irt_irt,
+                    
+                    s_m_tb_rt, s_m_tb_ilf, s_m_tb_nlf, 
+                    s_m_rt_tb, s_m_ilf_tb, s_m_nlf_tb, 
+
+                    s_m_lt_rt, s_m_lt_ilf, s_m_lt_nlf, 
+                    s_m_rt_lt, s_m_ilf_lt, s_m_nlf_lt, 
+
+                    s_m_ilt_rt, s_m_ilt_ilf, s_m_ilt_nlf, 
+                    s_m_rt_ilt, s_m_ilf_ilt, s_m_nlf_ilt, 
+
+                    s_m_nlt_rt, s_m_nlt_ilf, s_m_nlt_nlf, 
+                    s_m_rt_nlt, s_m_ilf_nlt, s_m_nlf_nlt
+
                 };
                 //things above: must not be true must be ind or false.  in false one must be evaluating to true and previously ind/false and the other present and past true or past ind if the first was false to true
                 //in ind one must have evaluated to false before ind and the other must be one order of action lower that this (false to false if false to ind, false to ind or ind to ind if ind to true or false to true
-                //none is treated as further away from true than indeterminate
-                //false level 1 line 1 and 2 (f to t or ind to t for the victor, tb for the other)
-                //false level 2 line 3 (f to t for the victor, ind to t for other)
-                //ind level 1 line 4 (both ind for the other, ind/false to true for the victor)
-                //ind level 2 line 5 (difference between not to true and indeterminate to true)
-                //ind level 3 line 6 (false to false for other, false or none to ind for victor)
-                //ind level 4 line 7 (false to true for victor, false or none to ind for other)
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorFollowFalses = {};//blank
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_XorFollowInds =
                 {
-                    s_m_fb_irf, s_m_irf_fb, s_m_fb_nil, s_m_nil_fb
+                    s_m_fb_rt, s_m_fb_ilf, s_m_fb_nlf, s_m_fb_lt, s_m_fb_ilt, s_m_fb_nlt, s_m_fb_irf, s_m_fb_irt, s_m_fb_nil, 
+                    s_m_rt_fb, s_m_ilf_fb, s_m_nlf_fb, s_m_lt_fb, s_m_ilt_fb, s_m_nlt_fb, s_m_irf_fb, s_m_irt_fb, s_m_nil_fb, 
+                    s_m_ilf_ilf,
+                    s_m_ilf_rt, s_m_ilf_nlf, s_m_ilf_lt, s_m_ilf_ilt, s_m_ilf_nlt, s_m_ilf_irf, s_m_ilf_irt, s_m_ilf_nil, 
+                    s_m_rt_ilf, s_m_nlf_ilf, s_m_lt_ilf, s_m_ilt_ilf, s_m_nlt_ilf, s_m_irf_ilf, s_m_irt_ilf, s_m_nil_ilf, 
+                    s_m_nlf_nlf, 
+                    s_m_nlf_rt, s_m_nlf_lt, s_m_nlf_ilt, s_m_nlf_nlt, s_m_nlf_irf, s_m_nlf_irt, s_m_nlf_nil, 
+                    s_m_rt_nlf, s_m_lt_nlf, s_m_ilt_nlt, s_m_nlt_nlf, s_m_irf_nlf, s_m_irt_nlt, s_m_nil_nlf, 
+                    s_m_lt_lt,
+                    s_m_lt_rt, s_m_lt_ilt, s_m_lt_nlt, s_m_lt_irf, s_m_lt_irt, s_m_lt_nil, 
+                    s_m_rt_lt, s_m_ilt_lt, s_m_nlt_lt, s_m_irf_lt, s_m_irt_lt, s_m_nil_lt, 
+                    s_m_ilt_ilt, 
+                    s_m_ilt_rt, s_m_ilt_nlt, s_m_ilt_irf, s_m_ilt_irt, s_m_ilt_nil, 
+                    s_m_rt_ilt, s_m_nlt_ilt, s_m_irf_ilt, s_m_irt_ilt, s_m_nil_ilt, 
+                    s_m_nlt_nlt, 
+                    s_m_nlt_rt, s_m_nlt_irf, s_m_nlt_irt, s_m_nlt_nil, 
+                    s_m_rt_nlt, s_m_irf_nlt, s_m_irt_nlt, s_m_nil_ilt, 
+                    s_m_irf_irf, 
+                    s_m_irf_rt, s_m_irf_irt, s_m_irf_nil, 
+                    s_m_rt_irf, s_m_irt_irf, s_m_nil_irf, 
+                    s_m_irf_irf,
+                    s_m_irf_rt, s_m_irf_nil, 
+                    s_m_rt_irf, s_m_nil_irf, 
+                    s_m_nil_nil, 
+                    s_m_nil_rt, 
+                    s_m_rt_nil, 
+                    s_m_rt_rt, 
+
+                    s_m_irt_irt, s_m_irt_irf, s_m_irt_nil, s_m_irt_ib, 
+                    s_m_irf_irf, s_m_irf_irt, s_m_irf_nil, s_m_irf_ib, 
+                    s_m_nil_nil, s_m_nil_irf, s_m_nil_irt, s_m_nil_ib,
+                    s_m_ib_irf, s_m_ib_nil, s_m_ib_irt,
                 };
-                //things above must go from true to true, this transforms into indeterminate.  f to f and f to ind, f to f and none to ind, all other conditions already lead to ind
+                //things above must be true or false, this transforms into indeterminate.
                 //left
                 private static readonly Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>[] s_m_LeftActivateTrues =
                 {
