@@ -108,7 +108,7 @@ namespace monoswitch.containers
                 {
                     get
                     {
-                        return ((List<Keys>)(this.m_list.Where(x => x.state == KeyState.Down)).Select(x => x.key).ToList<Keys>());//get the keys that are down
+                        return ((List<Keys>)(this.m_list.Where(x => x.keyState == KeyState.Down)).Select(x => x.key).ToList<Keys>());//get the keys that are down
                     }
                 }
 
@@ -116,7 +116,7 @@ namespace monoswitch.containers
                 {
                     get
                     {
-                        return ((List<Keys>)(this.m_list.Where(x => x.state == KeyState.Up)).Select(x => x.key).ToList<Keys>());//get the keys that are up
+                        return ((List<Keys>)(this.m_list.Where(x => x.keyState == KeyState.Up)).Select(x => x.key).ToList<Keys>());//get the keys that are up
                     }
                 }
 
@@ -214,7 +214,6 @@ namespace monoswitch.containers
 
                 protected logicStates m_respGroupPairAttemptChanged(KeyPair newP, List<KeyPair> oldPairStack, List<KeyGroup> oldGroupStack)
                 {
-                    Console.WriteLine("attempting state change in group");
                     //if we attempted a change, we need to evaluate
                     if(oldGroupStack == null)
                     {
@@ -223,19 +222,16 @@ namespace monoswitch.containers
                     logicStates orig = this.state;
                     if (this.evaluate() == orig)//then we're good here
                     {
-                        Console.WriteLine("state unchanged");
                         return logicStates.TRUE;
                     }
                     if(oldGroupStack.Contains(this))//we've already tried to use it or modify it
                     {
-                        Console.WriteLine("old group found returning false");
                         return logicStates.FALSE;
                     }
                     this.m_state = this.evaluate();
                     logicStates result = logicStates.TRUE;
                     if (this.groupAttemptStateChanged != null)
                     {
-                        Console.WriteLine("signalling group attempt state change");
                         result = groupAttemptStateChanged(this, oldPairStack, oldGroupStack);
                         if (result == logicStates.TRUE)
                         {
@@ -512,13 +508,39 @@ namespace monoswitch.containers
                     this.evaluate();
                 }
 
+                public logicStates activate(ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups)
+                {
+                    foreach (KeyPair pair in this.m_list)
+                    {
+                        pair.Resolve(logicStates.TRUE, group, oldPairs, oldGroups);
+                    }
+                    if (!this.isTrue)
+                    {
+                        return logicStates.FALSE;
+                    }
+                    return logicStates.TRUE;
+                }
+
+                public logicStates deactivate(ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups)
+                {
+                    foreach (KeyPair pair in this.m_list)
+                    {
+                        pair.Resolve(logicStates.FALSE, group, oldPairs, oldGroups);
+                    }
+                    if (!this.isFalse)
+                    {
+                        return logicStates.FALSE;
+                    }
+                    return logicStates.TRUE;
+                }
+
                 public logicStates evaluate()//double check the state
                 {
                     bool trueFound = false;
                     bool falseFound = false;
                     foreach (KeyPair kPair in this.m_list)
                     {
-                        if (kPair.state == KeyState.Down)
+                        if (kPair.keyState == KeyState.Down)
                         {
                             trueFound = true;
                             if (trueFound && falseFound)
@@ -526,7 +548,7 @@ namespace monoswitch.containers
                                 break;
                             }
                         }
-                        else if (kPair.state == KeyState.Up)
+                        else if (kPair.keyState == KeyState.Up)
                         {
                             falseFound = true;
                             if (trueFound && falseFound)
@@ -554,9 +576,52 @@ namespace monoswitch.containers
                     return this.m_state;
                 }
 
-                public logicStates Resolve(logicStates goalState)
+                public logicStates Resolve(logicStates goalState, ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups)
                 {
-                    return logicStates.FALSE;
+                    if (this.evaluate() == goalState)
+                    {
+                        return logicStates.TRUE;
+                    }
+                    if (oldGroups.Contains(this))
+                    {
+                        return logicStates.FALSE;
+                    }
+
+                    if (goalState == logicStates.TRUE)
+                    {
+                        this.activate(group, oldPairs, oldGroups);
+                    }
+                    else if (goalState == logicStates.FALSE)
+                    {
+                        this.deactivate(group, oldPairs, oldGroups);
+                    }
+                    else//we look for indeterminate
+                    {
+                        logicStates gVal = logicStates.INDETERMINATE;
+                        if (isTrue)
+                        {
+                            gVal = logicStates.FALSE;
+                        }
+                        else
+                        {
+                            gVal = logicStates.TRUE;
+                        }
+                        int i = 0;
+                        while (this.evaluate() != logicStates.INDETERMINATE && i < this.m_list.Count)
+                        {
+                            this.m_list[i].Resolve(gVal, group, oldPairs, oldGroups);
+                            i++;
+                        }
+                    }
+                    logicStates rVal =  this.evaluate();
+                    if (rVal == goalState)
+                    {
+                        return logicStates.TRUE;
+                    }
+                    else
+                    {
+                        return logicStates.FALSE;
+                    }
                 }
 
                 
@@ -580,7 +645,7 @@ namespace monoswitch.containers
     }
 
 
-    public class KeyPair
+    public class KeyPair: ILogicState
     {
         #region members_memberlike_properties
 
@@ -617,13 +682,42 @@ namespace monoswitch.containers
                     }
                 }
 
-                public KeyState state
+                public KeyState keyState
                 {
                     get
                     {
                         return this.m_state;
                     }//set handled in public methods for recursion
-                    
+                }
+
+                public logicStates state
+                {
+                    get
+                    {
+                        if (this.m_state == KeyState.Down)
+                        {
+                            return logicStates.TRUE;
+                        }
+                        else
+                        {
+                            return logicStates.FALSE;
+                        }
+                    }
+                }
+
+                public logicStates lastState
+                {
+                    get
+                    {
+                        if (this.m_state == KeyState.Down)
+                        {
+                            return logicStates.FALSE;
+                        }
+                        else
+                        {
+                            return logicStates.TRUE;
+                        }
+                    }
                 }
 
             #endregion
@@ -659,10 +753,27 @@ namespace monoswitch.containers
                     }
                 }
 
+                public logicStates Resolve(logicStates goalVal, ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups)
+                {
+                    KeyState gV = KeyState.Down;
+                    if (goalVal == logicStates.FALSE)
+                    {
+                        gV = KeyState.Up;
+                    }
+                    else if (goalVal == logicStates.TRUE)
+                    {
+                        gV = KeyState.Down;
+                    }
+                    else
+                    {
+                        return logicStates.FALSE;
+                    }
+                    return setState(gV, oldPairs.Cast<KeyPair>().ToList(), oldGroups.Cast<KeyGroup>().ToList());
+                }
+
                 public logicStates setState(KeyState sVal, List<KeyPair> oldPairs = null, List<KeyGroup> oldGroups = null)
                 {
-                    Console.WriteLine("attempting state change");
-                    if(sVal == this.state)
+                    if(sVal == this.keyState)
                     {
                         return logicStates.TRUE;//well then we succeeded in setting
                     }
@@ -677,7 +788,6 @@ namespace monoswitch.containers
                     List<Keys> compareList = oldPairs.Select(x => x.key).ToList();
                     if (compareList.Contains(this.key))//if this is a loop we can't change it from what we intend to change it anyway without reversing our intentions
                     {
-                        Console.WriteLine("old key pair found returning false");
                         return logicStates.FALSE;
                     }
                     this.m_state = sVal;
@@ -698,7 +808,6 @@ namespace monoswitch.containers
                     }
                     else
                     {
-                        Console.WriteLine("no state change event found");
                         return logicStates.TRUE;
                     }
                     if (this.stateChangeFailure != null)

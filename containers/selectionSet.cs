@@ -185,11 +185,11 @@ namespace monoswitch.containers
 
                 public void respondKeyChanged(KeyPair kPair)
                 {
-                    if (kPair.state == KeyState.Up)
+                    if (kPair.keyState == KeyState.Up)
                     {
                         this.sendKeyUp(this, new KeyEventArgs(kPair.key));
                     }
-                    else if (kPair.state == KeyState.Down)
+                    else if (kPair.keyState == KeyState.Down)
                     {
                         this.sendKeyDown(this, new KeyEventArgs(kPair.key));
                     }

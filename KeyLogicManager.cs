@@ -1508,7 +1508,6 @@ namespace monoswitch
                         while (statesRight.Count > 1)
                         {
                             val = KeyLogicManager.evaluate(statesRight[0], statesRight[1], lType);//no reason to clamp if we've already done
-                            //Console.WriteLine("from right, evaluates to " + val);
                             if (val == logicStates.FALSE)
                             {
                                 return logicStates.FALSE;
@@ -1528,7 +1527,6 @@ namespace monoswitch
                         while (statesLeft.Count > 1)
                         {
                             val = KeyLogicManager.evaluate(statesLeft[statesLeft.Count-2], statesLeft[statesLeft.Count-1], lType);//no reason to clamp if we've already don
-                            //Console.WriteLine("from left, evaluates to " + val);
                             if (val == logicStates.FALSE)
                             {
                                 return logicStates.FALSE;
@@ -1591,22 +1589,27 @@ namespace monoswitch
                         }
                         else
                         {
-                            //Console.WriteLine("cannot evaluate because item is not present in true, false, or ind");
                             return logicStates.NONE;
                         }
                     }
                     else
                     {
-                        //Console.WriteLine("cannot evaluate because missing definition for true false and ind");
                         return logicStates.NONE;
                     }
                    
                 }
 
 
-                public static logicStates moddedEvaluate(logics ltype, logicStates start1, int command1, logicStates start2, int command2)
+                public static logicStates moddedEvaluate(logics ltype, bool clamp, logicStates start1, int command1, logicStates start2, int command2)
                 {
-                    return logicStates.FALSE;
+                    logicStates newState1 = KeyLogicManager.newState(start1, command1);
+                    logicStates newState2 = KeyLogicManager.newState(start2, command2);
+                    return evaluate(newState1, newState2, ltype, clamp);
+                }
+
+                public static logicStates newState(logicStates state, int command)
+                {
+                    return (logicStates)((int)state + command);
                 }
 
                 //http://stackoverflow.com/questions/5097766/how-to-get-custom-attribute-values-for-enums
@@ -1662,6 +1665,7 @@ namespace monoswitch
 
                 public static List<Tuple<ILogicState, int>> commands (List<ILogicState> orderedlist, Dictionary<ILogicState, logicStates> dict, logics ltype, methods mtype, logicStates stype, bool clamp)
                 {
+                    Console.WriteLine("getting commands in logic manager");
                     if (!KeyLogicManager.m_methodDict.ContainsKey(ltype))
                     {
                         return new List<Tuple<ILogicState, int>>();
@@ -1704,8 +1708,10 @@ namespace monoswitch
                         }
                     }
                     //commandlist is now ready for inspection
-                    foreach(ILogicState val in commandList.Keys)
+                    
+                    for(int i = 0; i < orderedlist.Count; i++)//ILogicState val in commandList.Keys)
                     {
+                        ILogicState val = orderedlist[i];
                         commandList[val] = commandList[val].Distinct().ToList();
                         commandList[val].Sort(KeyLogicManager.compareAbsoluteDistance);
                     }
@@ -1731,12 +1737,16 @@ namespace monoswitch
                                 int k = 0;
                                 while(k < testers2.Count)
                                 {//a problem here is that we may have needed to use clamp.  how do we do that? passing in clamp to this function
-                                    canGoal.Add(KeyLogicManager.moddedEvaluate(ltype, orderedlist[i-1].state, testers2[k], orderedlist[i].state, testers1[j]));
+                                    canGoal.Add(KeyLogicManager.moddedEvaluate(ltype, clamp, orderedlist[i-1].state, testers2[k], orderedlist[i].state, testers1[j]));
                                     k++;
                                 }
                                 if (!canGoal.Contains(stype))
                                 {
                                     orderedCommands[i].RemoveAt(j);
+                                    if (orderedCommands[i].Count == 0)//there is no valid option for this
+                                    {
+                                        return new List<Tuple<ILogicState, int>>();
+                                    }
                                 }
                                 else
                                 {
@@ -1744,7 +1754,7 @@ namespace monoswitch
                                 }
                             }
                         }
-                        if (i < orderedCommands.Count)
+                        if (i < orderedCommands.Count-1)
                         {
                             canGoal = new List<logicStates>();
                             testers2 = orderedCommands[i + 1];
@@ -1755,12 +1765,16 @@ namespace monoswitch
                                 int k = 0;
                                 while (k < testers2.Count)
                                 {//a problem here is that we may have needed to use clamp.  how do we do that?  passing in clamp to this function
-                                    canGoal.Add(KeyLogicManager.moddedEvaluate(ltype, orderedlist[i].state, testers1[j], orderedlist[i + 1].state, testers2[k]));
+                                    canGoal.Add(KeyLogicManager.moddedEvaluate(ltype, clamp, orderedlist[i].state, testers1[j], orderedlist[i + 1].state, testers2[k]));
                                     k++;
                                 }
                                 if (!canGoal.Contains(stype))
                                 {
                                     orderedCommands[i].RemoveAt(j);
+                                    if (orderedCommands[i].Count == 0)//there is no valid option for this
+                                    {
+                                        return new List<Tuple<ILogicState, int>>();
+                                    }
                                 }
                                 else
                                 {
@@ -1770,7 +1784,21 @@ namespace monoswitch
                         }
 
                     }
-                    return new List<Tuple<ILogicState, int>>();
+                    //now is everything one?
+                    //if not well i guess we could be schmucked
+                    List<Tuple<ILogicState, int>> returnVal = new List<Tuple<ILogicState, int>>();
+                    if (orderedlist.Count != orderedCommands.Count)
+                    {
+                        return returnVal;//failure
+                    }
+                    for (int l = 0; l < orderedlist.Count; l++)
+                    {
+                        if (orderedCommands[l].Count > 0)
+                        {
+                            returnVal.Add(Tuple.Create(orderedlist[l], orderedCommands[l][0]));
+                        }
+                    }
+                    return returnVal;
                 }
 
                 public static int distance(IEnumerable<logicStates> vals1, IEnumerable<logicStates> vals2)

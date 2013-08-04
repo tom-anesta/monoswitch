@@ -351,7 +351,6 @@ namespace monoswitch.containers
                     logicStates eval = logicStates.TRUE;
                     if (Attached)
                     {
-                        Console.WriteLine("attempting evaluation");
                         eval = this.KRoot.Dfs2StateOperation(node => node.evaluation());
                         Console.WriteLine("evaluation evaluates to " + eval);
                         this.evaluation();
@@ -390,7 +389,7 @@ namespace monoswitch.containers
                 public logicStates evalPairResolve(KeyGroup group, List<KeyPair> oldpairs, List<KeyGroup> oldgroups)
                 {
                     //don't reset the last states here it will screw things up
-                    Console.WriteLine("attempting resolve");
+                    Console.WriteLine("attempting resolve in keylogic");
                     this.evaluation();
                     logicStates eval = logicStates.FALSE;
                     if (Attached)
@@ -406,9 +405,7 @@ namespace monoswitch.containers
                             }
                             this.m_lastStates[group] = group.lastState;//this was the last thing that was changed
                         }
-                        Console.WriteLine("returning " + eval);
-                        return logicStates.FALSE;
-                        //eval = this.KRoot.Resolve(logicStates.TRUE, group, oldpairs, oldgroups);
+                        eval = this.KRoot.Resolve(logicStates.TRUE, (ILogicState)group, oldpairs.Cast<ILogicState>().ToList(), oldgroups.Cast<ILogicState>().ToList());
                     }
                     Console.WriteLine("evaluating pair resolve to false");
                     return eval;
@@ -907,7 +904,7 @@ namespace monoswitch.containers
                     }
                 }
 
-                public logicStates Resolve(logicStates goalVal, KeyGroup group, List<KeyPair> oldPairs, List<KeyGroup> oldGroups)
+                public logicStates Resolve(logicStates goalVal, ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups)
                 {
                     if (this.evaluation() == goalVal)
                     {
@@ -920,8 +917,12 @@ namespace monoswitch.containers
                     {
                         dataEffective = false;
                     }
-                    Tuple<ILogicState, logicStates> dataHolder = new Tuple<ILogicState,logicStates>((ILogicState)this.Data, this.m_lastStates[this.Data]);
-                    if (!dataEffective)
+                    Tuple<ILogicState, logicStates> dataHolder = null;
+                    if (this.Data != null)
+                    {
+                        dataHolder = new Tuple<ILogicState, logicStates>((ILogicState)this.Data, this.m_lastStates[this.Data]);
+                    }
+                    if (!dataEffective && this.Data != null)
                     {
                         this.m_lastStates.Remove(this.Data);
                     }
@@ -935,13 +936,54 @@ namespace monoswitch.containers
                         orderedPairs.Insert(0, this.Data);
                     }
                     List<Tuple<ILogicState, int>> commands = KeyLogicManager.commands(orderedPairs, this.m_lastStates, this.m_log, this.m_method, goalVal, this.m_clamp);
-                    if (!dataEffective)//to refill the last states after performing our operations
+                    if (!dataEffective && dataHolder != null)//to refill the last states after performing our operations
                     {
                         this.m_lastStates[dataHolder.Item1] = dataHolder.Item2;
                     }
-
-                    //stopped here
-                    return results;
+                    if (commands.Count == 0)
+                    {
+                        results = logicStates.FALSE;
+                        return results;
+                    }
+                    //save the states here so that you can reset them
+                    Dictionary<ILogicState, logicStates> currStates = new Dictionary<ILogicState, logicStates>();
+                    foreach (ILogicState sIn in this.m_lastStates.Keys)
+                    {
+                        currStates[sIn] = sIn.state;//includes the data
+                    }
+                    int command = 0;
+                    logicStates rVal = logicStates.TRUE;
+                    for (int i = 0; i < this.Children.Count; i++)
+                    {
+                        command = (commands.Where(x => x.Item1 == this.Children[i]).Select(x => x.Item2).ToList())[0];
+                        logicStates gV = KeyLogicManager.newState(((ILogicState)this.Children[i]).state, command);
+                        rVal = ((ILogicState)(this.Children[i])).Resolve(gV, (ILogicState)group, oldPairs.Cast<ILogicState>().ToList(), oldGroups.Cast<ILogicState>().ToList());
+                        if (rVal != logicStates.TRUE)
+                        {
+                            rVal = logicStates.FALSE;
+                            break;
+                        }
+                    }//now do the data
+                    if(rVal != logicStates.TRUE)
+                    {//reset all the things and return false
+                        foreach (ILogicState currVal in currStates.Keys)
+                        {
+                            currVal.Resolve(currStates[currVal], (ILogicState)group, oldPairs.Cast<ILogicState>().ToList(), oldGroups.Cast<ILogicState>().ToList());//reset all
+                        }
+                        return logicStates.FALSE;
+                    }
+                    if(dataEffective)
+                    {
+                        command = (commands.Where(x => x.Item1 == this.Data).Select(x => x.Item2).ToList())[0];
+                        logicStates gV = KeyLogicManager.newState(this.Data.state, command);
+                        rVal = this.Data.Resolve(gV, (ILogicState)group, oldPairs.Cast<ILogicState>().ToList(), oldGroups.Cast<ILogicState>().ToList());
+                    }
+                    if (rVal != logicStates.TRUE)
+                    {//reset the data effective
+                        this.Data.Resolve(currStates[this.Data], (ILogicState)group, oldPairs.Cast<ILogicState>().ToList(), oldGroups.Cast<ILogicState>().ToList());
+                        return logicStates.FALSE;
+                    }
+                    return logicStates.TRUE;
                 }
 
             #endregion
