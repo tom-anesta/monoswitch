@@ -64,8 +64,9 @@
     <Compile Include="IKeyObject.cs" />
     <Compile Include="KeyDelegator.cs" />
     <Compile Include="KeyLogicManager.cs" />
-    <Compile Include="kkey.cs" />
-    <Compile Include="mkey.cs" />
+    <Compile Include="misc\goalDetermineObj.cs" />
+    <Compile Include="misc\kkey.cs" />
+    <Compile Include="misc\mkey.cs" />
     <Compile Include="msInputManager.cs" />
     <Compile Include="containers\selectionSet.cs" />
     <Compile Include="containers\switchNode.cs" />

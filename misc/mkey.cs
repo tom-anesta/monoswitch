@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Input;
 
-namespace monoswitch
+namespace monoswitch.misc
 {
-    public class kkey : IKeyObject
+    public class mkey : IKeyObject
     {
         //members
-        protected Keys m_obj;
-        protected Type m_type = typeof(Keys);
+        protected MouseButton m_obj;
+        protected Type m_type = typeof(MouseButton);
         protected genericStates m_state;
 
         //properties
@@ -41,11 +41,12 @@ namespace monoswitch
         }
 
         //methods
-        public kkey(Keys obj)
+        public mkey(MouseButton obj)
         {
             this.m_obj = obj;
             this.m_state = genericStates.UP;
         }
+
 
     }
 }

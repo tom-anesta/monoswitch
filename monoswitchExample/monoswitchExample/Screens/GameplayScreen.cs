@@ -20,6 +20,7 @@ using monoswitchExample.game;
 using monoswitch;
 using monoswitch.containers;
 using monoswitch.content;
+using monoswitch.misc;
 #endregion
 
 namespace monoswitchExample

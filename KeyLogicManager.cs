@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using monoswitch.misc;
 
 namespace monoswitch
 {
@@ -11,7 +12,7 @@ namespace monoswitch
     //possible states
     public enum logicStates
     {
-        TRUE, FALSE, INDETERMINATE, NONE//none for there is no item
+        NONE, FALSE, INDETERMINATE, TRUE//none for there is no item
     }
     //in what order are they evaluated?
     public enum logDirections
@@ -111,7 +112,8 @@ namespace monoswitch
                 private static Dictionary<logics, List<methods>> m_methodDict;
                 private static Dictionary<logics, logicStates> m_indEvalDict;
                 private static Dictionary<Tuple<logics, logicStates>, List<Tuple<logicStates, logicStates>>> m_evalDict;
-                private static Dictionary<Tuple<logics, methods, logicStates>, List<Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>>> m_methodEvalDict;
+                private static Dictionary<Tuple<logics, methods, logicStates>, List<Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>>> m_methodCategorizeDict;
+                private static Dictionary<Tuple<logics, methods, logicStates, Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>>, goalDetermineObj> m_methodEvalDict;
                 //evaluation keys
                 //all both falses are true except in not.  otherwise, indeterminate is chosen if could possibley evaluate to false, otherwise to true.  total 16
                 private static readonly Tuple<logicStates, logicStates> s_falseB = Tuple.Create(logicStates.FALSE, logicStates.FALSE);
@@ -1271,7 +1273,6 @@ namespace monoswitch
                     s_m_nlt_nlt, s_m_nlt_tb, s_m_nlt_lt, s_m_nlt_ilt
                 };
                 //things above must be both false or both true with a change
-                
 
             #endregion
 
@@ -1346,7 +1347,8 @@ namespace monoswitch
                     KeyLogicManager.m_methodDict = new Dictionary<logics, List<methods>>();
                     KeyLogicManager.m_indEvalDict = new Dictionary<logics, logicStates>();
                     KeyLogicManager.m_evalDict = new Dictionary<Tuple<logics, logicStates>,List<Tuple<logicStates,logicStates>>>();
-                    KeyLogicManager.m_methodEvalDict = new Dictionary<Tuple<logics, methods, logicStates>, List<Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>>>();
+                    KeyLogicManager.m_methodCategorizeDict = new Dictionary<Tuple<logics, methods, logicStates>, List<Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>>>();
+                    KeyLogicManager.m_methodEvalDict = new Dictionary<Tuple<logics,methods,logicStates, Tuple<Tuple<logicStates,logicStates>,Tuple<logicStates,logicStates>>>, goalDetermineObj> ();
                     //assign values to the dictionary for matching methods
                     //XOR, LEFT, RIGHT, BI, NONE, NOT
                     KeyLogicManager.m_methodDict[logics.XOR] = new List<methods>(new methods[]{methods.DEACTIVATE, methods.FOLLOW, methods.NONE});
@@ -1397,66 +1399,74 @@ namespace monoswitch
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.NONE, logicStates.FALSE)] = KeyLogicManager.s_NoneTrues.ToList();
                     KeyLogicManager.m_evalDict[Tuple.Create(logics.NONE, logicStates.INDETERMINATE)] = KeyLogicManager.s_NoneInds.ToList();
                     //set the lists in the method evaluation dictionary
-                    //method evaluation dictionary xor
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.DEACTIVATE, logicStates.TRUE)] = s_m_XorDeactivateTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.DEACTIVATE, logicStates.FALSE)] = s_m_XorDeactivateFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.DEACTIVATE, logicStates.INDETERMINATE)] = s_m_XorDeactivateInds.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.ACTIVATE, logicStates.TRUE)] = s_m_XorActivateTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.ACTIVATE, logicStates.FALSE)] = s_m_XorActivateFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.ACTIVATE, logicStates.INDETERMINATE)] = s_m_XorActivateInds.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.FOLLOW, logicStates.TRUE)] = s_m_XorFollowTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.FOLLOW, logicStates.FALSE)] = s_m_XorFollowFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.XOR, methods.FOLLOW, logicStates.INDETERMINATE)] = s_m_XorFollowInds.ToList();
-                    //method evaluation dictionary left
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.DEACTIVATE, logicStates.TRUE)] = s_m_LeftDeactivateTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.DEACTIVATE, logicStates.FALSE)] = s_m_LeftDeactivateFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.DEACTIVATE, logicStates.INDETERMINATE)] = s_m_LeftDeactivateInds.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.ACTIVATE, logicStates.TRUE)] = s_m_LeftActivateTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.ACTIVATE, logicStates.FALSE)] = s_m_LeftActivateFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.ACTIVATE, logicStates.INDETERMINATE)] = s_m_LeftActivateInds.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.FOLLOW, logicStates.TRUE)] = s_m_LeftFollowTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.FOLLOW, logicStates.FALSE)] = s_m_LeftFollowFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.LEFT, methods.FOLLOW, logicStates.INDETERMINATE)] = s_m_LeftFollowInds.ToList();
-                    //method evaluation dictionary right
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.DEACTIVATE, logicStates.TRUE)] = s_m_RightDeactivateTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.DEACTIVATE, logicStates.FALSE)] = s_m_RightDeactivateFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.DEACTIVATE, logicStates.INDETERMINATE)] = s_m_RightDeactivateInds.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.ACTIVATE, logicStates.TRUE)] = s_m_RightActivateTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.ACTIVATE, logicStates.FALSE)] = s_m_RightActivateFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.ACTIVATE, logicStates.INDETERMINATE)] = s_m_RightActivateInds.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.FOLLOW, logicStates.TRUE)] = s_m_RightFollowTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.FOLLOW, logicStates.FALSE)] = s_m_RightFollowFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.RIGHT, methods.FOLLOW, logicStates.INDETERMINATE)] = s_m_RightFollowInds.ToList();
-                    //method evaluation dictionary bi
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.DEACTIVATE, logicStates.TRUE)] = s_m_BiDeactivateTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.DEACTIVATE, logicStates.FALSE)] = s_m_BiDeactivateFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.DEACTIVATE, logicStates.INDETERMINATE)] = s_m_BiDeactivateInds.ToList(); ;
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.ACTIVATE, logicStates.TRUE)] = s_m_BiActivateTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.ACTIVATE, logicStates.FALSE)] = s_m_BiActivateFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.ACTIVATE, logicStates.INDETERMINATE)] = s_m_BiActivateInds.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.FOLLOW, logicStates.TRUE)] = s_m_BiFollowTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.FOLLOW, logicStates.FALSE)] = s_m_BiFollowFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.BI, methods.FOLLOW, logicStates.INDETERMINATE)] = s_m_BiFollowInds.ToList();
-                    //method evaluation dictionary and
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.DEACTIVATE, logicStates.TRUE)] = s_m_AndDeactivateTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.DEACTIVATE, logicStates.FALSE)] = s_m_AndDeactivateFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.DEACTIVATE, logicStates.INDETERMINATE)] = s_m_AndDeactivateInds.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.ACTIVATE, logicStates.TRUE)] = s_m_AndActivateTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.ACTIVATE, logicStates.FALSE)] = s_m_AndActivateFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.ACTIVATE, logicStates.INDETERMINATE)] = s_m_AndActivateInds.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.FOLLOW, logicStates.TRUE)] = s_m_AndFollowTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.FOLLOW, logicStates.FALSE)] = s_m_AndFollowFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.AND, methods.FOLLOW, logicStates.INDETERMINATE)] = s_m_AndFollowInds.ToList();
-                    //method evaluation dictionary not
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.NOT, methods.DEACTIVATE, logicStates.TRUE)] = s_m_NotDeactivateTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.NOT, methods.DEACTIVATE, logicStates.FALSE)] = s_m_NotDeactivateFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.NOT, methods.DEACTIVATE, logicStates.INDETERMINATE)] = s_m_NotDeactivateInds.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.NOT, methods.ACTIVATE, logicStates.TRUE)] = s_m_NotActivateTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.NOT, methods.ACTIVATE, logicStates.FALSE)] = s_m_NotActivateFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.NOT, methods.ACTIVATE, logicStates.INDETERMINATE)] = s_m_NotActivateInds.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.NOT, methods.FOLLOW, logicStates.TRUE)] = s_m_NotFollowTrues.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.NOT, methods.FOLLOW, logicStates.FALSE)] = s_m_NotFollowFalses.ToList();
-                    KeyLogicManager.m_methodEvalDict[Tuple.Create(logics.NOT, methods.FOLLOW, logicStates.INDETERMINATE)] = s_m_NotFollowInds.ToList();
+                    //method Categorize dictionary xor
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.XOR, methods.DEACTIVATE, logicStates.TRUE)] = s_m_XorDeactivateTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.XOR, methods.DEACTIVATE, logicStates.FALSE)] = s_m_XorDeactivateFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.XOR, methods.DEACTIVATE, logicStates.INDETERMINATE)] = s_m_XorDeactivateInds.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.XOR, methods.ACTIVATE, logicStates.TRUE)] = s_m_XorActivateTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.XOR, methods.ACTIVATE, logicStates.FALSE)] = s_m_XorActivateFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.XOR, methods.ACTIVATE, logicStates.INDETERMINATE)] = s_m_XorActivateInds.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.XOR, methods.FOLLOW, logicStates.TRUE)] = s_m_XorFollowTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.XOR, methods.FOLLOW, logicStates.FALSE)] = s_m_XorFollowFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.XOR, methods.FOLLOW, logicStates.INDETERMINATE)] = s_m_XorFollowInds.ToList();
+                    //method Categorize dictionary left
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.LEFT, methods.DEACTIVATE, logicStates.TRUE)] = s_m_LeftDeactivateTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.LEFT, methods.DEACTIVATE, logicStates.FALSE)] = s_m_LeftDeactivateFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.LEFT, methods.DEACTIVATE, logicStates.INDETERMINATE)] = s_m_LeftDeactivateInds.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.LEFT, methods.ACTIVATE, logicStates.TRUE)] = s_m_LeftActivateTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.LEFT, methods.ACTIVATE, logicStates.FALSE)] = s_m_LeftActivateFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.LEFT, methods.ACTIVATE, logicStates.INDETERMINATE)] = s_m_LeftActivateInds.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.LEFT, methods.FOLLOW, logicStates.TRUE)] = s_m_LeftFollowTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.LEFT, methods.FOLLOW, logicStates.FALSE)] = s_m_LeftFollowFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.LEFT, methods.FOLLOW, logicStates.INDETERMINATE)] = s_m_LeftFollowInds.ToList();
+                    //method Categorize dictionary right
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.RIGHT, methods.DEACTIVATE, logicStates.TRUE)] = s_m_RightDeactivateTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.RIGHT, methods.DEACTIVATE, logicStates.FALSE)] = s_m_RightDeactivateFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.RIGHT, methods.DEACTIVATE, logicStates.INDETERMINATE)] = s_m_RightDeactivateInds.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.RIGHT, methods.ACTIVATE, logicStates.TRUE)] = s_m_RightActivateTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.RIGHT, methods.ACTIVATE, logicStates.FALSE)] = s_m_RightActivateFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.RIGHT, methods.ACTIVATE, logicStates.INDETERMINATE)] = s_m_RightActivateInds.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.RIGHT, methods.FOLLOW, logicStates.TRUE)] = s_m_RightFollowTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.RIGHT, methods.FOLLOW, logicStates.FALSE)] = s_m_RightFollowFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.RIGHT, methods.FOLLOW, logicStates.INDETERMINATE)] = s_m_RightFollowInds.ToList();
+                    //method Categorize dictionary bi
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.BI, methods.DEACTIVATE, logicStates.TRUE)] = s_m_BiDeactivateTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.BI, methods.DEACTIVATE, logicStates.FALSE)] = s_m_BiDeactivateFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.BI, methods.DEACTIVATE, logicStates.INDETERMINATE)] = s_m_BiDeactivateInds.ToList(); ;
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.BI, methods.ACTIVATE, logicStates.TRUE)] = s_m_BiActivateTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.BI, methods.ACTIVATE, logicStates.FALSE)] = s_m_BiActivateFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.BI, methods.ACTIVATE, logicStates.INDETERMINATE)] = s_m_BiActivateInds.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.BI, methods.FOLLOW, logicStates.TRUE)] = s_m_BiFollowTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.BI, methods.FOLLOW, logicStates.FALSE)] = s_m_BiFollowFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.BI, methods.FOLLOW, logicStates.INDETERMINATE)] = s_m_BiFollowInds.ToList();
+                    //method Categorize dictionary and
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.AND, methods.DEACTIVATE, logicStates.TRUE)] = s_m_AndDeactivateTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.AND, methods.DEACTIVATE, logicStates.FALSE)] = s_m_AndDeactivateFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.AND, methods.DEACTIVATE, logicStates.INDETERMINATE)] = s_m_AndDeactivateInds.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.AND, methods.ACTIVATE, logicStates.TRUE)] = s_m_AndActivateTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.AND, methods.ACTIVATE, logicStates.FALSE)] = s_m_AndActivateFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.AND, methods.ACTIVATE, logicStates.INDETERMINATE)] = s_m_AndActivateInds.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.AND, methods.FOLLOW, logicStates.TRUE)] = s_m_AndFollowTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.AND, methods.FOLLOW, logicStates.FALSE)] = s_m_AndFollowFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.AND, methods.FOLLOW, logicStates.INDETERMINATE)] = s_m_AndFollowInds.ToList();
+                    //method Categorize dictionary not
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.NOT, methods.DEACTIVATE, logicStates.TRUE)] = s_m_NotDeactivateTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.NOT, methods.DEACTIVATE, logicStates.FALSE)] = s_m_NotDeactivateFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.NOT, methods.DEACTIVATE, logicStates.INDETERMINATE)] = s_m_NotDeactivateInds.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.NOT, methods.ACTIVATE, logicStates.TRUE)] = s_m_NotActivateTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.NOT, methods.ACTIVATE, logicStates.FALSE)] = s_m_NotActivateFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.NOT, methods.ACTIVATE, logicStates.INDETERMINATE)] = s_m_NotActivateInds.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.NOT, methods.FOLLOW, logicStates.TRUE)] = s_m_NotFollowTrues.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.NOT, methods.FOLLOW, logicStates.FALSE)] = s_m_NotFollowFalses.ToList();
+                    KeyLogicManager.m_methodCategorizeDict[Tuple.Create(logics.NOT, methods.FOLLOW, logicStates.INDETERMINATE)] = s_m_NotFollowInds.ToList();
+                    //built the method evaluation dictionary
+                    foreach (Tuple<logics, methods, logicStates> kVal in KeyLogicManager.m_methodCategorizeDict.Keys)
+                    {
+                        foreach (Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> tVal in KeyLogicManager.m_methodCategorizeDict[kVal])
+                        {
+                            m_methodEvalDict[new Tuple<logics, methods, logicStates, Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>>(kVal.Item1, kVal.Item2, kVal.Item3, tVal)] = new goalDetermineObj(tVal, KeyLogicManager.m_evalDict[Tuple.Create(kVal.Item1, kVal.Item3)]);
+                        }
+                    }
                     //mark as inited
                     KeyLogicManager.m_inited = true;
                 }
@@ -1659,12 +1669,31 @@ namespace monoswitch
                         return new List<Tuple<Tuple<ILogicState, logicStates>, Tuple<ILogicState, logicStates>>>();
                     }
                     Tuple<logics, methods, logicStates> key = new Tuple<logics,methods,logicStates>(ltype, mtype, stype);
-                    if (!KeyLogicManager.m_methodEvalDict.ContainsKey(key))
+                    if (!KeyLogicManager.m_methodCategorizeDict.ContainsKey(key))
                     {
                         return new List<Tuple<Tuple<ILogicState, logicStates>, Tuple<ILogicState, logicStates>>>();
                     }
-                    List<Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>> compareList = KeyLogicManager.m_methodEvalDict[key];
+                    List<Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>> compareList = KeyLogicManager.m_methodCategorizeDict[key];
                     return new List<Tuple<Tuple<ILogicState, logicStates>, Tuple<ILogicState, logicStates>>>();
+                }
+
+                public static int distance(IEnumerable<logicStates> vals1, IEnumerable<logicStates> vals2)
+                {
+                    int sum = 0;
+                    if(vals1.Count() != vals2.Count())
+                    {
+                        return -1;
+                    }
+                    for(int i = 0; i < vals1.Count(); i++)
+                    {
+                        sum+= distance(vals1.ElementAt(i), vals2.ElementAt(i));
+                    }
+                    return sum;
+                }
+
+                public static int distance(logicStates val1, logicStates val2)
+                {
+                    return Math.Abs((int)val1-(int)val2);
                 }
 
             #endregion
