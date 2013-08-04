@@ -1603,6 +1603,12 @@ namespace monoswitch
                    
                 }
 
+
+                public static logicStates moddedEvaluate(logics ltype, logicStates start1, int command1, logicStates start2, int command2)
+                {
+                    return logicStates.FALSE;
+                }
+
                 //http://stackoverflow.com/questions/5097766/how-to-get-custom-attribute-values-for-enums
                 public static DirectionAttribute GetDirection(logics logType)
                 {
@@ -1654,19 +1660,117 @@ namespace monoswitch
                     }
                 }
 
-                public static List<Tuple<Tuple<ILogicState, logicStates>, Tuple<ILogicState, logicStates>>> relevants (Dictionary<ILogicState, logicStates> dict, logics ltype, methods mtype, logicStates stype)
+                public static List<Tuple<ILogicState, int>> commands (List<ILogicState> orderedlist, Dictionary<ILogicState, logicStates> dict, logics ltype, methods mtype, logicStates stype, bool clamp)
                 {
                     if (!KeyLogicManager.m_methodDict.ContainsKey(ltype))
                     {
-                        return new List<Tuple<Tuple<ILogicState, logicStates>, Tuple<ILogicState, logicStates>>>();
+                        return new List<Tuple<ILogicState, int>>();
                     }
                     Tuple<logics, methods, logicStates> key = new Tuple<logics,methods,logicStates>(ltype, mtype, stype);
                     if (!KeyLogicManager.m_methodCategorizeDict.ContainsKey(key))
                     {
-                        return new List<Tuple<Tuple<ILogicState, logicStates>, Tuple<ILogicState, logicStates>>>();
+                        return new List<Tuple<ILogicState, int>>();
                     }
-                    List<Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>> compareList = KeyLogicManager.m_methodCategorizeDict[key];
-                    return new List<Tuple<Tuple<ILogicState, logicStates>, Tuple<ILogicState, logicStates>>>();
+                    List<Tuple<ILogicState, ILogicState>> orderedPairs = new List<Tuple<ILogicState, ILogicState>>();
+                    for (int i = 0; i < orderedPairs.Count - 1; i++)
+                    {
+                        orderedPairs.Add(new Tuple<ILogicState, ILogicState>(orderedlist[i], orderedlist[i+1]));
+                    }
+                    List<Tuple<int, int>> result = new List<Tuple<int, int>>();
+                    Tuple<logics, methods, logicStates, Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>> nKey = null;
+                    Dictionary<ILogicState, List<int>> commandList = new Dictionary<ILogicState, List<int>>();
+                    goalDetermineObj gdo = null;
+                    foreach (ILogicState logger in orderedlist)
+                    {
+                        commandList[logger] = new List<int>();
+                    }
+                    foreach (Tuple<ILogicState, ILogicState> pair in orderedPairs)//ordered left to right
+                    {
+                        nKey = Tuple.Create(ltype, mtype, stype, Tuple.Create(Tuple.Create(pair.Item1.state, dict[pair.Item1]), Tuple.Create(pair.Item2.state, dict[pair.Item2])));
+                        if (!KeyLogicManager.m_methodEvalDict.ContainsKey(nKey))//well then we assume we are already there and assign zero
+                        {
+                            commandList[pair.Item1].Add(0);
+                            commandList[pair.Item2].Add(0);
+                        }
+                        else
+                        {
+                            gdo = m_methodEvalDict[nKey];
+                            result = gdo.solutions();
+                            foreach (Tuple<int, int> rVal in result)
+                            {
+                                commandList[pair.Item1].Add(rVal.Item1);
+                                commandList[pair.Item2].Add(rVal.Item2);
+                            }
+                        }
+                    }
+                    //commandlist is now ready for inspection
+                    foreach(ILogicState val in commandList.Keys)
+                    {
+                        commandList[val] = commandList[val].Distinct().ToList();
+                        commandList[val].Sort(KeyLogicManager.compareAbsoluteDistance);
+                    }
+                    List<List<int>> orderedCommands = new List<List<int>>();
+                    foreach (ILogicState lsVal in orderedlist)
+                    {
+                        orderedCommands.Add(commandList[lsVal]);
+                    }
+                    List<logicStates> canGoal = null;
+                    List<int> testers1 = null;
+                    List<int> testers2 = null;
+                    for (int i = 0; i < orderedCommands.Count; i++)
+                    {
+                        testers1 = orderedCommands[i];
+                        if (i > 0)//compare to the one before
+                        {
+                            canGoal = new List<logicStates>();
+                            testers2 = orderedCommands[i - 1];
+                            int j = 0;
+                            while(j < testers1.Count)
+                            {
+                                canGoal = new List<logicStates>();
+                                int k = 0;
+                                while(k < testers2.Count)
+                                {//a problem here is that we may have needed to use clamp.  how do we do that? passing in clamp to this function
+                                    canGoal.Add(KeyLogicManager.moddedEvaluate(ltype, orderedlist[i-1].state, testers2[k], orderedlist[i].state, testers1[j]));
+                                    k++;
+                                }
+                                if (!canGoal.Contains(stype))
+                                {
+                                    orderedCommands[i].RemoveAt(j);
+                                }
+                                else
+                                {
+                                    j++;
+                                }
+                            }
+                        }
+                        if (i < orderedCommands.Count)
+                        {
+                            canGoal = new List<logicStates>();
+                            testers2 = orderedCommands[i + 1];
+                            int j = 0;
+                            while(j < testers1.Count)
+                            {
+                                canGoal = new List<logicStates>();
+                                int k = 0;
+                                while (k < testers2.Count)
+                                {//a problem here is that we may have needed to use clamp.  how do we do that?  passing in clamp to this function
+                                    canGoal.Add(KeyLogicManager.moddedEvaluate(ltype, orderedlist[i].state, testers1[j], orderedlist[i + 1].state, testers2[k]));
+                                    k++;
+                                }
+                                if (!canGoal.Contains(stype))
+                                {
+                                    orderedCommands[i].RemoveAt(j);
+                                }
+                                else
+                                {
+                                    j++;
+                                }
+                            }
+                        }
+
+                    }
+                    return new List<Tuple<ILogicState, int>>();
                 }
 
                 public static int distance(IEnumerable<logicStates> vals1, IEnumerable<logicStates> vals2)
@@ -1701,6 +1805,24 @@ namespace monoswitch
                         sum += Math.Abs(val);
                     }
                     return sum;
+                }
+
+                public static int compareAbsoluteDistance(int x, int y)
+                {
+                    int x2 = Math.Abs(x);
+                    int y2 = Math.Abs(y);
+                    if (x2 < y2)
+                    {
+                        return -1;
+                    }
+                    else if (x2==y2)
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        return 1;
+                    }
                 }
 
             #endregion

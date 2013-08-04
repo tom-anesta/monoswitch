@@ -925,7 +925,16 @@ namespace monoswitch.containers
                     {
                         this.m_lastStates.Remove(this.Data);
                     }
-                    List<Tuple<Tuple<ILogicState, logicStates>, Tuple<ILogicState, logicStates>>> relevants = KeyLogicManager.relevants(this.m_lastStates, this.m_log, this.m_method, goalVal);
+                    List<ILogicState> orderedPairs = this.Children.Cast<ILogicState>().ToList();
+                    if (dataEffective && this.m_last)
+                    {
+                        orderedPairs.Add(this.Data);
+                    }
+                    else if (dataEffective)
+                    {
+                        orderedPairs.Insert(0, this.Data);
+                    }
+                    List<Tuple<ILogicState, int>> commands = KeyLogicManager.commands(orderedPairs, this.m_lastStates, this.m_log, this.m_method, goalVal, this.m_clamp);
                     if (!dataEffective)//to refill the last states after performing our operations
                     {
                         this.m_lastStates[dataHolder.Item1] = dataHolder.Item2;
