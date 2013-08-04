@@ -168,7 +168,7 @@ namespace monoswitch.containers
                 protected logicStates m_state;
                 protected logicStates m_lastState;
                 protected bool m_last;//is the keygroup associated with this node placed last in a list evaluation or first?
-                protected bool m_overwrite;
+                //protected bool m_overwrite;//logic in keylogic manager cannot support this field
                 protected bool m_clamp;
                 protected int m_maxObj;
                 protected Dictionary<ILogicState, logicStates> m_lastStates;
@@ -449,7 +449,7 @@ namespace monoswitch.containers
                     this.m_lastStates = new Dictionary<ILogicState, logicStates>();
                     this.Data = null;
                     this.m_last = lst;
-                    this.m_overwrite = ovrw;
+                    //this.m_overwrite = ovrw;//keylogicmanager cannot support this field
                     this.m_clamp = clmp;
                     this.KRoot = null;
                     this.Root = null;
@@ -478,7 +478,7 @@ namespace monoswitch.containers
                             sList.Add(this.Data.evaluate());
                         }
                     }
-                    logicStates result = KeyLogicManager.evaluate(sList, this.m_log, this.m_clamp, this.m_overwrite);
+                    logicStates result = KeyLogicManager.evaluate(sList, this.m_log, this.m_clamp);//, this.m_overwrite);//keylogic manager cannot support this propertie
                     if (this.m_state != result)
                     {
                         this.m_lastState = this.m_state;
@@ -503,7 +503,7 @@ namespace monoswitch.containers
                     {
                         tempStates.Insert(0, adder);
                     }
-                    return KeyLogicManager.evaluate(tempStates, this.log, this.m_clamp, this.m_overwrite);
+                    return KeyLogicManager.evaluate(tempStates, this.log, this.m_clamp);//, this.m_overwrite);//keylogic manager cannot support this field
                 }
 
                 public logicStates DfsStateOperationChildren(NodeStateOperation operation, int maxObj = 2)
@@ -514,7 +514,7 @@ namespace monoswitch.containers
                     {
                         tempStates.Add(((KeyLogicNode)child).DfsStateOperation(operation, maxObj));
                     }
-                    return KeyLogicManager.evaluate(tempStates, this.log, this.m_clamp, this.m_overwrite);
+                    return KeyLogicManager.evaluate(tempStates, this.log, this.m_clamp);//, this.m_overwrite);//keylogic manager cannot support this field
                 }
 
                 public List<logicStates> DfsStatesListOperation(NodeStateListOperation operation, int maxObj = 2)
@@ -617,7 +617,7 @@ namespace monoswitch.containers
                     {
                         tempStates.Insert(0, adder);
                     }
-                    return KeyLogicManager.evaluate(tempStates, this.log, this.m_clamp, this.m_overwrite);
+                    return KeyLogicManager.evaluate(tempStates, this.log, this.m_clamp);//, this.m_overwrite);//keylogic manager cannot support this field
                 }
 
                 public logicStates Dfs2StateOperationChildren(NodeStateOperation operation, int maxObj = 2)
@@ -627,7 +627,7 @@ namespace monoswitch.containers
                     {
                         tempStates.Add(((KeyLogicNode)child).Dfs2StateOperation(operation, maxObj));
                     }
-                    return KeyLogicManager.evaluate(tempStates, this.log, this.m_clamp, this.m_overwrite);
+                    return KeyLogicManager.evaluate(tempStates, this.log, this.m_clamp);//, this.m_overwrite);//keylogic manager cannot support this field
                 }
 
                 public logicStates Dfs2FilteredListStateOperation(NodeStateListOperation operation, List<logicStates> disqualifiers, int maxObj = 2)
@@ -914,24 +914,19 @@ namespace monoswitch.containers
                         Console.WriteLine("on requestedResolve we have already reached goal");
                         return logicStates.TRUE;
                     }
-                    List<Tuple<logicStates, logicStates>> goalQualifiers = KeyLogicManager.qualifiers(this.log, goalVal);
-                    if (goalQualifiers == null)
-                    {
-                        return logicStates.FALSE;
-                    }
                     logicStates results = logicStates.FALSE;
                     bool dataEffective = (this.Data != null && this.m_lastStates.ContainsKey(this.Data));
                     if (this.m_lastStates.Count > this.maxObj)
                     {
                         dataEffective = false;
                     }
-                    Tuple<ILogicState, logicStates> dataHolder = (this.m_lastStates.ContainsKey(this.Data) ? Tuple.Create((ILogicState)this.Data, this.m_lastStates[this.Data]) : null);
+                    Tuple<ILogicState, logicStates> dataHolder = new Tuple<ILogicState,logicStates>((ILogicState)this.Data, this.m_lastStates[this.Data]);
                     if (!dataEffective)
                     {
                         this.m_lastStates.Remove(this.Data);
                     }
                     List<Tuple<Tuple<ILogicState, logicStates>, Tuple<ILogicState, logicStates>>> relevants = KeyLogicManager.relevants(this.m_lastStates, this.m_log, this.m_method, goalVal);
-                    if (!dataEffective)
+                    if (!dataEffective)//to refill the last states after performing our operations
                     {
                         this.m_lastStates[dataHolder.Item1] = dataHolder.Item2;
                     }

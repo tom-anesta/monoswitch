@@ -1471,7 +1471,7 @@ namespace monoswitch
                     KeyLogicManager.m_inited = true;
                 }
 
-                public static logicStates evaluate(List<logicStates> logList, logics lType, bool clamp = false, bool overwrite = false)
+                public static logicStates evaluate(List<logicStates> logList, logics lType, bool clamp = false)//, bool overwrite = false)//cannot support this field when resolving
                 {//clamp says results should be true or false based on dictionary, overwrite says make the first argument the evaluation of the last two arguments
                     if (!KeyLogicManager.inited)
                     {
@@ -1514,10 +1514,6 @@ namespace monoswitch
                                 return logicStates.FALSE;
                             }
                             statesRight.RemoveAt(0);
-                            if (overwrite)
-                            {
-                                statesRight[0] = val;
-                            }
                         }
                         results.Add(val);
                     }
@@ -1538,10 +1534,6 @@ namespace monoswitch
                                 return logicStates.FALSE;
                             }
                             statesLeft.RemoveAt(statesLeft.Count-1);
-                            if (overwrite)
-                            {
-                                statesLeft[statesLeft.Count-1] = val;
-                            }
                         }
                         results.Add(val);
                     }
@@ -1694,6 +1686,21 @@ namespace monoswitch
                 public static int distance(logicStates val1, logicStates val2)
                 {
                     return Math.Abs((int)val1-(int)val2);
+                }
+
+                public static int biDirectionalDistance(logicStates from, logicStates to)
+                {
+                    return ((int)to - (int)from);
+                }
+
+                public static int distance(List<int> vals)
+                {
+                    int sum = 0;
+                    foreach (int val in vals)
+                    {
+                        sum += Math.Abs(val);
+                    }
+                    return sum;
                 }
 
             #endregion

@@ -106,7 +106,30 @@ namespace monoswitch.misc
 
                 }
 
-                
+                public List<Tuple<int, int>> solutions()
+                {
+                    List<Tuple<int, int>> results = new List<Tuple<int, int>>();
+                    List<Tuple<logicStates, logicStates>> converterList = new List<Tuple<logicStates, logicStates>>();
+                    List<int> genum = this.m_goalStates.Keys.ToList();
+                    List<int> lenum = this.m_lastStates.Keys.ToList();
+                    int gInt = 0;
+                    int lInt = lenum.Count-1;
+                    while (gInt < genum.Count)//prioritized so that the items with lowest distance to success first then by greater distance from the original (follow)
+                    {
+                        while (lInt >= 0)
+                        {
+                            converterList.AddRange(this.m_goalStates[gInt].Intersect(this.m_lastStates[lInt]));
+                            lInt--;
+                        }
+                        gInt++;
+                        lInt = lenum.Count-1;
+                    }
+                    foreach (Tuple<logicStates, logicStates> tVal in converterList)
+                    {
+                        results.Add(Tuple.Create(KeyLogicManager.biDirectionalDistance(tVal.Item1, this.m_currexamined.Item1.Item1), KeyLogicManager.biDirectionalDistance(tVal.Item2, this.m_currexamined.Item2.Item1)));
+                    }
+                    return results.Distinct().ToList();
+                }
 
             #endregion
 
