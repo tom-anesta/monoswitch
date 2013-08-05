@@ -332,7 +332,6 @@ namespace monoswitch.containers
 
                 public logicStates evalPairChanged(KeyGroup group, List<KeyPair> oldpairs, List<KeyGroup> oldgroups)
                 {
-                    Console.WriteLine("attempting eval pair changed");
                     this.evaluation();
                     if (this.m_lastStates.ContainsKey(group))
                     {
@@ -352,7 +351,6 @@ namespace monoswitch.containers
                     if (Attached)
                     {
                         eval = this.KRoot.Dfs2StateOperation(node => node.evaluation());
-                        Console.WriteLine("evaluation evaluates to " + eval);
                         this.evaluation();
                         if (eval == logicStates.TRUE)
                         {//then we want to reset the last states
@@ -394,8 +392,10 @@ namespace monoswitch.containers
                     logicStates eval = logicStates.FALSE;
                     if (Attached)
                     {
+
                         if (this.m_lastStates.ContainsKey(group))//if we need to update the states for a resolve
                         {
+                            Console.WriteLine("assigning new states for the resolve");
                             Dictionary<ILogicState, logicStates>.KeyCollection keys = this.m_lastStates.Keys;
                             ILogicState val = null;
                             for (int i = 0; i < keys.Count; i++)
@@ -404,8 +404,25 @@ namespace monoswitch.containers
                                 this.m_lastStates[val] = val.state;
                             }
                             this.m_lastStates[group] = group.lastState;//this was the last thing that was changed
+                            Console.Write("the current states for resolve are ");
+                            foreach (ILogicState kVal in this.m_lastStates.Keys)
+                            {
+                                Console.Write(kVal.state + " . ");
+                            }
+                            Console.WriteLine();
+                            Console.Write("The past states for resolve are ");
+                            foreach (ILogicState kVal in this.m_lastStates.Keys)
+                            {
+                                Console.Write(this.m_lastStates[kVal] + " . ");
+                            }
+                            Console.WriteLine();
                         }
-                        eval = this.KRoot.Resolve(logicStates.TRUE, (ILogicState)group, oldpairs.Cast<ILogicState>().ToList(), oldgroups.Cast<ILogicState>().ToList());
+                        else
+                        {
+                            Console.WriteLine("does not contain group so no resolve");
+                        }
+                        return logicStates.FALSE;
+                        //eval = this.KRoot.Resolve(logicStates.TRUE, (ILogicState)group, oldpairs.Cast<ILogicState>().ToList(), oldgroups.Cast<ILogicState>().ToList());
                     }
                     Console.WriteLine("evaluating pair resolve to false");
                     return eval;
@@ -935,7 +952,10 @@ namespace monoswitch.containers
                     {
                         orderedPairs.Insert(0, this.Data);
                     }
+                    //debug
+                    Console.WriteLine("the current logic type is " + this.m_log);
                     List<Tuple<ILogicState, int>> commands = KeyLogicManager.commands(orderedPairs, this.m_lastStates, this.m_log, this.m_method, goalVal, this.m_clamp);
+                    Console.WriteLine("the number of commands is " + commands.Count);
                     if (!dataEffective && dataHolder != null)//to refill the last states after performing our operations
                     {
                         this.m_lastStates[dataHolder.Item1] = dataHolder.Item2;

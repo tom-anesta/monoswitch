@@ -108,27 +108,47 @@ namespace monoswitch.misc
 
                 public List<Tuple<int, int>> solutions()
                 {
+                    Console.WriteLine("retrieving solutions");
+                    Console.WriteLine("the options to draw from are: ");
+                    foreach (List<Tuple<logicStates, logicStates>> pGoalList in this.m_goalStates.Values)
+                    {
+                        foreach (Tuple<logicStates, logicStates> pGoal in pGoalList)
+                        {
+                            Console.Write(pGoal + " . ");
+                        }
+                    }
+                    Console.WriteLine();
                     List<Tuple<int, int>> results = new List<Tuple<int, int>>();
                     List<Tuple<logicStates, logicStates>> converterList = new List<Tuple<logicStates, logicStates>>();
                     List<int> genum = this.m_goalStates.Keys.ToList();
+                    genum.OrderBy(x => x);
                     List<int> lenum = this.m_lastStates.Keys.ToList();
+                    lenum.OrderByDescending(x => x);
                     int gInt = 0;
-                    int lInt = lenum.Count-1;
+                    int lInt = 0;
                     while (gInt < genum.Count)//prioritized so that the items with lowest distance to success first then by greater distance from the original (follow)
                     {
-                        while (lInt >= 0)
+                        while (lInt < lenum.Count)
                         {
-                            converterList.AddRange(this.m_goalStates[gInt].Intersect(this.m_lastStates[lInt]));
-                            lInt--;
+                            converterList.AddRange(this.m_goalStates[genum[gInt]].Intersect(this.m_lastStates[lenum[lInt]]));
+                            lInt++;
                         }
                         gInt++;
                         lInt = lenum.Count-1;
                     }
+                    Console.WriteLine("The number of solutions = " + converterList.Count);
+                    Console.WriteLine("the currently examined item is " + this.m_currexamined.Item1.Item1 + " , " + this.m_currexamined.Item2.Item1);
+                    int index = 0;
                     foreach (Tuple<logicStates, logicStates> tVal in converterList)
                     {
-                        results.Add(Tuple.Create(KeyLogicManager.biDirectionalDistance(tVal.Item1, this.m_currexamined.Item1.Item1), KeyLogicManager.biDirectionalDistance(tVal.Item2, this.m_currexamined.Item2.Item1)));
+                        results.Add(Tuple.Create(KeyLogicManager.biDirectionalDistance(this.m_currexamined.Item1.Item1, tVal.Item1), KeyLogicManager.biDirectionalDistance(this.m_currexamined.Item2.Item1, tVal.Item2)));
+                        //debug
+                        Console.WriteLine("the command at index " + index + " = " + results[results.Count - 1].Item1 + " , " + results[results.Count - 1].Item2);
+                        Console.WriteLine("The result for this operation will be " + (logicStates)(KeyLogicManager.biDirectionalDistance(this.m_currexamined.Item1.Item1, tVal.Item1) + (int)this.m_currexamined.Item1.Item1) + " , " + (logicStates)(KeyLogicManager.biDirectionalDistance(this.m_currexamined.Item2.Item1, tVal.Item2) + (int)this.m_currexamined.Item2.Item1));
                     }
-                    return results.Distinct().ToList();
+                    results = results.Distinct().ToList();
+                    Console.WriteLine("leaving getting solutions");
+                    return results;
                 }
 
             #endregion

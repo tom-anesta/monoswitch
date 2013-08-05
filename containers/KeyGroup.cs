@@ -249,7 +249,6 @@ namespace monoswitch.containers
 
                 protected logicStates m_respGroupPairChangeFailure(KeyPair failedP, List<KeyPair> oldPairStack, List<KeyGroup> oldGroupStack)
                 {
-                    Console.WriteLine("attempting resolve");
                     logicStates result = logicStates.TRUE;
                     if (oldGroupStack == null)
                     {
@@ -257,7 +256,6 @@ namespace monoswitch.containers
                     }
                     if(oldGroupStack.Contains(this))
                     {
-                        Console.WriteLine("stack overflow");
                         return logicStates.FALSE;
                     }
                     if (this.groupAttemptStateChangedFailure != null)
@@ -794,7 +792,6 @@ namespace monoswitch.containers
                     logicStates result = logicStates.TRUE;
                     if (this.stateChangeAttempt != null)
                     {
-                        Console.WriteLine("attempting state change");
                         result = this.stateChangeAttempt(this, oldPairs, oldGroups);//move oldpairs to below when changing, this should evaluate
                         if (result == logicStates.TRUE && this.m_state == sVal)//later put here to attempt a change if one is needed to resolve
                         {

@@ -1465,6 +1465,17 @@ namespace monoswitch
                         foreach (Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>> tVal in KeyLogicManager.m_methodCategorizeDict[kVal])
                         {
                             m_methodEvalDict[new Tuple<logics, methods, logicStates, Tuple<Tuple<logicStates, logicStates>, Tuple<logicStates, logicStates>>>(kVal.Item1, kVal.Item2, kVal.Item3, tVal)] = new goalDetermineObj(tVal, KeyLogicManager.m_evalDict[Tuple.Create(kVal.Item1, kVal.Item3)]);
+                            /*
+                            if (kVal.Item1 == logics.XOR && kVal.Item3 == logicStates.TRUE)
+                            {
+                                Console.Write("xor and true at " + tVal +  " is getting assigned : ");
+                                foreach (Tuple<logicStates, logicStates> gVal in KeyLogicManager.m_evalDict[Tuple.Create(kVal.Item1, kVal.Item3)])
+                                {
+                                    Console.Write(gVal + " . ");
+                                }
+                                Console.WriteLine();
+                            }
+                            */
                         }
                     }
                     //mark as inited
@@ -1558,7 +1569,6 @@ namespace monoswitch
                     }
                     if (!KeyLogicManager.m_methodDict.ContainsKey(lType) || !KeyLogicManager.m_indEvalDict.ContainsKey(lType))
                     {
-                        Console.WriteLine("dictionaries missing logic type");
                         return logicStates.FALSE;
                     }
                     if(clamp && KeyLogicManager.m_indEvalDict.ContainsKey(lType))
@@ -1668,15 +1678,17 @@ namespace monoswitch
                     Console.WriteLine("getting commands in logic manager");
                     if (!KeyLogicManager.m_methodDict.ContainsKey(ltype))
                     {
+                        Console.WriteLine("no method found in keylogicmanager");
                         return new List<Tuple<ILogicState, int>>();
                     }
                     Tuple<logics, methods, logicStates> key = new Tuple<logics,methods,logicStates>(ltype, mtype, stype);
                     if (!KeyLogicManager.m_methodCategorizeDict.ContainsKey(key))
                     {
+                        Console.WriteLine("no objects for logic, method, and goal");
                         return new List<Tuple<ILogicState, int>>();
                     }
-                    List<Tuple<ILogicState, ILogicState>> orderedPairs = new List<Tuple<ILogicState, ILogicState>>();
-                    for (int i = 0; i < orderedPairs.Count - 1; i++)
+                    List<Tuple<ILogicState, ILogicState>> orderedPairs = new List<Tuple<ILogicState, ILogicState>>();//ignoring left right thing
+                    for (int i = 0; i < orderedlist.Count - 1; i++)
                     {
                         orderedPairs.Add(new Tuple<ILogicState, ILogicState>(orderedlist[i], orderedlist[i+1]));
                     }
@@ -1688,16 +1700,20 @@ namespace monoswitch
                     {
                         commandList[logger] = new List<int>();
                     }
+                    Console.WriteLine("the number of items we need to find commands for is " + commandList.Count);
+                    Console.WriteLine("the number of ordered pairs is " + orderedPairs.Count);
                     foreach (Tuple<ILogicState, ILogicState> pair in orderedPairs)//ordered left to right
                     {
                         nKey = Tuple.Create(ltype, mtype, stype, Tuple.Create(Tuple.Create(pair.Item1.state, dict[pair.Item1]), Tuple.Create(pair.Item2.state, dict[pair.Item2])));
                         if (!KeyLogicManager.m_methodEvalDict.ContainsKey(nKey))//well then we assume we are already there and assign zero
                         {
+                            Console.WriteLine("missing the appropriate key for the pair");
                             commandList[pair.Item1].Add(0);
                             commandList[pair.Item2].Add(0);
                         }
                         else
                         {
+                            Console.WriteLine("found appropriate ke fo the pair");
                             gdo = m_methodEvalDict[nKey];
                             result = gdo.solutions();
                             foreach (Tuple<int, int> rVal in result)
@@ -1708,17 +1724,39 @@ namespace monoswitch
                         }
                     }
                     //commandlist is now ready for inspection
-                    
+                    Console.WriteLine("examining commandlist");
+                    foreach (ILogicState cVal in commandList.Keys)
+                    {
+                        string debugger = "contents of item: ";
+                        foreach (int val in commandList[cVal])
+                        {
+                            debugger += "." + val + ".";
+                        }
+                        Console.WriteLine(debugger);
+                    }
+                    //can't use this because it screws up the pairs
+                    /*
                     for(int i = 0; i < orderedlist.Count; i++)//ILogicState val in commandList.Keys)
                     {
                         ILogicState val = orderedlist[i];
                         commandList[val] = commandList[val].Distinct().ToList();
                         commandList[val].Sort(KeyLogicManager.compareAbsoluteDistance);
                     }
+                    */
                     List<List<int>> orderedCommands = new List<List<int>>();
                     foreach (ILogicState lsVal in orderedlist)
                     {
                         orderedCommands.Add(commandList[lsVal]);
+                    }
+                    Console.WriteLine("the number of commands in ordered commands is " + orderedCommands.Count);
+                    foreach (List<int> ocl in orderedCommands)
+                    {
+                        string debugger = "contents of item " + orderedCommands.IndexOf(ocl) + ": ";
+                        foreach (int val in ocl)
+                        {
+                            debugger += "." + val + ".";
+                        }
+                        Console.WriteLine(debugger);
                     }
                     List<logicStates> canGoal = null;
                     List<int> testers1 = null;
@@ -1786,6 +1824,7 @@ namespace monoswitch
                     }
                     //now is everything one?
                     //if not well i guess we could be schmucked
+                    Console.WriteLine("finishing up the commands for this level");
                     List<Tuple<ILogicState, int>> returnVal = new List<Tuple<ILogicState, int>>();
                     if (orderedlist.Count != orderedCommands.Count)
                     {
@@ -1796,8 +1835,10 @@ namespace monoswitch
                         if (orderedCommands[l].Count > 0)
                         {
                             returnVal.Add(Tuple.Create(orderedlist[l], orderedCommands[l][0]));
+                            Console.WriteLine("the command at " + l + " is " + returnVal[l]);
                         }
                     }
+                    Console.WriteLine("The number of commands being returned is " + returnVal.Count);
                     return returnVal;
                 }
 
