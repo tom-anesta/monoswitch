@@ -183,61 +183,17 @@ namespace monoswitch.containers
                 public event KeyEventHandler sendKeyUp;
                 public event KeyEventHandler sendKeyDown;
 
-                public void respondKeyChanged(KeyPair kPair)
+                public void respondKeyChanged(ILogicState kPair, float interval)
                 {
-                    if (kPair.keyState == KeyState.Up)
+                    if (((KeyPair)kPair).keyState == KeyState.Up)
                     {
-                        this.sendKeyUp(this, new KeyEventArgs(kPair.key));
+                        this.sendKeyUp(this, new KeyEventArgs(((KeyPair)kPair).key));
                     }
-                    else if (kPair.keyState == KeyState.Down)
+                    else if (((KeyPair)kPair).keyState == KeyState.Down)
                     {
-                        this.sendKeyDown(this, new KeyEventArgs(kPair.key));
+                        this.sendKeyDown(this, new KeyEventArgs(((KeyPair)kPair).key));
                     }
                 }
-
-                /*
-                //public void
-                public void respondSwitchDown(s_switch val)
-                {
-                    //initialize variables
-                    List<Keys> kdList = val.group.actives;
-                    List<Keys> kuList = val.group.unactives;
-                    //send the keys
-                    while (kdList.Count > 0)
-                    {
-                        if (this.sendKeyDown != null)
-                        {
-                            this.sendKeyDown(this, new KeyEventArgs(kdList[0]));
-                        }
-                        kdList.RemoveAt(0);
-                    }
-                    while (kuList.Count > 0)
-                    {
-                        this.sendKeyUp(this, new KeyEventArgs(kuList[0]));
-                        kuList.RemoveAt(0);
-                    }
-                }
-                public void respondSwitchUp(s_switch val)
-                {
-                    //initialize variables
-                    List<Keys> kdList = val.group.actives;
-                    List<Keys> kuList = val.group.unactives;
-                    //send the keys
-                    while (kdList.Count > 0)
-                    {
-                        if (this.sendKeyDown != null)
-                        {
-                            this.sendKeyDown(this, new KeyEventArgs(kdList[0]));
-                        }
-                        kdList.RemoveAt(0);
-                    }
-                    while (kuList.Count > 0)
-                    {
-                        this.sendKeyUp(this, new KeyEventArgs(kuList[0]));
-                        kuList.RemoveAt(0);
-                    }
-                }
-                */
 
             #endregion
 
@@ -892,52 +848,5 @@ namespace monoswitch.containers
 
         #endregion
     }
-
-    /*
-    public class nl_SelectionSet : selectionSet
-    {
-        #region members
-        #region public
-        //delegates
-        #endregion
-        #region protected
-        #endregion
-        #region private
-        #endregion
-        #endregion
-        #region properties
-        #region public
-        #endregion
-        #region protected
-        #endregion
-        #region private
-        #endregion
-        #endregion
-        #region methods
-        #region public
-        //CONSTRUCTOR
-        //INITIALIZATION FUNCTIONS
-        //UPDATE         
-        //OTHER PUBLIC FUNCTIONS
-        #endregion
-        #region protected
-        #endregion
-        #region private
-        #endregion
-        #endregion
-        #region events
-        #region public
-        public nl_SelectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, Keys p_activatorKey, KeyState p_akstate, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
-            : base(p_game, p_defaultSkin, p_defaultText, p_activatorKey, p_akstate, p_skins, p_textRenderers)
-        {
-        }
-        #endregion
-        #region protected
-        #endregion
-        #region private
-        #endregion
-        #endregion
-    }
-    */
 
 }

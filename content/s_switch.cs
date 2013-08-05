@@ -8,6 +8,8 @@ using Ruminate.GUI.Framework;
 using Ruminate.GUI.Content;
 using Microsoft.Xna.Framework.Graphics;
 using monoswitch.containers;
+using monoswitch.content;
+using monoswitch;
 
 //authors note: 
 //as toggle button was a sealed class in the ruminate framework, 
@@ -173,8 +175,6 @@ namespace monoswitch.content
                 public event switchEvent OnToggle;
                 public event switchEvent OffToggle;
 
-                
-
             #endregion
 
             #region internal
@@ -182,6 +182,22 @@ namespace monoswitch.content
             #endregion
 
             #region protected
+
+                protected virtual void RaiseOnToggle()
+                {
+                    if (this.OnToggle != null)
+                    {
+                        this.OnToggle(this);
+                    }
+                }
+
+                protected virtual void RaiseOffTogle()
+                {
+                    if (this.OffToggle != null)
+                    {
+                        this.OffToggle(this);
+                    }
+                }
 
                 protected internal new virtual void EnterHover()
                 {
@@ -193,7 +209,7 @@ namespace monoswitch.content
                     this.deHighlight();
                 }
 
-                protected internal virtual void respKeyChange(KeyPair kPair)
+                protected internal virtual void respKeyChange(ILogicState kPair, float interval)
                 {
                     if (this.m_group.isTrue)
                     {
@@ -470,7 +486,7 @@ namespace monoswitch.content
                 }
                 //OTHER PUBLIC FUNCTIONS
                 //switch the device
-                public void toggleSwitch()
+                public virtual void toggleSwitch()
                 {
                     if (!m_switchedOn)//we are trying to activate
                     {
@@ -542,11 +558,7 @@ namespace monoswitch.content
 
             #region protected
 
-            #endregion
-
-            #region private
-
-                private void setGroup(KeyDelegator kdel, List<Keys> kList)
+                protected virtual void setGroup(KeyDelegator kdel, List<Keys> kList)
                 {
                     if (this.m_group != null)
                     {
@@ -572,14 +584,18 @@ namespace monoswitch.content
                             kp.stateChangeSuccess -= this.respKeyChange;
                         }
                     }
+                    while(kList.Count > 1)//limit to one
+                    {
+                        kList.RemoveAt(kList.Count-1);
+                    }
                     KeyGroup rGroup = new KeyGroup(kdel, kList);
-                    if(kList != null && kList.Count > 0)
+                    if (kList != null && kList.Count > 0)
                     {
                         if (this.switchnode != null && this.switchnode.parents != null && this.switchnode.parents.Count > 1)
                         {
-                            foreach(selectionSet setVal in this.switchnode.parents)
+                            foreach (selectionSet setVal in this.switchnode.parents)
                             {
-                                foreach (KeyPair kp in rGroup.pairs)
+                                foreach(KeyPair kp in rGroup.pairs)
                                 {
                                     if (!setVal.containsPairBySwitch(kp))
                                     {
@@ -600,8 +616,14 @@ namespace monoswitch.content
                     this.m_group = rGroup;
                 }
 
-                private void setGroup(KeyGroup kGroup)
+                protected virtual void setGroup(KeyGroup kGroup)
                 {
+                    //if the size is over we will need to return
+                    if (kGroup.Count > 1)
+                    {
+                        return;
+                    }
+
                     if (kGroup == this.m_group)
                     {
                         return;
@@ -630,7 +652,7 @@ namespace monoswitch.content
                             kp.stateChangeSuccess -= this.respKeyChange;
                         }
                     }
-                    
+
                     if (this.switchnode != null && this.switchnode.parents != null && this.switchnode.parents.Count > 1)
                     {
                         foreach (selectionSet setVal in this.switchnode.parents)
@@ -653,6 +675,12 @@ namespace monoswitch.content
                     }
                     this.m_group = kGroup;
                 }
+
+            #endregion
+
+            #region private
+
+                
 
                 private void pressSwitch(s_switch widge)
                 {

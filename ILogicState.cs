@@ -16,7 +16,7 @@ namespace monoswitch
             get;
         }
 
-        logicStates Resolve(logicStates goalVal, ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups);
+        logicStates Resolve(logicStates goalVal, ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups, float interval);
         
     }
 }

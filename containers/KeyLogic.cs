@@ -330,7 +330,7 @@ namespace monoswitch.containers
                     return logicStates.TRUE;
                 }
 
-                public logicStates evalPairChanged(KeyGroup group, List<KeyPair> oldpairs, List<KeyGroup> oldgroups)
+                public logicStates evalPairChanged(ILogicState group, List<ILogicState> oldpairs, List<ILogicState> oldgroups, float interval = 0f)
                 {
                     this.evaluation();
                     if (this.m_lastStates.ContainsKey(group))
@@ -384,7 +384,7 @@ namespace monoswitch.containers
                     return eval;
                 }
 
-                public logicStates evalPairResolve(KeyGroup group, List<KeyPair> oldpairs, List<KeyGroup> oldgroups)
+                public logicStates evalPairResolve(ILogicState group, List<ILogicState> oldpairs, List<ILogicState> oldgroups, float interval = 0f)
                 {
                     //don't reset the last states here it will screw things up
                     Console.WriteLine("attempting resolve in keylogic");
@@ -921,7 +921,7 @@ namespace monoswitch.containers
                     }
                 }
 
-                public logicStates Resolve(logicStates goalVal, ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups)
+                public logicStates Resolve(logicStates goalVal, ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups, float interval = 0f)
                 {
                     if (this.evaluation() == goalVal)
                     {
@@ -977,7 +977,7 @@ namespace monoswitch.containers
                     {
                         command = (commands.Where(x => x.Item1 == this.Children[i]).Select(x => x.Item2).ToList())[0];
                         logicStates gV = KeyLogicManager.newState(((ILogicState)this.Children[i]).state, command);
-                        rVal = ((ILogicState)(this.Children[i])).Resolve(gV, (ILogicState)group, oldPairs.Cast<ILogicState>().ToList(), oldGroups.Cast<ILogicState>().ToList());
+                        rVal = ((ILogicState)(this.Children[i])).Resolve(gV, (ILogicState)group, oldPairs.Cast<ILogicState>().ToList(), oldGroups.Cast<ILogicState>().ToList(), interval);
                         if (rVal != logicStates.TRUE)
                         {
                             rVal = logicStates.FALSE;
@@ -988,7 +988,7 @@ namespace monoswitch.containers
                     {//reset all the things and return false
                         foreach (ILogicState currVal in currStates.Keys)
                         {
-                            currVal.Resolve(currStates[currVal], (ILogicState)group, oldPairs.Cast<ILogicState>().ToList(), oldGroups.Cast<ILogicState>().ToList());//reset all
+                            currVal.Resolve(currStates[currVal], (ILogicState)group, oldPairs.Cast<ILogicState>().ToList(), oldGroups.Cast<ILogicState>().ToList(), interval);//reset all
                         }
                         return logicStates.FALSE;
                     }

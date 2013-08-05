@@ -7,14 +7,15 @@ using monoswitch;
 using monoswitch.content;
 using Microsoft.Xna.Framework.Input;
 using Ruminate.DataStructures;
+using System.Reflection;
 
 namespace monoswitch.containers
 {
 
-    public delegate logicStates KeyPairStateChange(KeyPair nPair, List<KeyPair> oldPairStack, List<KeyGroup> oldGroupStack);
-    public delegate void KeyStatePairFailOrSuccess(KeyPair pair);
+    public delegate logicStates KeyPairStateChange(ILogicState nPair, List<ILogicState> oldPairStack, List<ILogicState> oldGroupStack);
+    public delegate void KeyStatePairFailOrSuccess(ILogicState pair, float interval);
     public delegate logicStates KeyGroupChange(KeyPair kPair, KeyGroup kGroup);
-    public delegate logicStates KeyGroupStateChange(KeyGroup group, List<KeyPair> oldPairStack, List<KeyGroup> oldGroupStack);
+    public delegate logicStates KeyGroupStateChange(ILogicState group, List<ILogicState> oldPairStack, List<ILogicState> oldGroupStack, float interval = 0f);
 
     public class KeyGroup : ITreeNode<KeyGroup>, ILogicState
     {
@@ -170,15 +171,6 @@ namespace monoswitch.containers
                     }
                 }
 
-                public bool setParentByExternal(KeyGroup replacer)
-                {
-                    if (this.parent != null)
-                    {
-
-                    }
-                    return false;
-                }
-
             #endregion
 
             #region internal
@@ -212,12 +204,12 @@ namespace monoswitch.containers
 
             #region protected
 
-                protected logicStates m_respGroupPairAttemptChanged(KeyPair newP, List<KeyPair> oldPairStack, List<KeyGroup> oldGroupStack)
+                protected logicStates m_respGroupPairAttemptChanged(ILogicState newP, List<ILogicState> oldPairStack, List<ILogicState> oldGroupStack)
                 {
                     //if we attempted a change, we need to evaluate
                     if(oldGroupStack == null)
                     {
-                        oldGroupStack = new List<KeyGroup>();
+                        oldGroupStack = new List<ILogicState>();
                     }
                     logicStates orig = this.state;
                     if (this.evaluate() == orig)//then we're good here
@@ -247,12 +239,12 @@ namespace monoswitch.containers
                     return result;//if no errors or change, it's fine
                 }
 
-                protected logicStates m_respGroupPairChangeFailure(KeyPair failedP, List<KeyPair> oldPairStack, List<KeyGroup> oldGroupStack)
+                protected logicStates m_respGroupPairChangeFailure(ILogicState failedP, List<ILogicState> oldPairStack, List<ILogicState> oldGroupStack)
                 {
                     logicStates result = logicStates.TRUE;
                     if (oldGroupStack == null)
                     {
-                        oldGroupStack = new List<KeyGroup>();
+                        oldGroupStack = new List<ILogicState>();
                     }
                     if(oldGroupStack.Contains(this))
                     {
@@ -363,9 +355,6 @@ namespace monoswitch.containers
                     this.parent = null;//two key groups cannot have the same logic node parent.  only one key group allowed per logic node
                     this.groupAttemptChanged += this.m_respGroupAttemptChanged;
                 }
-
-                
-
                 //iTreeNode
                 public TreeNode<KeyGroup> GetTreeNode()
                 {
@@ -462,13 +451,13 @@ namespace monoswitch.containers
                 }
 
                 //control methods
-                public void deactivate(List<Keys> dVal)
+                public void deactivate(List<Keys> dVal, float interval = 0f)
                 {
                     if (dVal == null || dVal.Count == 0)
                     {//do them all
                         foreach (KeyPair kPair in this.m_list)
                         {
-                            kPair.setState(KeyState.Up);
+                            kPair.setState(KeyState.Up, null, null, interval);
                         }
                     }
                     else
@@ -477,20 +466,20 @@ namespace monoswitch.containers
                         {
                             if (dVal.Contains(kPair.key))
                             {
-                                kPair.setState(KeyState.Up);
+                                kPair.setState(KeyState.Up, null, null, interval);
                             }
                         }
                     }
                     //this.evaluate();//done on change success
                 }
 
-                public void activate(List<Keys> aVal)
+                public void activate(List<Keys> aVal, float interval = 0f)
                 {
                     if (aVal == null || aVal.Count == 0)
                     {//do them all
                         foreach (KeyPair kPair in this.m_list)
                         {
-                            kPair.setState(KeyState.Down, null);
+                            kPair.setState(KeyState.Down, null, null, interval);
                         }
                     }
                     else
@@ -499,18 +488,18 @@ namespace monoswitch.containers
                         {
                             if (aVal.Contains(kPair.key))
                             {
-                                kPair.setState(KeyState.Down, null);
+                                kPair.setState(KeyState.Down, null, null, interval);
                             }
                         }
                     }
                     this.evaluate();
                 }
 
-                public logicStates activate(ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups)
+                public logicStates activate(ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups, float interval = 0f)
                 {
                     foreach (KeyPair pair in this.m_list)
                     {
-                        pair.Resolve(logicStates.TRUE, group, oldPairs, oldGroups);
+                        pair.Resolve(logicStates.TRUE, group, oldPairs, oldGroups, interval);
                     }
                     if (!this.isTrue)
                     {
@@ -519,11 +508,11 @@ namespace monoswitch.containers
                     return logicStates.TRUE;
                 }
 
-                public logicStates deactivate(ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups)
+                public logicStates deactivate(ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups, float interval = 0f)
                 {
                     foreach (KeyPair pair in this.m_list)
                     {
-                        pair.Resolve(logicStates.FALSE, group, oldPairs, oldGroups);
+                        pair.Resolve(logicStates.FALSE, group, oldPairs, oldGroups, interval);
                     }
                     if (!this.isFalse)
                     {
@@ -574,7 +563,7 @@ namespace monoswitch.containers
                     return this.m_state;
                 }
 
-                public logicStates Resolve(logicStates goalState, ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups)
+                public logicStates Resolve(logicStates goalState, ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups, float interval = 0f)
                 {
                     if (this.evaluate() == goalState)
                     {
@@ -587,11 +576,11 @@ namespace monoswitch.containers
 
                     if (goalState == logicStates.TRUE)
                     {
-                        this.activate(group, oldPairs, oldGroups);
+                        this.activate(group, oldPairs, oldGroups, interval);
                     }
                     else if (goalState == logicStates.FALSE)
                     {
-                        this.deactivate(group, oldPairs, oldGroups);
+                        this.deactivate(group, oldPairs, oldGroups, interval);
                     }
                     else//we look for indeterminate
                     {
@@ -607,7 +596,7 @@ namespace monoswitch.containers
                         int i = 0;
                         while (this.evaluate() != logicStates.INDETERMINATE && i < this.m_list.Count)
                         {
-                            this.m_list[i].Resolve(gVal, group, oldPairs, oldGroups);
+                            this.m_list[i].Resolve(gVal, group, oldPairs, oldGroups, interval);
                             i++;
                         }
                     }
@@ -621,8 +610,6 @@ namespace monoswitch.containers
                         return logicStates.FALSE;
                     }
                 }
-
-                
 
             #endregion
 
@@ -751,7 +738,7 @@ namespace monoswitch.containers
                     }
                 }
 
-                public logicStates Resolve(logicStates goalVal, ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups)
+                public logicStates Resolve(logicStates goalVal, ILogicState group, List<ILogicState> oldPairs, List<ILogicState> oldGroups, float interval = 0f)
                 {
                     KeyState gV = KeyState.Down;
                     if (goalVal == logicStates.FALSE)
@@ -766,10 +753,10 @@ namespace monoswitch.containers
                     {
                         return logicStates.FALSE;
                     }
-                    return setState(gV, oldPairs.Cast<KeyPair>().ToList(), oldGroups.Cast<KeyGroup>().ToList());
+                    return setState(gV, oldPairs, oldGroups, interval);
                 }
 
-                public logicStates setState(KeyState sVal, List<KeyPair> oldPairs = null, List<KeyGroup> oldGroups = null)
+                public logicStates setState(KeyState sVal, List<ILogicState> oldPairs = null, List<ILogicState> oldGroups = null, float interval = 0f)
                 {
                     if(sVal == this.keyState)
                     {
@@ -777,13 +764,13 @@ namespace monoswitch.containers
                     }
                     if(oldPairs == null)
                     {
-                        oldPairs = new List<KeyPair>();
+                        oldPairs = new List<ILogicState>();
                     }
                     if (oldGroups == null)
                     {
-                        oldGroups = new List<KeyGroup>();
+                        oldGroups = new List<ILogicState>();
                     }
-                    List<Keys> compareList = oldPairs.Select(x => x.key).ToList();
+                    List<Keys> compareList = (oldPairs.Cast<KeyPair>()).Select(x => x.key).ToList();
                     if (compareList.Contains(this.key))//if this is a loop we can't change it from what we intend to change it anyway without reversing our intentions
                     {
                         return logicStates.FALSE;
@@ -797,7 +784,7 @@ namespace monoswitch.containers
                         {
                             if (this.stateChangeSuccess != null)
                             {
-                                this.stateChangeSuccess(this);//signal the game
+                                this.stateChangeSuccess(this, interval);//signal the game
                             }
                             oldPairs.Remove(this);
                             return logicStates.TRUE;
@@ -817,7 +804,7 @@ namespace monoswitch.containers
                         {
                             if (this.stateChangeSuccess != null)
                             {
-                                this.stateChangeSuccess(this);//signal the game
+                                this.stateChangeSuccess(this, interval);//signal the game
                             }
                             oldPairs.Remove(this);
                             return logicStates.TRUE;
@@ -862,12 +849,18 @@ namespace monoswitch.containers
 
         #endregion
 
-                #region methods
+        #region methods
 
-                #region public
+            #region public
 
                 //constructor
                 public KeyPair(Keys kVal, KeyState kState)
+                {
+                    this.m_key = kVal;
+                    this.m_state = kState;
+                }
+
+                public KeyPair(Keys kVal, KeyState kState, float interval)
                 {
                     this.m_key = kVal;
                     this.m_state = kState;
