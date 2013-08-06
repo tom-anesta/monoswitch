@@ -112,6 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="exampleGame.cs" />
+    <Compile Include="gameParams.cs" />
     <Compile Include="game\Animation.cs" />
     <Compile Include="game\gameTimer.cs" />
     <Compile Include="game\star.cs" />
