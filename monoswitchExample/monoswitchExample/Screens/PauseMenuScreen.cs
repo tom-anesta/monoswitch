@@ -9,6 +9,9 @@
 
 #region Using Statements
 using Microsoft.Xna.Framework;
+using Ruminate.GUI.Framework;
+using Ruminate.GUI.Content;
+using System.Collections.Generic;
 #endregion
 
 namespace monoswitchExample
@@ -27,8 +30,6 @@ namespace monoswitchExample
             #endregion
 
             #region protected
-
-                protected exampleGame m_game;
 
             #endregion
 
@@ -61,27 +62,28 @@ namespace monoswitchExample
                 /// <summary>
                 /// Constructor.
                 /// </summary>
-                public PauseMenuScreen(exampleGame game) : base("Paused")
+                public PauseMenuScreen(exampleGame game) : base("Paused", game)
                 {
-                    this.m_game = game;
-                    // Create our menu entries.
-                    MenuEntry resumeGameMenuEntry = new MenuEntry("Resume Game");
-                    MenuEntry quitGameMenuEntry = new MenuEntry("Quit Game");
                     // Hook up menu event handlers.
-                    resumeGameMenuEntry.Selected += OnCancel;
-                    quitGameMenuEntry.Selected += QuitGameMenuEntrySelected;
-                    // Add entries to the menu.
-                    this.m_menuEntries.Add(resumeGameMenuEntry);
-                    this.m_menuEntries.Add(quitGameMenuEntry);
+                    //quitGameMenuEntry.Selected += QuitGameMenuEntrySelected;
+                    Button resumeGameButton = new Button(0, 0, 100, "Resume", OnCancel);
+                    Button quitGameButton = new Button(0, 0, 100, "Quit");
+                    List<Widget> l1 = new List<Widget>();
+                    l1.Add(resumeGameButton);
+                    List<Widget> l2 = new List<Widget>();
+                    l2.Add(quitGameButton);
+                    this.m_menuEntries.Add(l1);
+                    this.m_menuEntries.Add(l2);
+                    this.m_gui.Widgets = new Widget[] { resumeGameButton, quitGameButton };
                 }
 
                 /// <summary>
                 /// Event handler for when the Quit Game menu entry is selected.
                 /// </summary>
-                void QuitGameMenuEntrySelected(object sender, PlayerIndexEventArgs e)
+                void QuitGameMenuEntrySelected(Widget widge)
                 {
                     const string message = "Are you sure you want to quit this game?";
-                    MessageBoxScreen confirmQuitMessageBox = new MessageBoxScreen(message);
+                    MessageBoxScreen confirmQuitMessageBox = new MessageBoxScreen(message, this.m_game);
                     confirmQuitMessageBox.Accepted += ConfirmQuitMessageBoxAccepted;
                     ScreenManager.AddScreen(confirmQuitMessageBox, this.controllingPlayer);
                 }
@@ -91,7 +93,7 @@ namespace monoswitchExample
                 /// you want to quit" message box. This uses the loading screen to
                 /// transition from the game back to the main menu screen.
                 /// </summary>
-                void ConfirmQuitMessageBoxAccepted(object sender, PlayerIndexEventArgs e)
+                void ConfirmQuitMessageBoxAccepted(Widget widge)
                 {
                     LoadingScreen.Load(ScreenManager, false, null, new BackgroundScreen(), new MainMenuScreen(this.m_game));
                 }

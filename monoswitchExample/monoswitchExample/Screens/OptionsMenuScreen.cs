@@ -8,7 +8,11 @@
 #endregion
 
 #region Using Statements
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Ruminate.GUI.Content;
+using Ruminate.GUI.Framework;
 #endregion
 
 namespace monoswitchExample
@@ -29,22 +33,9 @@ namespace monoswitchExample
 
             #region protected
 
-                protected MenuEntry m_ungulateMenuEntry;
-                protected MenuEntry m_languageMenuEntry;
-                protected MenuEntry m_frobnicateMenuEntry;
-                protected MenuEntry m_elfMenuEntry;
-                protected static Ungulate s_currentUngulate = Ungulate.Dromedary;
-                protected static string[] s_languages = { "C#", "French", "Deoxyribonucleic acid" };
-                protected static int s_currentLanguage = 0;
-                protected static bool s_frobnicate = true;
-                protected static int s_elf = 23;
-
-                protected enum Ungulate
-                {
-                    BactrianCamel,
-                    Dromedary,
-                    Llama,
-                }
+                protected gameParams m_params;
+                protected SingleLineTextBox m_scanBox;
+                protected SingleLineTextBox m_refBox;
 
             #endregion
 
@@ -93,27 +84,95 @@ namespace monoswitchExample
                 /// <summary>
                 /// Constructor.
                 /// </summary>
-                public OptionsMenuScreen() : base("Options")
+                public OptionsMenuScreen(exampleGame game, gameParams gparams) : base("Options", game)
                 {
-                    // Create our menu entries.
-                    this.m_ungulateMenuEntry = new MenuEntry(string.Empty);
-                    this.m_languageMenuEntry = new MenuEntry(string.Empty);
-                    this.m_frobnicateMenuEntry = new MenuEntry(string.Empty);
-                    this.m_elfMenuEntry = new MenuEntry(string.Empty);
-                    SetMenuEntryText();
-                    MenuEntry back = new MenuEntry("Back");
-                    // Hook up menu event handlers.
-                    this.m_ungulateMenuEntry.Selected += UngulateMenuEntrySelected;
-                    this.m_languageMenuEntry.Selected += LanguageMenuEntrySelected;
-                    this.m_frobnicateMenuEntry.Selected += FrobnicateMenuEntrySelected;
-                    this.m_elfMenuEntry.Selected += ElfMenuEntrySelected;
-                    back.Selected += OnCancel;
-                    // Add entries to the menu.
-                    this.menuEntries.Add(this.m_ungulateMenuEntry);
-                    this.menuEntries.Add(this.m_languageMenuEntry);
-                    this.menuEntries.Add(this.m_frobnicateMenuEntry);
-                    this.menuEntries.Add(this.m_elfMenuEntry);
-                    menuEntries.Add(back);
+                    this.m_menuEntries = new List<List<Widget>>();
+                    
+                    if (gparams != null)
+                    {
+                        this.m_params = gparams;
+                    }
+                    else
+                    {
+                        this.m_params = new gameParams(gameParams.DEF_SCAN_RATE, gameParams.DEF_REFACTORY_PERIOD, gameParams.DEF_DISCRETE, gameParams.DEF_COMPOSITE, gameParams.DEF_MARKER);
+                    }
+                    int midPoint = this.m_game.GraphicsDevice.Viewport.X + this.m_game.GraphicsDevice.Viewport.Width / 2;
+                    int vert = this.m_game.GraphicsDevice.Viewport.Y + this.m_game.GraphicsDevice.Viewport.Height / 12;
+                    CheckBox discBox = new CheckBox(-100, 0, "discrete");
+                    discBox.IsToggled = this.m_params.discrete;
+                    discBox.OnToggle = delegate(Widget widget) { this.m_params.discrete = true; };
+                    discBox.OffToggle = delegate(Widget widget) { this.m_params.discrete = false; };
+                    CheckBox compBox = new CheckBox(-50, 0, "composite");
+                    compBox.IsToggled = this.m_params.composite;
+                    compBox.OnToggle = delegate(Widget widget) { this.m_params.composite = true; };
+                    compBox.OffToggle = delegate(Widget widget) { this.m_params.composite = false; };
+                    CheckBox markerBox = new CheckBox(-100, 0, "use marker");
+                    markerBox.IsToggled = this.m_params.useMarker;
+                    markerBox.OnToggle = delegate(Widget widget) { this.m_params.useMarker = true; };
+                    markerBox.OffToggle = delegate(Widget widget) { this.m_params.useMarker = false; };
+                    this.m_scanBox = new SingleLineTextBox(-100, 0, 100, 4);
+                    this.m_scanBox.AbsoluteArea = new Rectangle(-100, 0, 100, 35);
+                    this.m_scanBox.Text = (this.m_params.scanRate).ToString();
+                    Button scanUp = new Button(0, 0, 50, "+", this.incScan);
+                    Button scanDown = new Button(0, 0, 50, "-", this.decScan);
+                    this.m_refBox = new SingleLineTextBox(-100, 0, 100, 4);
+                    this.m_refBox.AbsoluteArea = new Rectangle(-100, 0, 100, 35);
+                    this.m_refBox.Text = (this.m_params.refactoryPeriod / 1000).ToString();
+                    Button refUp = new Button(0, 0, 50, "+", this.incRef);
+                    Button refDown = new Button(0, 0, 50, "-", this.decRef);
+                    Button back = new Button(0, 0, 100, "BACK", OnCancel);
+                    List<Widget> l1 = new List<Widget>();
+                    l1.Add(discBox);
+                    l1.Add(compBox);
+                    List<Widget> l2 = new List<Widget>();
+                    l2.Add(markerBox);
+                    List<Widget> l3 = new List<Widget>();
+                    l3.Add(this.m_scanBox);
+                    List<Widget> l4 = new List<Widget>();
+                    l4.Add(scanUp);
+                    l4.Add(scanDown);
+                    List<Widget> l5 = new List<Widget>();
+                    l5.Add(this.m_refBox);
+                    List<Widget> l6 = new List<Widget>();
+                    l6.Add(refUp);
+                    l6.Add(refDown);
+                    List<Widget> l7 = new List<Widget>();
+                    l7.Add(back);
+                    this.m_menuEntries.Add(l1);
+                    this.m_menuEntries.Add(l2);
+                    this.m_menuEntries.Add(l3);
+                    this.m_menuEntries.Add(l4);
+                    this.m_menuEntries.Add(l5);
+                    this.m_menuEntries.Add(l6);
+                    this.m_menuEntries.Add(l7);
+                    this.m_gui.Widgets = new Widget[]
+                    {
+                            discBox, compBox, markerBox, m_scanBox, scanUp, scanDown, m_refBox, refUp, refDown, back
+                    };
+                }
+
+                protected void incScan(Widget widge)
+                {
+                    this.m_params.incrementScanningRate();
+                    this.m_scanBox.Text = this.m_params.scanRate.ToString();
+                }
+
+                protected void decScan(Widget widge)
+                {
+                    this.m_params.decrementScanningRate();
+                    this.m_scanBox.Text = this.m_params.scanRate.ToString();
+                }
+
+                protected void incRef(Widget widge)
+                {
+                    this.m_params.incrementRefactoryPeriod();
+                    this.m_refBox.Text = (this.m_params.refactoryPeriod / 1000).ToString();
+                }
+
+                protected void decRef(Widget widge)
+                {
+                    this.m_params.decrementRefactoryPeriod();
+                    this.m_refBox.Text = (this.m_params.refactoryPeriod / 1000).ToString();
                 }
 
 
@@ -121,57 +180,6 @@ namespace monoswitchExample
             #endregion
 
             #region protected
-
-                /// <summary>
-                /// Fills in the latest values for the options screen menu text.
-                /// </summary>
-                protected void SetMenuEntryText()
-                {
-                    this.m_ungulateMenuEntry.text = "Preferred ungulate: " + OptionsMenuScreen.s_currentUngulate;
-                    this.m_languageMenuEntry.text = "Language: " + OptionsMenuScreen.s_languages[OptionsMenuScreen.s_currentLanguage];
-                    this.m_frobnicateMenuEntry.text = "Frobnicate: " + (OptionsMenuScreen.s_frobnicate ? "on" : "off");
-                    this.m_elfMenuEntry.text = "elf: " + OptionsMenuScreen.s_elf;
-                }
-
-                /// <summary>
-                /// Event handler for when the Ungulate menu entry is selected.
-                /// </summary>
-                protected void UngulateMenuEntrySelected(object sender, PlayerIndexEventArgs e)
-                {
-                    OptionsMenuScreen.s_currentUngulate++;
-                    if (OptionsMenuScreen.s_currentUngulate > Ungulate.Llama)
-                    {
-                        OptionsMenuScreen.s_currentUngulate = 0;
-                    }
-                    SetMenuEntryText();
-                }
-
-                /// <summary>
-                /// Event handler for when the Language menu entry is selected.
-                /// </summary>
-                protected void LanguageMenuEntrySelected(object sender, PlayerIndexEventArgs e)
-                {
-                    OptionsMenuScreen.s_currentLanguage = (OptionsMenuScreen.s_currentLanguage + 1) % OptionsMenuScreen.s_languages.Length;
-                    SetMenuEntryText();
-                }
-
-                /// <summary>
-                /// Event handler for when the Frobnicate menu entry is selected.
-                /// </summary>
-                void FrobnicateMenuEntrySelected(object sender, PlayerIndexEventArgs e)
-                {
-                    OptionsMenuScreen.s_frobnicate = !OptionsMenuScreen.s_frobnicate;
-                    SetMenuEntryText();
-                }
-
-                /// <summary>
-                /// Event handler for when the Elf menu entry is selected.
-                /// </summary>
-                void ElfMenuEntrySelected(object sender, PlayerIndexEventArgs e)
-                {
-                    OptionsMenuScreen.s_elf++;
-                    SetMenuEntryText();
-                }
 
             #endregion
 

@@ -62,6 +62,7 @@ namespace monoswitchExample
                 //protected nl_SelectionSet m_nlss;
                 //need a reference to the game
                 protected exampleGame m_game;
+                protected gameParams m_params;
 
                 //for construction of the selection set
                 bool m_isDiscrete = false;
@@ -118,7 +119,7 @@ namespace monoswitchExample
                 /// <summary>
                 /// Constructor.
                 /// </summary>
-                public GameplayScreen(exampleGame game, bool disc, bool comp)
+                public GameplayScreen(exampleGame game, gameParams gparams)
                 {
                     this.m_transitionOnTime = TimeSpan.FromSeconds(1.5);
                     this.m_transitionOffTime = TimeSpan.FromSeconds(0.5);
@@ -126,8 +127,14 @@ namespace monoswitchExample
                     this.m_timer = null;
                     this.m_selectSet = null;
                     this.m_game = game;
-                    this.m_isDiscrete = disc;
-                    this.m_isComposite = comp;
+                    if (gparams == null)
+                    {
+                        this.m_params = new gameParams(gameParams.DEF_SCAN_RATE, gameParams.DEF_REFACTORY_PERIOD, gameParams.DEF_DISCRETE, gameParams.DEF_COMPOSITE, gameParams.DEF_MARKER);
+                    }
+                    else
+                    {
+                        this.m_params = gparams;
+                    }
                     
                 }
 
@@ -165,7 +172,7 @@ namespace monoswitchExample
                     mkey signal = new mkey(MouseButton.Left);
                     signal.state = monoswitch.genericStates.DOWN;
                     this.m_selectSet = new selectionSet(this.m_game, skin, text, signal, KDELEGATOR);
-                    if(!this.m_isDiscrete && !this.m_isComposite)//if using basic switches
+                    if(!this.m_params.discrete && !this.m_params.composite)//if using basic switches
                     {
                         //DATA: SWITCHES AND GROUP
                         List<Keys> list1 = new List<Keys>();
@@ -260,15 +267,15 @@ namespace monoswitchExample
                         */
 
                     }
-                    else if(this.m_isDiscrete && !this.m_isComposite)
+                    else if(this.m_params.discrete && !this.m_params.composite)
                     {
 
                     }
-                    else if(!this.m_isDiscrete && this.m_isComposite)
+                    else if(!this.m_params.discrete && this.m_params.composite)
                     {
 
                     }
-                    else if(this.m_isDiscrete && this.m_isComposite)
+                    else if(this.m_params.discrete && this.m_params.composite)
                     {
 
                     }

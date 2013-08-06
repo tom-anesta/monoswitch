@@ -47,6 +47,7 @@ namespace monoswitchExample
                 protected SpriteFont m_GreySpriteFont;
                 protected Texture2D m_GreyImageMap;
                 protected string m_GreyMap;
+                
 
             #endregion
 
@@ -128,10 +129,6 @@ namespace monoswitchExample
                     screenManager = new ScreenManager(this);
 
                     Components.Add(screenManager);
-
-                    // Activate the first screens.
-                    screenManager.AddScreen(new BackgroundScreen(), null);
-                    screenManager.AddScreen(new MainMenuScreen(this), null);
                 }
 
             #endregion
@@ -160,6 +157,9 @@ namespace monoswitchExample
                     m_GreyMap = File.OpenText(@"Content\TestSkin\Map.txt").ReadToEnd();
                     m_GreySpriteFont = Content.Load<SpriteFont>(@"Font");
                     DebugUtils.Init(this.graphics.GraphicsDevice, m_GreySpriteFont);
+                    // Activate the first screens.
+                    screenManager.AddScreen(new BackgroundScreen(), null);
+                    screenManager.AddScreen(new MainMenuScreen(this), null);
                 }
 
                 /// <summary>

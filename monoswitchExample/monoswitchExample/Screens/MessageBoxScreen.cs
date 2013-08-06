@@ -12,6 +12,9 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Ruminate.GUI.Content;
+using Ruminate.GUI.Framework;
+using System.Collections.Generic;
 #endregion
 
 namespace monoswitchExample
@@ -20,7 +23,7 @@ namespace monoswitchExample
     /// A popup message box screen, used to display "are you sure?"
     /// confirmation messages.
     /// </summary>
-    class MessageBoxScreen : GameScreen
+    class MessageBoxScreen : MenuScreen
     {
 
         #region members
@@ -62,8 +65,8 @@ namespace monoswitchExample
 
             #region public
 
-                public event EventHandler<PlayerIndexEventArgs> Accepted;
-                public event EventHandler<PlayerIndexEventArgs> Cancelled;
+                public event WidgetEvent Accepted;
+                public event WidgetEvent Cancelled;
 
             #endregion
 
@@ -85,28 +88,34 @@ namespace monoswitchExample
                 /// Constructor automatically includes the standard "A=ok, B=cancel"
                 /// usage text prompt.
                 /// </summary>
-                public MessageBoxScreen(string message) : this(message, true)
+                public MessageBoxScreen(string message, exampleGame game): base(message, game)
                 {
+                    //set up your buttons
+                    Button OKButton = new Button(0, 0, 100, "OK", Accepted);
+                    Button NoButton = new Button(0, 0, 100, "Cancel", Cancelled);
+                    this.Cancelled += this.CancelMenu;
+                    this.IsPopup = true;
+                    this.transitionOnTime = TimeSpan.FromSeconds(0.2);
+                    this.transitionOffTime = TimeSpan.FromSeconds(0.2);
+                    //set up your display
+                    List<Widget> l1 = new List<Widget>();
+                    l1.Add(OKButton);
+                    List<Widget> l2 = new List<Widget>();
+                    l2.Add(NoButton);
+                    this.m_menuEntries.Add(l1);
+                    this.m_menuEntries.Add(l2);
+                    //set up your gui
+                    this.m_gui.Widgets = new Widget[] { OKButton, NoButton };
                 }
 
                 /// <summary>
                 /// Constructor lets the caller specify whether to include the standard
                 /// "A=ok, B=cancel" usage text prompt.
                 /// </summary>
-                public MessageBoxScreen(string message, bool includeUsageText)
+
+                public void CancelMenu(Widget widge)
                 {
-                    const string usageText = "\nA button, Space, Enter = ok" + "\nB button, Esc = cancel";
-                    if (includeUsageText)
-                    {
-                        this.m_message = message + usageText;
-                    }
-                    else
-                    {
-                        this.m_message = message;
-                    }
-                    this.IsPopup = true;
-                    this.transitionOnTime = TimeSpan.FromSeconds(0.2);
-                    this.transitionOffTime = TimeSpan.FromSeconds(0.2);
+                    ScreenManager.RemoveScreen(this);
                 }
 
                 /// <summary>
@@ -124,33 +133,6 @@ namespace monoswitchExample
                 /// <summary>
                 /// Responds to user input, accepting or cancelling the message box.
                 /// </summary>
-                public override void HandleInput(InputState input)
-                {
-                    PlayerIndex playerIndex;
-                    // We pass in our ControllingPlayer, which may either be null (to
-                    // accept input from any player) or a specific index. If we pass a null
-                    // controlling player, the InputState helper returns to us which player
-                    // actually provided the input. We pass that through to our Accepted and
-                    // Cancelled events, so they can tell which player triggered them.
-                    if (input.IsMenuSelect(this.controllingPlayer, out playerIndex))
-                    {
-                        // Raise the accepted event, then exit the message box.
-                        if (Accepted != null)
-                        {
-                            Accepted(this, new PlayerIndexEventArgs(playerIndex));
-                        }
-                        ExitScreen();
-                    }
-                    else if (input.IsMenuCancel(this.controllingPlayer, out playerIndex))
-                    {
-                        // Raise the cancelled event, then exit the message box.
-                        if (Cancelled != null)
-                        {
-                            Cancelled(this, new PlayerIndexEventArgs(playerIndex));
-                        }
-                        ExitScreen();
-                    }
-                }
 
                 /// <summary>
                 /// Draws the message box.

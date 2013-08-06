@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Ruminate.GUI.Content;
+using Ruminate.GUI.Framework;
 #endregion
 
 namespace monoswitchExample
@@ -32,9 +34,11 @@ namespace monoswitchExample
 
             #region protected
 
-                protected List<MenuEntry> m_menuEntries = new List<MenuEntry>();
-                protected int m_selectedEntry = 0;
+                protected List<List<Widget>> m_menuEntries = new List<List<Widget>>();
+                //protected int m_selectedEntry = 0;
                 protected string m_menuTitle;
+                protected Gui m_gui;
+                protected exampleGame m_game;
 
             #endregion
 
@@ -56,10 +60,15 @@ namespace monoswitchExample
                 /// Gets the list of menu entries, so derived classes can add
                 /// or change the menu contents.
                 /// </summary>
+                /// 
+                /*
                 protected IList<MenuEntry> menuEntries
                 {
                     get { return this.m_menuEntries; }
                 }
+                */
+                
+
 
             #endregion
 
@@ -92,16 +101,21 @@ namespace monoswitchExample
                 /// <summary>
                 /// Constructor.
                 /// </summary>
-                public MenuScreen(string menuTitle)
+                public MenuScreen(string menuTitle, exampleGame game)
                 {
+                    this.m_game = game;
                     this.m_menuTitle = menuTitle;
                     this.m_transitionOnTime = TimeSpan.FromSeconds(0.5);
                     this.m_transitionOffTime = TimeSpan.FromSeconds(0.5);
+                    Skin nskin = new Skin(game.ss_imgMap, game.ss_map);
+                    Text ntext = new Text(game.ss_font, Color.Green);
+                    this.m_gui = new Gui(game, nskin, ntext);
                 }
                 /// <summary>
                 /// Responds to user input, changing the selected entry and accepting
                 /// or cancelling the menu.
                 /// </summary>
+                /*
                 public override void HandleInput(InputState input)
                 {
                     // Move to the previous menu entry?
@@ -137,18 +151,22 @@ namespace monoswitchExample
                         OnCancel(playerIndex);
                     }
                 }
+                */
                 /// <summary>
                 /// Updates the menu.
                 /// </summary>
                 public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
                 {
                     base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+                    /*
                     // Update each nested MenuEntry object.
                     for (int i = 0; i < menuEntries.Count; i++)
                     {
                         bool isSelected = this.IsActive && (i == this.m_selectedEntry);
                         this.menuEntries[i].Update(this, isSelected, gameTime);
                     }
+                    */
+                    this.m_gui.Update();
                 }
 
                 /// <summary>
@@ -164,12 +182,14 @@ namespace monoswitchExample
                     //begin drawing
                     spriteBatch.Begin();
                     // Draw each menu entry in turn.
+                    /*
                     for (int i = 0; i < menuEntries.Count; i++)
                     {
                         MenuEntry menuEntry = menuEntries[i];
                         bool isSelected = IsActive && (i == this.m_selectedEntry);
                         menuEntry.Draw(this, isSelected, gameTime);
                     }
+                    */
                     // Make the menu slide into place during transitions, using a
                     // power curve to make things look more interesting (this makes
                     // the movement slow down as it nears the end).
@@ -184,6 +204,7 @@ namespace monoswitchExample
                     spriteBatch.DrawString(font, this.m_menuTitle, titlePosition, titleColor, 0, titleOrigin, titleScale, SpriteEffects.None, 0);
                     //end drawing
                     spriteBatch.End();
+                    this.m_gui.Draw();
                 }
                 
             #endregion
@@ -193,27 +214,29 @@ namespace monoswitchExample
                 /// <summary>
                 /// Handler for when the user has chosen a menu entry.
                 /// </summary>
+                /*
                 protected virtual void OnSelectEntry(int entryIndex, PlayerIndex playerIndex)
                 {
                     this.menuEntries[entryIndex].OnSelectEntry(playerIndex);
                 }
-
+                */
                 /// <summary>
                 /// Handler for when the user has cancelled the menu.
                 /// </summary>
-                protected virtual void OnCancel(PlayerIndex playerIndex)
+                
+                protected virtual void OnCancel(Widget widge)
                 {
                     this.ExitScreen();
                 }
-
                 /// <summary>
                 /// Helper overload makes it easy to use OnCancel as a MenuEntry event handler.
                 /// </summary>
+                /*
                 protected void OnCancel(object sender, PlayerIndexEventArgs e)
                 {
                     OnCancel(e.playerIndex);
                 }
-
+                */
                 /// <summary>
                 /// Allows the screen the chance to position the menu entries. By default
                 /// all menu entries are lined up in a vertical list, centered on the screen.
@@ -227,25 +250,36 @@ namespace monoswitchExample
                     // start at Y = 175; each X value is generated per entry
                     Vector2 position = new Vector2(0f, 175f);
                     // update each menu entry's location in turn
-                    for (int i = 0; i < menuEntries.Count; i++)
+                    Widget menuEntry = null;
+                    for (int i = 0; i < m_menuEntries.Count; i++)
                     {
-                        MenuEntry menuEntry = this.menuEntries[i];
-                        // each entry is to be centered horizontally
-                        position.X = ScreenManager.GraphicsDevice.Viewport.Width / 2 - menuEntry.GetWidth(this) / 2;
-                        if (ScreenState == ScreenState.TransitionOn)
+                        if (menuEntry != null)
                         {
-                            position.X -= transitionOffset * 256;
+                            position.Y += menuEntry.AbsoluteArea.Height+10;
                         }
-                        else
+                        for (int j = 0; j < m_menuEntries[i].Count; j++)
                         {
-                            position.X -= transitionOffset * 512;
+                            menuEntry = this.m_menuEntries[i][j];
+                            // each entry is to be centered horizontally
+                            position.X = ScreenManager.GraphicsDevice.Viewport.Width / 2 - this.m_gui.ScreenBounds.Width;
+                            if (ScreenState == ScreenState.TransitionOn)
+                            {
+                                position.X -= transitionOffset * 256;
+                            }
+                            else
+                            {
+                                position.X -= transitionOffset * 512;
+                            }
+                            // set the entry's position
+                            menuEntry.AbsoluteArea = new Rectangle((int)position.X, (int)position.Y, menuEntry.AbsoluteArea.Width, menuEntry.AbsoluteArea.Height);
+                            // move down for the next entry the size of this entry
+                            position.X += menuEntry.AbsoluteArea.Width;
                         }
-                        // set the entry's position
-                        menuEntry.position = position;
-                        // move down for the next entry the size of this entry
-                        position.Y += menuEntry.GetHeight(this);
                     }
                 }
+
+                
+
 
             #endregion
 
