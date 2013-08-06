@@ -64,10 +64,6 @@ namespace monoswitchExample
                 protected exampleGame m_game;
                 protected gameParams m_params;
 
-                //for construction of the selection set
-                bool m_isDiscrete = false;
-                bool m_isComposite = false;
-
                 
             #endregion
 
@@ -269,15 +265,232 @@ namespace monoswitchExample
                     }
                     else if(this.m_params.discrete && !this.m_params.composite)
                     {
+                        List<Keys> list1 = new List<Keys>();
+                        list1.Add(Keys.D);
+                        KeyGroup group1 = new KeyGroup(KDELEGATOR, list1);
+                        discrete_switch temp1 = new discrete_switch(group1, 10, 10, 150, "right", 500f);
+                        List<Keys> list2 = new List<Keys>();
+                        list2.Add(Keys.W);
+                        KeyGroup group2 = new KeyGroup(KDELEGATOR, list2);
+                        discrete_switch temp2 = new discrete_switch(group2, 160, 10, 150, "up", 500f);
+                        List<Keys> list3 = new List<Keys>();
+                        list3.Add(Keys.A);
+                        KeyGroup group3 = new KeyGroup(KDELEGATOR, list3);
+                        discrete_switch temp3 = new discrete_switch(group3, 310, 10, 150, "left", 500f);
+                        List<Keys> list4 = new List<Keys>();
+                        list4.Add(Keys.S);
+                        KeyGroup group4 = new KeyGroup(KDELEGATOR, list4);
+                        discrete_switch temp4 = new discrete_switch(group4, 460, 10, 150, "down", 500f);
 
+                        //NODES BASE GROUPS AND SWITCHNODES
+                        KeyLogicNode noder = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        noder.log = logics.NONE;
+                        noder.setData(group1);
+                        KeyLogicNode nodeu = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        nodeu.log = logics.NONE;
+                        nodeu.setData(group2);
+                        KeyLogicNode nodel = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        nodel.log = logics.NONE;
+                        nodel.setData(group3);
+                        KeyLogicNode noded = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        noded.log = logics.NONE;
+                        noded.setData(group4);
+                        switchNode temp1Node = new switchNode(temp1);
+                        switchNode temp2Node = new switchNode(temp2);
+                        switchNode temp3Node = new switchNode(temp3);
+                        switchNode temp4Node = new switchNode(temp4);
+                        //SET UP, ASSIGN SUCCESSORS AND BUILD LOGIC HIERARCHY
+                        temp1Node.addSuccessor(temp2Node);
+                        temp2Node.addSuccessor(temp3Node);
+                        temp3Node.addSuccessor(temp4Node);
+                        temp4Node.addSuccessor(temp1Node);
+                        switchNode[] nodeArr = { temp1Node, temp2Node, temp3Node, temp4Node };
+                        KeyLogicNode lrxor = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        lrxor.log = logics.XOR;
+                        lrxor.AddChild(nodel);
+                        lrxor.AddChild(noder);
+                        KeyLogicNode udxor = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        udxor.log = logics.XOR;
+                        udxor.AddChild(nodeu);
+                        udxor.AddChild(noded);
+
+                        //FINALIZE
+                        this.m_selectSet.addLogic(lrxor);
+                        this.m_selectSet.addLogic(udxor);
+                        this.m_selectSet.assignNodes(nodeArr, KDELEGATOR);
+                        this.m_selectSet.Commit(0, 0);
                     }
                     else if(!this.m_params.discrete && this.m_params.composite)
                     {
+                        List<Keys> list1 = new List<Keys>();
+                        list1.Add(Keys.D);
+                        KeyGroup group1 = new KeyGroup(KDELEGATOR, list1);
+                        composite_switch temp1 = new composite_switch(group1, 10, 10, 140, "right");
+                        List<Keys> list2 = new List<Keys>();
+                        list2.Add(Keys.W);
+                        KeyGroup group2 = new KeyGroup(KDELEGATOR, list2);
+                        composite_switch temp2 = new composite_switch(group2, 290, 10, 140, "up");
+                        List<Keys> list3 = new List<Keys>();
+                        list3.Add(Keys.A);
+                        KeyGroup group3 = new KeyGroup(KDELEGATOR, list3);
+                        composite_switch temp3 = new composite_switch(group3, 570, 10, 150, "left");
+                        List<Keys> list4 = new List<Keys>();
+                        list4.Add(Keys.S);
+                        KeyGroup group4 = new KeyGroup(KDELEGATOR, list4);
+                        composite_switch temp4 = new composite_switch(group4, 850, 10, 140, "down");
 
+                        List<Keys> listUL = new List<Keys>();
+                        listUL.Add(Keys.D);
+                        listUL.Add(Keys.W);
+                        KeyGroup groupUL = new KeyGroup(KDELEGATOR, listUL);
+                        composite_switch temp1x5 = new composite_switch(groupUL, 150, 10, 140, "upleft");
+                        List<Keys> listUR = new List<Keys>();
+                        listUR.Add(Keys.W);
+                        listUR.Add(Keys.A);
+                        KeyGroup groupUR = new KeyGroup(KDELEGATOR, listUR);
+                        composite_switch temp2x5 = new composite_switch(groupUR, 430, 10, 140, "upright");
+                        List<Keys> listRD = new List<Keys>();
+                        listRD.Add(Keys.A);
+                        listRD.Add(Keys.S);
+                        KeyGroup groupRD = new KeyGroup(KDELEGATOR, listRD);
+                        composite_switch temp3x5 = new composite_switch(groupRD, 710, 10, 140, "downright");
+                        List<Keys> listRL = new List<Keys>();
+                        listRL.Add(Keys.S);
+                        listRL.Add(Keys.D);
+                        KeyGroup groupRL = new KeyGroup(KDELEGATOR, listRL);
+                        composite_switch temp4x5_0x5 = new composite_switch(groupRL, 990, 10, 140, "downleft");
+
+                        //NODES BASE GROUPS AND SWITCHNODES
+                        KeyLogicNode noder = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        noder.log = logics.NONE;
+                        noder.setData(group1);
+                        KeyLogicNode nodeu = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        nodeu.log = logics.NONE;
+                        nodeu.setData(group2);
+                        KeyLogicNode nodel = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        nodel.log = logics.NONE;
+                        nodel.setData(group3);
+                        KeyLogicNode noded = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        noded.log = logics.NONE;
+                        noded.setData(group4);
+                        switchNode temp1Node = new switchNode(temp1);
+                        switchNode temp1x5Node = new switchNode(temp1x5);
+                        switchNode temp2Node = new switchNode(temp2);
+                        switchNode temp2x5Node = new switchNode(temp2x5);
+                        switchNode temp3Node = new switchNode(temp3);
+                        switchNode temp3x5Node = new switchNode(temp3x5);
+                        switchNode temp4Node = new switchNode(temp4);
+                        switchNode temp4x5_0x5Node = new switchNode(temp4x5_0x5);
+                        //SET UP, ASSIGN SUCCESSORS AND BUILD LOGIC HIERARCHY
+                        temp1Node.addSuccessor(temp1x5Node);
+                        temp1x5Node.addSuccessor(temp2Node);
+                        temp2Node.addSuccessor(temp2x5Node);
+                        temp2x5Node.addSuccessor(temp3Node);
+                        temp3Node.addSuccessor(temp3x5Node);
+                        temp3x5Node.addSuccessor(temp4Node);
+                        temp4Node.addSuccessor(temp4x5_0x5Node);
+                        temp4x5_0x5Node.addSuccessor(temp1Node);
+                        switchNode[] nodeArr = { temp1Node, temp1x5Node, temp2Node, temp2x5Node, temp3Node, temp3x5Node, temp4Node, temp4x5_0x5Node };
+                        KeyLogicNode lrxor = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        lrxor.log = logics.XOR;
+                        lrxor.AddChild(nodel);
+                        lrxor.AddChild(noder);
+                        KeyLogicNode udxor = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        udxor.log = logics.XOR;
+                        udxor.AddChild(nodeu);
+                        udxor.AddChild(noded);
+
+                        //FINALIZE
+                        this.m_selectSet.addLogic(lrxor);
+                        this.m_selectSet.addLogic(udxor);
+                        this.m_selectSet.assignNodes(nodeArr, KDELEGATOR);
+                        this.m_selectSet.Commit(0, 0);
                     }
                     else if(this.m_params.discrete && this.m_params.composite)
                     {
+                        List<Keys> list1 = new List<Keys>();
+                        list1.Add(Keys.D);
+                        KeyGroup group1 = new KeyGroup(KDELEGATOR, list1);
+                        discretecomposite_switch temp1 = new discretecomposite_switch(group1, 10, 10, 140, "right", 500f);
+                        List<Keys> list2 = new List<Keys>();
+                        list2.Add(Keys.W);
+                        KeyGroup group2 = new KeyGroup(KDELEGATOR, list2);
+                        discretecomposite_switch temp2 = new discretecomposite_switch(group2, 290, 10, 140, "up", 500f);
+                        List<Keys> list3 = new List<Keys>();
+                        list3.Add(Keys.A);
+                        KeyGroup group3 = new KeyGroup(KDELEGATOR, list3);
+                        discretecomposite_switch temp3 = new discretecomposite_switch(group3, 570, 10, 150, "left", 500f);
+                        List<Keys> list4 = new List<Keys>();
+                        list4.Add(Keys.S);
+                        KeyGroup group4 = new KeyGroup(KDELEGATOR, list4);
+                        discretecomposite_switch temp4 = new discretecomposite_switch(group4, 850, 10, 140, "down", 500f);
 
+                        List<Keys> listUL = new List<Keys>();
+                        listUL.Add(Keys.D);
+                        listUL.Add(Keys.W);
+                        KeyGroup groupUL = new KeyGroup(KDELEGATOR, listUL);
+                        discretecomposite_switch temp1x5 = new discretecomposite_switch(groupUL, 150, 10, 140, "upleft", 500f);
+                        List<Keys> listUR = new List<Keys>();
+                        listUR.Add(Keys.W);
+                        listUR.Add(Keys.A);
+                        KeyGroup groupUR = new KeyGroup(KDELEGATOR, listUR);
+                        discretecomposite_switch temp2x5 = new discretecomposite_switch(groupUR, 430, 10, 140, "upright", 500f);
+                        List<Keys> listRD = new List<Keys>();
+                        listRD.Add(Keys.A);
+                        listRD.Add(Keys.S);
+                        KeyGroup groupRD = new KeyGroup(KDELEGATOR, listRD);
+                        discretecomposite_switch temp3x5 = new discretecomposite_switch(groupRD, 710, 10, 140, "downright", 500f);
+                        List<Keys> listRL = new List<Keys>();
+                        listRL.Add(Keys.S);
+                        listRL.Add(Keys.D);
+                        KeyGroup groupRL = new KeyGroup(KDELEGATOR, listRL);
+                        discretecomposite_switch temp4x5_0x5 = new discretecomposite_switch(groupRL, 990, 10, 140, "downleft", 500f);
+
+                        //NODES BASE GROUPS AND SWITCHNODES
+                        KeyLogicNode noder = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        noder.log = logics.NONE;
+                        noder.setData(group1);
+                        KeyLogicNode nodeu = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        nodeu.log = logics.NONE;
+                        nodeu.setData(group2);
+                        KeyLogicNode nodel = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        nodel.log = logics.NONE;
+                        nodel.setData(group3);
+                        KeyLogicNode noded = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        noded.log = logics.NONE;
+                        noded.setData(group4);
+                        switchNode temp1Node = new switchNode(temp1);
+                        switchNode temp1x5Node = new switchNode(temp1x5);
+                        switchNode temp2Node = new switchNode(temp2);
+                        switchNode temp2x5Node = new switchNode(temp2x5);
+                        switchNode temp3Node = new switchNode(temp3);
+                        switchNode temp3x5Node = new switchNode(temp3x5);
+                        switchNode temp4Node = new switchNode(temp4);
+                        switchNode temp4x5_0x5Node = new switchNode(temp4x5_0x5);
+                        //SET UP, ASSIGN SUCCESSORS AND BUILD LOGIC HIERARCHY
+                        temp1Node.addSuccessor(temp1x5Node);
+                        temp1x5Node.addSuccessor(temp2Node);
+                        temp2Node.addSuccessor(temp2x5Node);
+                        temp2x5Node.addSuccessor(temp3Node);
+                        temp3Node.addSuccessor(temp3x5Node);
+                        temp3x5Node.addSuccessor(temp4Node);
+                        temp4Node.addSuccessor(temp4x5_0x5Node);
+                        temp4x5_0x5Node.addSuccessor(temp1Node);
+                        switchNode[] nodeArr = { temp1Node, temp1x5Node, temp2Node, temp2x5Node, temp3Node, temp3x5Node, temp4Node, temp4x5_0x5Node };
+                        KeyLogicNode lrxor = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        lrxor.log = logics.XOR;
+                        lrxor.AddChild(nodel);
+                        lrxor.AddChild(noder);
+                        KeyLogicNode udxor = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
+                        udxor.log = logics.XOR;
+                        udxor.AddChild(nodeu);
+                        udxor.AddChild(noded);
+
+                        //FINALIZE
+                        this.m_selectSet.addLogic(lrxor);
+                        this.m_selectSet.addLogic(udxor);
+                        this.m_selectSet.assignNodes(nodeArr, KDELEGATOR);
+                        this.m_selectSet.Commit(0, 0);
                     }
                     this.m_selectSet.sendKeyDown += this.kdown;
                     this.m_selectSet.sendKeyUp += this.kup;
@@ -329,13 +542,6 @@ namespace monoswitchExample
                         this.m_selectSet.Update();
                         this.m_selectSet.UpdateByTime(gameTime);
                     }
-                    /*
-                    if (this.m_nlss != null)
-                    {
-                        this.m_nlss.Update();
-                        this.m_selectSet.UpdateByTime(gameTime);
-                    }
-                    */
                     if (this.m_timer == null)
                     {
                         this.m_timer = new gameTimer();

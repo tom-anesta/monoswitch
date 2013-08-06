@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace monoswitch.content
 {
-    class discretecomposite_switch: discrete_switch
+    public class discretecomposite_switch: discrete_switch
     {
 
         #region members

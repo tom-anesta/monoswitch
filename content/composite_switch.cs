@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace monoswitch.content
 {
-    class composite_switch: s_switch
+    public class composite_switch: s_switch
     {
 
         #region members
