@@ -331,6 +331,7 @@ namespace monoswitchExample
                 /// </summary>
                 bool UpdateTransition(GameTime gameTime, TimeSpan time, int direction)
                 {
+
                     // How much should we move by?
                     float transitionDelta;
 

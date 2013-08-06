@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework;
 using Ruminate.GUI.Content;
 using Ruminate.GUI.Framework;
 using System.Collections.Generic;
+using System;
 #endregion
 
 namespace monoswitchExample
@@ -85,26 +86,15 @@ namespace monoswitchExample
                     {
                         this.m_params = new gameParams(gameParams.DEF_SCAN_RATE, gameParams.DEF_REFACTORY_PERIOD, gameParams.DEF_DISCRETE, gameParams.DEF_COMPOSITE, gameParams.DEF_MARKER);
                     }
-                    this.m_params = gparams;
-                    /*
-                    // Create our menu entries.
-                    MenuEntry playGameMenuEntry = new MenuEntry("Play Game");
-                    MenuEntry optionsMenuEntry = new MenuEntry("Options");
-                    MenuEntry exitMenuEntry = new MenuEntry("Exit");
-                    // Hook up menu event handlers.
-                    playGameMenuEntry.Selected += PlayGameMenuEntrySelected;
-                    optionsMenuEntry.Selected += OptionsMenuEntrySelected;
-                    exitMenuEntry.Selected += OnCancel;
-                    // Add entries to the menu.
-                    this.m_menuEntries.Add(playGameMenuEntry);
-                    this.m_menuEntries.Add(optionsMenuEntry);
-                    this.m_menuEntries.Add(exitMenuEntry);
-                    */
+                    else
+                    {
+                        this.m_params = gparams;
+                    }
                     //build the gui
                     Button startbutton = new Button(0, 0, 100, "Play Game", this.PlayGameMenuEntrySelected);
                     List<Widget> l1 = new List<Widget>();
                     l1.Add(startbutton);
-                    Button optionsbutton = new Button(0, 0, 100, "Options", this.PlayGameMenuEntrySelected);
+                    Button optionsbutton = new Button(0, 0, 100, "Options", this.OptionsMenuEntrySelected);
                     List<Widget> l2 = new List<Widget>();
                     l2.Add(optionsbutton);
                     Button exitButton = new Button(0, 0, 100, "Exit", this.OnCancel);
@@ -134,13 +124,13 @@ namespace monoswitchExample
                 /// </summary>
                 protected void OptionsMenuEntrySelected(Widget widge)
                 {
-                    ScreenManager.AddScreen(new OptionsMenuScreen(this.m_game, this.m_params), PlayerIndex.One);
+                    ScreenManager.AddScreen(new OptionsMenuScreen(this.m_game, ref this.m_params), PlayerIndex.One);
                 }
 
                 /// <summary>
                 /// When the user cancels the main menu, ask if they want to exit the sample.
                 /// </summary>
-                protected void OnCancel(Widget widge)
+                protected override void OnCancel(Widget widge)
                 {
                     const string message = "Are you sure you want to exit this sample?";
                     MessageBoxScreen confirmExitMessageBox = new MessageBoxScreen(message, this.m_game);

@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Ruminate.GUI.Content;
 using Ruminate.GUI.Framework;
+using System;
 #endregion
 
 namespace monoswitchExample
@@ -84,10 +85,9 @@ namespace monoswitchExample
                 /// <summary>
                 /// Constructor.
                 /// </summary>
-                public OptionsMenuScreen(exampleGame game, gameParams gparams) : base("Options", game)
+                public OptionsMenuScreen(exampleGame game, ref gameParams gparams) : base("Options", game)
                 {
                     this.m_menuEntries = new List<List<Widget>>();
-                    
                     if (gparams != null)
                     {
                         this.m_params = gparams;
@@ -98,28 +98,35 @@ namespace monoswitchExample
                     }
                     int midPoint = this.m_game.GraphicsDevice.Viewport.X + this.m_game.GraphicsDevice.Viewport.Width / 2;
                     int vert = this.m_game.GraphicsDevice.Viewport.Y + this.m_game.GraphicsDevice.Viewport.Height / 12;
-                    CheckBox discBox = new CheckBox(-100, 0, "discrete");
+                    int ySum = 0;
+                    CheckBox discBox = new CheckBox(-80, ySum, "discrete");
                     discBox.IsToggled = this.m_params.discrete;
                     discBox.OnToggle = delegate(Widget widget) { this.m_params.discrete = true; };
                     discBox.OffToggle = delegate(Widget widget) { this.m_params.discrete = false; };
-                    CheckBox compBox = new CheckBox(-50, 0, "composite");
+                    CheckBox compBox = new CheckBox(0, ySum, "composite");
                     compBox.IsToggled = this.m_params.composite;
                     compBox.OnToggle = delegate(Widget widget) { this.m_params.composite = true; };
                     compBox.OffToggle = delegate(Widget widget) { this.m_params.composite = false; };
-                    CheckBox markerBox = new CheckBox(-100, 0, "use marker");
+                    ySum += Math.Max(discBox.Area.Height, compBox.Area.Height);
+                    CheckBox markerBox = new CheckBox(-80, ySum, "use marker");
                     markerBox.IsToggled = this.m_params.useMarker;
                     markerBox.OnToggle = delegate(Widget widget) { this.m_params.useMarker = true; };
                     markerBox.OffToggle = delegate(Widget widget) { this.m_params.useMarker = false; };
-                    this.m_scanBox = new SingleLineTextBox(-100, 0, 100, 4);
-                    this.m_scanBox.AbsoluteArea = new Rectangle(-100, 0, 100, 35);
-                    this.m_scanBox.Text = (this.m_params.scanRate).ToString();
-                    Button scanUp = new Button(0, 0, 50, "+", this.incScan);
-                    Button scanDown = new Button(0, 0, 50, "-", this.decScan);
-                    this.m_refBox = new SingleLineTextBox(-100, 0, 100, 4);
-                    this.m_refBox.AbsoluteArea = new Rectangle(-100, 0, 100, 35);
-                    this.m_refBox.Text = (this.m_params.refactoryPeriod / 1000).ToString();
-                    Button refUp = new Button(0, 0, 50, "+", this.incRef);
-                    Button refDown = new Button(0, 0, 50, "-", this.decRef);
+                    ySum += markerBox.Area.Height;
+                    this.m_scanBox = new SingleLineTextBox(-80, ySum, 100, 6);
+                    //this.m_scanBox.Value = (this.m_params.scanRate).ToString();
+                    this.m_scanBox.Value = "hi";
+                    ySum += m_scanBox.Area.Height;
+                    Button scanUp = new Button(-80, ySum, 50, "+", this.incScan);
+                    Button scanDown = new Button(0, ySum, 50, "-", this.decScan);
+                    ySum += Math.Max(scanUp.Area.Height, scanDown.Area.Height);
+                    this.m_refBox = new SingleLineTextBox(-80, ySum, 100, 6);
+                    //this.m_refBox.Value = (this.m_params.refactoryPeriod / 1000).ToString();
+                    this.m_refBox.Value = "bi";
+                    ySum += m_refBox.Area.Height;
+                    Button refUp = new Button(-80, ySum, 50, "+", this.incRef);
+                    Button refDown = new Button(0, ySum, 50, "-", this.decRef);
+                    ySum += Math.Max(refUp.Area.Height, refDown.Area.Height);
                     Button back = new Button(0, 0, 100, "BACK", OnCancel);
                     List<Widget> l1 = new List<Widget>();
                     l1.Add(discBox);
@@ -154,25 +161,25 @@ namespace monoswitchExample
                 protected void incScan(Widget widge)
                 {
                     this.m_params.incrementScanningRate();
-                    this.m_scanBox.Text = this.m_params.scanRate.ToString();
+                    this.m_scanBox.Value = this.m_params.scanRate.ToString();
                 }
 
                 protected void decScan(Widget widge)
                 {
                     this.m_params.decrementScanningRate();
-                    this.m_scanBox.Text = this.m_params.scanRate.ToString();
+                    this.m_scanBox.Value = this.m_params.scanRate.ToString();
                 }
 
                 protected void incRef(Widget widge)
                 {
                     this.m_params.incrementRefactoryPeriod();
-                    this.m_refBox.Text = (this.m_params.refactoryPeriod / 1000).ToString();
+                    this.m_refBox.Value = (this.m_params.refactoryPeriod / 1000).ToString();
                 }
 
                 protected void decRef(Widget widge)
                 {
                     this.m_params.decrementRefactoryPeriod();
-                    this.m_refBox.Text = (this.m_params.refactoryPeriod / 1000).ToString();
+                    this.m_refBox.Value = (this.m_params.refactoryPeriod / 1000).ToString();
                 }
 
 

@@ -140,7 +140,7 @@ namespace monoswitchExample
                     this.graphics.PreferredBackBufferWidth = 1200;
                     this.graphics.PreferredBackBufferHeight = 800;
                     this.graphics.ApplyChanges();
-                    IsMouseVisible = false;
+                    IsMouseVisible = true;
                     base.Initialize();
                 }
 

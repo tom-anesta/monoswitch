@@ -108,50 +108,9 @@ namespace monoswitchExample
                     this.m_transitionOnTime = TimeSpan.FromSeconds(0.5);
                     this.m_transitionOffTime = TimeSpan.FromSeconds(0.5);
                     Skin nskin = new Skin(game.ss_imgMap, game.ss_map);
-                    Text ntext = new Text(game.ss_font, Color.Green);
+                    Text ntext = new Text(game.ss_font, Color.CadetBlue);
                     this.m_gui = new Gui(game, nskin, ntext);
                 }
-                /// <summary>
-                /// Responds to user input, changing the selected entry and accepting
-                /// or cancelling the menu.
-                /// </summary>
-                /*
-                public override void HandleInput(InputState input)
-                {
-                    // Move to the previous menu entry?
-                    if (input.IsMenuUp(controllingPlayer))
-                    {
-                        this.m_selectedEntry--;
-                        if (this.m_selectedEntry < 0)
-                        {
-                            this.m_selectedEntry = menuEntries.Count - 1;
-                        }
-                    }
-                    // Move to the next menu entry?
-                    if (input.IsMenuDown(controllingPlayer))
-                    {
-                        this.m_selectedEntry++;
-                        if (this.m_selectedEntry >= menuEntries.Count)
-                        {
-                            this.m_selectedEntry = 0;
-                        }
-                    }
-                    // Accept or cancel the menu? We pass in our ControllingPlayer, which may
-                    // either be null (to accept input from any player) or a specific index.
-                    // If we pass a null controlling player, the InputState helper returns to
-                    // us which player actually provided the input. We pass that through to
-                    // OnSelectEntry and OnCancel, so they can tell which player triggered them.
-                    PlayerIndex playerIndex;
-                    if (input.IsMenuSelect(this.controllingPlayer, out playerIndex))
-                    {
-                        OnSelectEntry(this.m_selectedEntry, playerIndex);
-                    }
-                    else if (input.IsMenuCancel(this.controllingPlayer, out playerIndex))
-                    {
-                        OnCancel(playerIndex);
-                    }
-                }
-                */
                 /// <summary>
                 /// Updates the menu.
                 /// </summary>
@@ -181,18 +140,6 @@ namespace monoswitchExample
                     SpriteFont font = ScreenManager.font;
                     //begin drawing
                     spriteBatch.Begin();
-                    // Draw each menu entry in turn.
-                    /*
-                    for (int i = 0; i < menuEntries.Count; i++)
-                    {
-                        MenuEntry menuEntry = menuEntries[i];
-                        bool isSelected = IsActive && (i == this.m_selectedEntry);
-                        menuEntry.Draw(this, isSelected, gameTime);
-                    }
-                    */
-                    // Make the menu slide into place during transitions, using a
-                    // power curve to make things look more interesting (this makes
-                    // the movement slow down as it nears the end).
                     float transitionOffset = (float)Math.Pow(this.m_transitionPosition, 2);
                     // Draw the menu title centered on the screen
                     Vector2 titlePosition = new Vector2(graphics.Viewport.Width / 2, 80);
@@ -210,19 +157,6 @@ namespace monoswitchExample
             #endregion
 
             #region protected
-
-                /// <summary>
-                /// Handler for when the user has chosen a menu entry.
-                /// </summary>
-                /*
-                protected virtual void OnSelectEntry(int entryIndex, PlayerIndex playerIndex)
-                {
-                    this.menuEntries[entryIndex].OnSelectEntry(playerIndex);
-                }
-                */
-                /// <summary>
-                /// Handler for when the user has cancelled the menu.
-                /// </summary>
                 
                 protected virtual void OnCancel(Widget widge)
                 {
@@ -257,23 +191,28 @@ namespace monoswitchExample
                         {
                             position.Y += menuEntry.AbsoluteArea.Height+10;
                         }
+                        int sum = 0;
+                        position.X = ScreenManager.GraphicsDevice.Viewport.Width / 2;
+                        if (ScreenState == ScreenState.TransitionOn)
+                        {
+                            position.X -= transitionOffset * 256;
+                        }
+                        else
+                        {
+                            position.X -= transitionOffset * 512;
+                        }
+                        
                         for (int j = 0; j < m_menuEntries[i].Count; j++)
                         {
                             menuEntry = this.m_menuEntries[i][j];
-                            // each entry is to be centered horizontally
-                            position.X = ScreenManager.GraphicsDevice.Viewport.Width / 2 - this.m_gui.ScreenBounds.Width;
-                            if (ScreenState == ScreenState.TransitionOn)
-                            {
-                                position.X -= transitionOffset * 256;
-                            }
-                            else
-                            {
-                                position.X -= transitionOffset * 512;
-                            }
-                            // set the entry's position
+                            sum += menuEntry.AbsoluteArea.Width;
+                        }
+                        position.X = position.X - sum / 2;
+                        for (int k = 0; k < m_menuEntries[i].Count; k++)
+                        {
+                            menuEntry = m_menuEntries[i][k];
                             menuEntry.AbsoluteArea = new Rectangle((int)position.X, (int)position.Y, menuEntry.AbsoluteArea.Width, menuEntry.AbsoluteArea.Height);
-                            // move down for the next entry the size of this entry
-                            position.X += menuEntry.AbsoluteArea.Width;
+                            position.X += menuEntry.AbsoluteArea.Width+10;
                         }
                     }
                 }

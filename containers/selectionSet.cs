@@ -545,7 +545,7 @@ namespace monoswitch.containers
                     }
                     //now let's update the clock
                     double result = this.m_timeToAdvance.TotalMilliseconds - gametime.ElapsedGameTime.TotalMilliseconds;
-                    while (result <= 0)
+                    while (result <= 0 && this.m_currentNode != null)
                     {
                         this.advance();
                         if ((int)this.m_currentNode.child.scanningRate.TotalMilliseconds > selectionSet.DEFAULT_MIN_SCANNINGRATE)//then we want to use that scanning rate
@@ -812,8 +812,8 @@ namespace monoswitch.containers
 
                 protected void advance()//int sliced
                 {
-                    this.m_currentNode = this.m_currentNode.intendedSuccessor;
-                    this.m_msInMan.HoverWidget = this.m_currentNode.child;
+                        this.m_currentNode = this.m_currentNode.intendedSuccessor;
+                        this.m_msInMan.HoverWidget = this.m_currentNode.child;
                 }
 
                 protected void InitRoot()
