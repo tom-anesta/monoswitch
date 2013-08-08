@@ -5,7 +5,7 @@ using System.Text;
 using System.Reflection;
 using monoswitch.misc;
 
-namespace monoswitch
+namespace monoswitch.singletons
 {
     //these logics should be constrained by constraint satisfaction algorithms
     //the author does not currently have enough knowledge to implement constraint satisfaction algorithms

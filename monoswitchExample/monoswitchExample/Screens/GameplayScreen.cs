@@ -21,6 +21,7 @@ using monoswitch;
 using monoswitch.containers;
 using monoswitch.content;
 using monoswitch.misc;
+using monoswitch.singletons;
 #endregion
 
 namespace monoswitchExample
@@ -268,19 +269,19 @@ namespace monoswitchExample
                         List<Keys> list1 = new List<Keys>();
                         list1.Add(Keys.D);
                         KeyGroup group1 = new KeyGroup(KDELEGATOR, list1);
-                        discrete_switch temp1 = new discrete_switch(group1, 10, 10, 150, "right", 500f);
+                        discrete_switch temp1 = new discrete_switch(group1, 10, 10, 150, "right", 5000000f);
                         List<Keys> list2 = new List<Keys>();
                         list2.Add(Keys.W);
                         KeyGroup group2 = new KeyGroup(KDELEGATOR, list2);
-                        discrete_switch temp2 = new discrete_switch(group2, 160, 10, 150, "up", 500f);
+                        discrete_switch temp2 = new discrete_switch(group2, 160, 10, 150, "up", 5000000f);
                         List<Keys> list3 = new List<Keys>();
                         list3.Add(Keys.A);
                         KeyGroup group3 = new KeyGroup(KDELEGATOR, list3);
-                        discrete_switch temp3 = new discrete_switch(group3, 310, 10, 150, "left", 500f);
+                        discrete_switch temp3 = new discrete_switch(group3, 310, 10, 150, "left", 5000000f);
                         List<Keys> list4 = new List<Keys>();
                         list4.Add(Keys.S);
                         KeyGroup group4 = new KeyGroup(KDELEGATOR, list4);
-                        discrete_switch temp4 = new discrete_switch(group4, 460, 10, 150, "down", 500f);
+                        discrete_switch temp4 = new discrete_switch(group4, 460, 10, 150, "down", 500000f);
 
                         //NODES BASE GROUPS AND SWITCHNODES
                         KeyLogicNode noder = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
@@ -411,40 +412,40 @@ namespace monoswitchExample
                         List<Keys> list1 = new List<Keys>();
                         list1.Add(Keys.D);
                         KeyGroup group1 = new KeyGroup(KDELEGATOR, list1);
-                        discretecomposite_switch temp1 = new discretecomposite_switch(group1, 10, 10, 140, "right", 500f);
+                        discretecomposite_switch temp1 = new discretecomposite_switch(group1, 10, 10, 140, "right", 500000f);
                         List<Keys> list2 = new List<Keys>();
                         list2.Add(Keys.W);
                         KeyGroup group2 = new KeyGroup(KDELEGATOR, list2);
-                        discretecomposite_switch temp2 = new discretecomposite_switch(group2, 290, 10, 140, "up", 500f);
+                        discretecomposite_switch temp2 = new discretecomposite_switch(group2, 290, 10, 140, "up", 500000f);
                         List<Keys> list3 = new List<Keys>();
                         list3.Add(Keys.A);
                         KeyGroup group3 = new KeyGroup(KDELEGATOR, list3);
-                        discretecomposite_switch temp3 = new discretecomposite_switch(group3, 570, 10, 150, "left", 500f);
+                        discretecomposite_switch temp3 = new discretecomposite_switch(group3, 570, 10, 150, "left", 500000f);
                         List<Keys> list4 = new List<Keys>();
                         list4.Add(Keys.S);
                         KeyGroup group4 = new KeyGroup(KDELEGATOR, list4);
-                        discretecomposite_switch temp4 = new discretecomposite_switch(group4, 850, 10, 140, "down", 500f);
+                        discretecomposite_switch temp4 = new discretecomposite_switch(group4, 850, 10, 140, "down", 500000f);
 
                         List<Keys> listUL = new List<Keys>();
                         listUL.Add(Keys.D);
                         listUL.Add(Keys.W);
                         KeyGroup groupUL = new KeyGroup(KDELEGATOR, listUL);
-                        discretecomposite_switch temp1x5 = new discretecomposite_switch(groupUL, 150, 10, 140, "upleft", 500f);
+                        discretecomposite_switch temp1x5 = new discretecomposite_switch(groupUL, 150, 10, 140, "upleft", 500000f);
                         List<Keys> listUR = new List<Keys>();
                         listUR.Add(Keys.W);
                         listUR.Add(Keys.A);
                         KeyGroup groupUR = new KeyGroup(KDELEGATOR, listUR);
-                        discretecomposite_switch temp2x5 = new discretecomposite_switch(groupUR, 430, 10, 140, "upright", 500f);
+                        discretecomposite_switch temp2x5 = new discretecomposite_switch(groupUR, 430, 10, 140, "upright", 500000f);
                         List<Keys> listRD = new List<Keys>();
                         listRD.Add(Keys.A);
                         listRD.Add(Keys.S);
                         KeyGroup groupRD = new KeyGroup(KDELEGATOR, listRD);
-                        discretecomposite_switch temp3x5 = new discretecomposite_switch(groupRD, 710, 10, 140, "downright", 500f);
+                        discretecomposite_switch temp3x5 = new discretecomposite_switch(groupRD, 710, 10, 140, "downright", 500000f);
                         List<Keys> listRL = new List<Keys>();
                         listRL.Add(Keys.S);
                         listRL.Add(Keys.D);
                         KeyGroup groupRL = new KeyGroup(KDELEGATOR, listRL);
-                        discretecomposite_switch temp4x5_0x5 = new discretecomposite_switch(groupRL, 990, 10, 140, "downleft", 500f);
+                        discretecomposite_switch temp4x5_0x5 = new discretecomposite_switch(groupRL, 990, 10, 140, "downleft", 500000f);
 
                         //NODES BASE GROUPS AND SWITCHNODES
                         KeyLogicNode noder = new KeyLogicNode(KDELEGATOR, 2, true, true, true);

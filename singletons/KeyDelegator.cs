@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Input;
 using monoswitch.containers;
 
-namespace monoswitch
+namespace monoswitch.singletons
 {
     public class KeyDelegator
     {

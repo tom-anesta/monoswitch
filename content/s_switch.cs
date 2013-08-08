@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using monoswitch.containers;
 using monoswitch.content;
 using monoswitch;
+using monoswitch.singletons;
 
 //authors note: 
 //as toggle button was a sealed class in the ruminate framework, 
@@ -530,6 +531,37 @@ namespace monoswitch.content
                     }
                 }
 
+                public virtual logicStates respondSwitchToggled(ILogicState group, List<ILogicState> oldpairs, List<ILogicState> oldgroups, float interval = 0f)
+                {
+                    Console.WriteLine("responding to switch toggled");
+                    if (this.m_group == group)
+                    {
+                        if (group.state == logicStates.TRUE)
+                        {
+                            Console.WriteLine("toggling on");
+                            this.m_switchedOn = true;
+                            if (OnToggle != null)
+                            {
+                                OnToggle(this);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("toggling off");
+                            this.m_switchedOn = false;
+                            if (OffToggle != null)
+                            {
+                                OffToggle(this);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("group does not match");
+                    }
+                    return logicStates.TRUE;
+                }
+
                 public void highlight()
                 {
                     if (!this.switchedOn)
@@ -583,6 +615,7 @@ namespace monoswitch.content
                         {
                             kp.stateChangeSuccess -= this.respKeyChange;
                         }
+                        this.m_group.groupAttemptStateChangedSuccess -= this.respondSwitchToggled;
                     }
                     while(kList.Count > 1)//limit to one
                     {
@@ -614,6 +647,7 @@ namespace monoswitch.content
                         rGroup = new KeyGroup(kdel);
                     }
                     this.m_group = rGroup;
+                    this.m_group.groupAttemptStateChangedSuccess += this.respondSwitchToggled;
                 }
 
                 protected virtual void setGroup(KeyGroup kGroup)
@@ -651,6 +685,7 @@ namespace monoswitch.content
                         {
                             kp.stateChangeSuccess -= this.respKeyChange;
                         }
+                        this.m_group.groupAttemptStateChangedSuccess -= this.respondSwitchToggled;
                     }
 
                     if (this.switchnode != null && this.switchnode.parents != null && this.switchnode.parents.Count > 1)
@@ -674,6 +709,7 @@ namespace monoswitch.content
                         kp.stateChangeSuccess += this.respKeyChange;
                     }
                     this.m_group = kGroup;
+                    this.m_group.groupAttemptStateChangedSuccess += this.respondSwitchToggled;
                 }
 
             #endregion
@@ -684,15 +720,15 @@ namespace monoswitch.content
 
                 private void pressSwitch(s_switch widge)
                 {
-                        widge.RenderRule.Mode = ButtonRenderRule.RenderMode.Pressed;
+                     widge.RenderRule.Mode = ButtonRenderRule.RenderMode.Pressed;
                 }
 
                 private void unpressSwitch(s_switch widge)
                 {
-                        if (!widge.switchedOn)
-                        {
-                            widge.RenderRule.Mode = ButtonRenderRule.RenderMode.Default;
-                        }
+                    if (!widge.switchedOn)
+                    {
+                        widge.RenderRule.Mode = ButtonRenderRule.RenderMode.Default;
+                    }
                 }
 
             #endregion

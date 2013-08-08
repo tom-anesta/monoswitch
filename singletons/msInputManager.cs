@@ -9,7 +9,7 @@ using Ruminate.GUI.Framework;
 using Ruminate.DataStructures;
 using monoswitch.content;
 
-namespace monoswitch
+namespace monoswitch.singletons
 {
     //this class is a replication of the ruminate input manager class.  
     //the input manager class automatically focused and selected widged based on mouse movements.  we want to work based on key presses

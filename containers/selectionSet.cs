@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna;
 using Microsoft.Xna.Framework.Input;
 using monoswitch.content;
+using monoswitch.singletons;
+using monoswitch.misc;
 
 namespace monoswitch.containers
 {
@@ -58,6 +60,7 @@ namespace monoswitch.containers
                 protected ScrollBars m_scroller;
                 protected KeyDelegator m_keyDelegator;
                 protected KeyLogicRoot m_keyRoot;
+                protected List<discreteTimer> m_discreteList;
 
             #endregion
 
@@ -187,12 +190,56 @@ namespace monoswitch.containers
                 {
                     if (((KeyPair)kPair).keyState == KeyState.Up)
                     {
+                        Console.WriteLine("responding key state up");
+                        //if we have it in the list of timers we should remove it
+                        if (this.m_discreteList.Select(x => x.pair).Contains(kPair))
+                        {
+                            discreteTimer val = this.m_discreteList.First(x => x.pair == kPair);
+                            if (val != null)
+                            {
+                                this.m_discreteList.Remove(val);
+                                val.running = false;
+                            }
+                        }
                         this.sendKeyUp(this, new KeyEventArgs(((KeyPair)kPair).key));
                     }
                     else if (((KeyPair)kPair).keyState == KeyState.Down)
                     {
+                        Console.WriteLine("responding key state down");
+                        if (this.m_discreteList.Select(x => x.pair).Contains(kPair))
+                        {
+                            discreteTimer val = this.m_discreteList.First(x => x.pair == kPair);
+                            if (interval == 0)
+                            {
+                                this.m_discreteList.Remove(val);
+                                val.running = false;
+                            }
+                            else
+                            {
+                                val.topOff((int)interval);
+                            }
+                        }
+                        else
+                        {
+                            if (interval != 0)
+                            {
+                                Console.WriteLine("creating new timer");
+                                discreteTimer val = new discreteTimer((KeyPair)kPair, ((int)Math.Abs(interval)));
+                                this.m_discreteList.Add(val);
+                                val.running = true;
+                                val.timerUp += this.respTimerUp;
+                            }
+                        }
                         this.sendKeyDown(this, new KeyEventArgs(((KeyPair)kPair).key));
                     }
+                }
+
+                public void respTimerUp(discreteTimer val)
+                {
+                    Console.WriteLine("removing timer thing");
+                    this.m_discreteList.Remove(val);
+                    val.running = false;
+                    val.pair.setState(KeyState.Up);
                 }
 
             #endregion
@@ -220,6 +267,7 @@ namespace monoswitch.containers
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_discreteList = new List<discreteTimer>();
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
                     //handle fixing the input
@@ -243,6 +291,7 @@ namespace monoswitch.containers
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_discreteList = new List<discreteTimer>();
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
                     //handle fixing the input
@@ -275,6 +324,7 @@ namespace monoswitch.containers
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, int p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_discreteList = new List<discreteTimer>();
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
                     //handle fixing the input
@@ -337,6 +387,7 @@ namespace monoswitch.containers
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, switchNode[] p_intendedNodes, int p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_discreteList = new List<discreteTimer>();
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
                     //handle fixing the input
@@ -375,6 +426,7 @@ namespace monoswitch.containers
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, switchNode[] p_intendedNodes, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_discreteList = new List<discreteTimer>();
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
                     //handle fixing the input
@@ -558,8 +610,14 @@ namespace monoswitch.containers
                         }
                     }
                     this.m_timeToAdvance = new TimeSpan((long)result*TimeSpan.TicksPerMillisecond);
+                    //now lets update the timers
+                    for (int i = 0; i < this.m_discreteList.Count; i++ )
+                    {
+                        Console.WriteLine("updating timer at " + i);
+                        this.m_discreteList[i].UpdateByTime(gametime.ElapsedGameTime);
+                    }
                 }
-                
+
 
                 //virtual functions
 
@@ -754,6 +812,7 @@ namespace monoswitch.containers
 
                 protected void delayedArrayConstructor(Game p_game, IKeyObject p_activatorKey, switchNode[] p_intendedNodes, int p_scanR)
                 {
+                    this.m_discreteList = new List<discreteTimer>();
                     //handle fixing the input
                     this.m_msInMan = new msInputManager(p_game, this.Dom, p_activatorKey);
                     this.InputManager = null;//remove the input manager
@@ -783,6 +842,7 @@ namespace monoswitch.containers
 
                 protected void delayedArrayConstructor(Game p_game, IKeyObject p_activatorKey, switchNode[] p_intendedNodes, TimeSpan p_scanR)
                 {
+                    this.m_discreteList = new List<discreteTimer>();
                     //handle fixing the input
                     this.m_msInMan = new msInputManager(p_game, this.Dom, p_activatorKey);
                     this.InputManager = null;//remove the input manager

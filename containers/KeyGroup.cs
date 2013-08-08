@@ -8,6 +8,7 @@ using monoswitch.content;
 using Microsoft.Xna.Framework.Input;
 using Ruminate.DataStructures;
 using System.Reflection;
+using monoswitch.singletons;
 
 namespace monoswitch.containers
 {
@@ -167,7 +168,6 @@ namespace monoswitch.containers
                             }
                             this.m_parent = value;
                         }
-
                     }
                 }
 
@@ -195,6 +195,7 @@ namespace monoswitch.containers
                 public event KeyGroupChange signalGroupHasChanged;
                 public event KeyGroupStateChange groupAttemptStateChanged;
                 public event KeyGroupStateChange groupAttemptStateChangedFailure;
+                public event KeyGroupStateChange groupAttemptStateChangedSuccess;
 
             #endregion
 
@@ -260,9 +261,30 @@ namespace monoswitch.containers
                     if (result == logicStates.TRUE)//if we were successful pop off stack else we need to hold on to it
                     {
                         oldGroupStack.Remove(this);
+                        if (this.groupAttemptStateChangedSuccess != null)
+                        {
+                            this.groupAttemptStateChangedSuccess(this, oldPairStack, oldGroupStack, 0f);
+                        }
+
                     }
                     Console.WriteLine("The result of resolve in keygroup is " + result);
                     return result;
+                }
+
+                protected void m_respGroupPairChangeSuccess(ILogicState failedP, float interval = 0f)
+                {
+                    Console.WriteLine("responding to key state success change");
+                    this.m_state = this.evaluate();
+                    Console.WriteLine("the state is currently " + this.m_state);
+                    if (this.groupAttemptStateChangedSuccess != null)
+                    {
+                        Console.WriteLine("sending alert");
+                        this.groupAttemptStateChangedSuccess(this, null, null, 0f);
+                    }
+                    else
+                    {
+                        Console.WriteLine("no success signaler found");
+                    }
                 }
 
                 protected logicStates m_respGroupAttemptChanged (KeyPair kPair, KeyGroup kGroup)
@@ -331,7 +353,16 @@ namespace monoswitch.containers
                     {
                         for (int i = 0; i < inList.Count; i++)
                         {
-                            this.m_list.Add(this.m_delegator.key(inList[i]));
+                            KeyPair kVal = this.m_delegator.key(inList[i]);
+                            this.m_list.Add(kVal);
+                            kVal.stateChangeAttempt += this.m_respGroupPairAttemptChanged;
+                            kVal.stateChangeFailure += this.m_respGroupPairChangeFailure;
+                            kVal.stateChangeSuccess += this.m_respGroupPairChangeSuccess;
+                            if (this.parent != null && this.parent.KRoot != null && this.parent.KRoot.getSet != null)
+                            {
+                                selectionSet set = this.parent.KRoot.getSet;
+                                kVal.stateChangeSuccess += set.respondKeyChanged;//remove
+                            }
                         }
                     }
                     else
@@ -350,6 +381,15 @@ namespace monoswitch.containers
                     foreach (KeyPair kp in keyGroup.m_list)
                     {
                         this.m_list.Add(kp);
+                        //handle adding event listeners
+                        kp.stateChangeAttempt += this.m_respGroupPairAttemptChanged;
+                        kp.stateChangeFailure += this.m_respGroupPairChangeFailure;
+                        kp.stateChangeSuccess += this.m_respGroupPairChangeSuccess;
+                        if (this.parent != null && this.parent.KRoot != null && this.parent.KRoot.getSet != null)
+                        {
+                            selectionSet set = this.parent.KRoot.getSet;
+                            kp.stateChangeSuccess += set.respondKeyChanged;//remove
+                        }
                     }
                     //this.parent = keyGroup.parent;
                     this.parent = null;//two key groups cannot have the same logic node parent.  only one key group allowed per logic node
@@ -383,6 +423,7 @@ namespace monoswitch.containers
                             //handle adding event listeners
                             adder.stateChangeAttempt += this.m_respGroupPairAttemptChanged;
                             adder.stateChangeFailure += this.m_respGroupPairChangeFailure;
+                            adder.stateChangeSuccess += this.m_respGroupPairChangeSuccess;
                             if (this.parent != null && this.parent.KRoot != null && this.parent.KRoot.getSet != null)
                             {
                                 selectionSet set = this.parent.KRoot.getSet;
@@ -758,6 +799,7 @@ namespace monoswitch.containers
 
                 public logicStates setState(KeyState sVal, List<ILogicState> oldPairs = null, List<ILogicState> oldGroups = null, float interval = 0f)
                 {
+                    Console.WriteLine("setting state to " + sVal);
                     if(sVal == this.keyState)
                     {
                         return logicStates.TRUE;//well then we succeeded in setting
@@ -779,11 +821,14 @@ namespace monoswitch.containers
                     logicStates result = logicStates.TRUE;
                     if (this.stateChangeAttempt != null)
                     {
+                        Console.WriteLine("attempting state change");
                         result = this.stateChangeAttempt(this, oldPairs, oldGroups);//move oldpairs to below when changing, this should evaluate
+                        Console.WriteLine("state change result was " + result);
                         if (result == logicStates.TRUE && this.m_state == sVal)//later put here to attempt a change if one is needed to resolve
                         {
                             if (this.stateChangeSuccess != null)
                             {
+                                Console.WriteLine("signalling success");
                                 this.stateChangeSuccess(this, interval);//signal the game
                             }
                             oldPairs.Remove(this);

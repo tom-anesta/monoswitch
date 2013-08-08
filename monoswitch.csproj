@@ -55,19 +55,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ILogicState.cs" />
+    <Compile Include="interfaces\ILogicState.cs" />
     <Compile Include="containers\KeyGroup.cs" />
     <Compile Include="containers\KeyLogic.cs" />
     <Compile Include="content\composite_switch.cs" />
     <Compile Include="content\discretecomposite_switch.cs" />
     <Compile Include="content\discrete_switch.cs" />
-    <Compile Include="IKeyObject.cs" />
-    <Compile Include="KeyDelegator.cs" />
-    <Compile Include="KeyLogicManager.cs" />
+    <Compile Include="interfaces\IKeyObject.cs" />
+    <Compile Include="misc\discreteTimer.cs" />
+    <Compile Include="singletons\KeyDelegator.cs" />
+    <Compile Include="singletons\KeyLogicManager.cs" />
     <Compile Include="misc\goalDetermineObj.cs" />
     <Compile Include="misc\kkey.cs" />
     <Compile Include="misc\mkey.cs" />
-    <Compile Include="msInputManager.cs" />
+    <Compile Include="singletons\msInputManager.cs" />
     <Compile Include="containers\selectionSet.cs" />
     <Compile Include="containers\switchNode.cs" />
     <Compile Include="content\s_switch.cs" />

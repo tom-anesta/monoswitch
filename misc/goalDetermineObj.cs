@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using monoswitch;
+using monoswitch.singletons;
 
 namespace monoswitch.misc
 {

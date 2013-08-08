@@ -6,6 +6,7 @@ using monoswitch;
 using monoswitch.containers;
 using monoswitch.content;
 using Microsoft.Xna.Framework.Input;
+using monoswitch.singletons;
 
 namespace monoswitch.content
 {
@@ -226,6 +227,7 @@ namespace monoswitch.content
                                             kp.stateChangeSuccess -= setVal.respondKeyChanged;
                                         }
                                     }
+                                    
                                 }
                             }
                         }
@@ -233,6 +235,7 @@ namespace monoswitch.content
                         {
                             kp.stateChangeSuccess -= this.respKeyChange;
                         }
+                        this.m_group.groupAttemptStateChangedSuccess -= this.respondSwitchToggled;
                     }
                     KeyGroup rGroup = new KeyGroup(kdel, kList);
                     if (kList != null && kList.Count > 0)
@@ -248,18 +251,23 @@ namespace monoswitch.content
                                         kp.stateChangeSuccess += setVal.respondKeyChanged;
                                     }
                                 }
+                                
                             }
+                            
                         }
                         foreach (KeyPair kp in rGroup.pairs)
                         {
                             kp.stateChangeSuccess += this.respKeyChange;
                         }
+                        this.m_group.groupAttemptStateChangedSuccess += this.respondSwitchToggled;
                     }
                     else
                     {
                         rGroup = new KeyGroup(kdel);
+                        this.m_group.groupAttemptStateChangedSuccess += this.respondSwitchToggled;
                     }
                     this.m_group = rGroup;
+                    
                 }
 
                 protected override void setGroup(KeyGroup kGroup)

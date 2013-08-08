@@ -6,6 +6,7 @@ using Ruminate;
 using Ruminate.DataStructures;
 using Microsoft.Xna.Framework.Input;
 using monoswitch;
+using monoswitch.singletons;
 
 namespace monoswitch.containers
 {
