@@ -164,7 +164,7 @@ namespace monoswitch.misc
 
                 protected override void Attach() { }
 
-                protected override void Update() { }       
+                protected override void Update() { }
 
             #endregion
 

@@ -65,7 +65,8 @@ namespace monoswitchExample
                 //need a reference to the game
                 protected exampleGame m_game;
                 protected gameParams m_params;
-
+                protected Viewport m_mainView;
+                protected Viewport m_menuView;
                 
             #endregion
 
@@ -127,13 +128,14 @@ namespace monoswitchExample
                     this.m_game = game;
                     if (gparams == null)
                     {
-                        this.m_params = new gameParams(gameParams.DEF_SCAN_RATE, gameParams.DEF_REFACTORY_PERIOD, gameParams.DEF_DISCRETE, gameParams.DEF_COMPOSITE, gameParams.DEF_MARKER);
+                        this.m_params = new gameParams(gameParams.DEF_SCAN_RATE, gameParams.DEF_REFACTORY_PERIOD, gameParams.DEF_DISCRETE_HOLD, gameParams.DEF_GAME_TIME, gameParams.DEF_GOAL, gameParams.DEF_DISCRETE, gameParams.DEF_COMPOSITE, gameParams.DEF_MARKER);
                     }
                     else
                     {
                         this.m_params = gparams;
                     }
-                    
+                    this.m_menuView = new Viewport(this.m_game.GraphicsDevice.Viewport.X, this.m_game.GraphicsDevice.Viewport.Y, this.m_game.GraphicsDevice.Viewport.Width, 200);
+                    this.m_mainView = new Viewport(this.m_game.GraphicsDevice.Viewport.X, this.m_game.GraphicsDevice.Viewport.Y + this.m_menuView.Height, this.m_game.GraphicsDevice.Viewport.Width, this.m_game.GraphicsDevice.Viewport.Height - this.m_menuView.Height);
                 }
 
                 /// <summary>
@@ -142,7 +144,7 @@ namespace monoswitchExample
                 public override void LoadContent()
                 {
                     var beaker = m_game.Content.Load<Texture2D>("beaker");
-
+                    int discSpeed = this.m_params.discreteHold;
                     if (!this.m_inited)
                     {
                         this.Initialize();
@@ -156,10 +158,8 @@ namespace monoswitchExample
                     Animation playerAnimation = new Animation();
                     Texture2D playerTexture = this.m_content.Load<Texture2D>("shipAnimation");
                     playerAnimation.Initialize(playerTexture, Vector2.Zero, 115, 69, 8, 30, Color.White, 1f, true);
-                    Vector2 playerPosition = new Vector2(this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.X+this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width/2, this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Y + this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height / 2);
-                    //  - playerAnimation.frameWidth/2
-                    // - playerAnimation.frameHeight /2
-                    this.m_player.Initialize(playerAnimation, playerPosition, this.ScreenManager.GraphicsDevice.Viewport);
+                    Vector2 playerPosition = new Vector2(this.m_mainView.TitleSafeArea.X + this.m_mainView.TitleSafeArea.Width/2, this.m_mainView.TitleSafeArea.Y + this.m_mainView.TitleSafeArea.Height/2);
+                    this.m_player.Initialize(playerAnimation, playerPosition, this.m_mainView);
                     this.m_starTexture = this.m_content.Load<Texture2D>("mineAnimation");
                     this.repopulateStars();
                     this.m_timer = null;
@@ -178,19 +178,19 @@ namespace monoswitchExample
                         List<Keys> list1 = new List<Keys>();
                         list1.Add(Keys.D);
                         KeyGroup group1 = new KeyGroup(KDELEGATOR, list1);
-                        s_switch temp1 = new s_switch(group1, 10, 10, 150, "right");
+                        s_switch temp1 = new s_switch(group1, 10, 2, 150, "right");
                         List<Keys> list2 = new List<Keys>();
                         list2.Add(Keys.W);
                         KeyGroup group2 = new KeyGroup(KDELEGATOR, list2);
-                        s_switch temp2 = new s_switch(group2, 160, 10, 150, "up");
+                        s_switch temp2 = new s_switch(group2, 160, 2, 150, "up");
                         List<Keys> list3 = new List<Keys>();
                         list3.Add(Keys.A);
                         KeyGroup group3 = new KeyGroup(KDELEGATOR, list3);
-                        s_switch temp3 = new s_switch(group3, 310, 10, 150, "left");
+                        s_switch temp3 = new s_switch(group3, 310, 2, 150, "left");
                         List<Keys> list4 = new List<Keys>();
                         list4.Add(Keys.S);
                         KeyGroup group4 = new KeyGroup(KDELEGATOR, list4);
-                        s_switch temp4 = new s_switch(group4, 460, 10, 150, "down");
+                        s_switch temp4 = new s_switch(group4, 460, 2, 150, "down");
 
                         //NODES BASE GROUPS AND SWITCHNODES
                         KeyLogicNode noder = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
@@ -232,8 +232,7 @@ namespace monoswitchExample
                         //marker
                         if (this.m_params.useMarker)
                         {
-                            this.m_selectSet.marker = new marker(beaker, 0f, 1f, 60f);
-                            this.m_selectSet.marker.Visible = true;
+                            this.m_selectSet.marker = new marker(beaker, 0f, 1f, 33f);
                         }
 
                     }
@@ -242,19 +241,19 @@ namespace monoswitchExample
                         List<Keys> list1 = new List<Keys>();
                         list1.Add(Keys.D);
                         KeyGroup group1 = new KeyGroup(KDELEGATOR, list1);
-                        discrete_switch temp1 = new discrete_switch(group1, 10, 10, 150, "right", 5000000f);
+                        discrete_switch temp1 = new discrete_switch(group1, 10, 2, 150, "right", discSpeed);
                         List<Keys> list2 = new List<Keys>();
                         list2.Add(Keys.W);
                         KeyGroup group2 = new KeyGroup(KDELEGATOR, list2);
-                        discrete_switch temp2 = new discrete_switch(group2, 160, 10, 150, "up", 5000000f);
+                        discrete_switch temp2 = new discrete_switch(group2, 160, 2, 150, "up", discSpeed);
                         List<Keys> list3 = new List<Keys>();
                         list3.Add(Keys.A);
                         KeyGroup group3 = new KeyGroup(KDELEGATOR, list3);
-                        discrete_switch temp3 = new discrete_switch(group3, 310, 10, 150, "left", 5000000f);
+                        discrete_switch temp3 = new discrete_switch(group3, 310, 2, 150, "left", discSpeed);
                         List<Keys> list4 = new List<Keys>();
                         list4.Add(Keys.S);
                         KeyGroup group4 = new KeyGroup(KDELEGATOR, list4);
-                        discrete_switch temp4 = new discrete_switch(group4, 460, 10, 150, "down", 500000f);
+                        discrete_switch temp4 = new discrete_switch(group4, 460, 2, 150, "down", discSpeed);
 
                         //NODES BASE GROUPS AND SWITCHNODES
                         KeyLogicNode noder = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
@@ -296,8 +295,7 @@ namespace monoswitchExample
 
                         if (this.m_params.useMarker)
                         {
-                            Console.WriteLine("setting marker");
-                            this.m_selectSet.marker = new marker(beaker, 0f, 1f, 60f);
+                            this.m_selectSet.marker = new marker(beaker, 0f, 1f, 33f);
                         }
                     }
                     else if(!this.m_params.discrete && this.m_params.composite)
@@ -305,40 +303,40 @@ namespace monoswitchExample
                         List<Keys> list1 = new List<Keys>();
                         list1.Add(Keys.D);
                         KeyGroup group1 = new KeyGroup(KDELEGATOR, list1);
-                        composite_switch temp1 = new composite_switch(group1, 10, 10, 140, "right");
+                        composite_switch temp1 = new composite_switch(group1, 10, 2, 140, "right");
                         List<Keys> list2 = new List<Keys>();
                         list2.Add(Keys.W);
                         KeyGroup group2 = new KeyGroup(KDELEGATOR, list2);
-                        composite_switch temp2 = new composite_switch(group2, 290, 10, 140, "up");
+                        composite_switch temp2 = new composite_switch(group2, 290, 2, 140, "up");
                         List<Keys> list3 = new List<Keys>();
                         list3.Add(Keys.A);
                         KeyGroup group3 = new KeyGroup(KDELEGATOR, list3);
-                        composite_switch temp3 = new composite_switch(group3, 570, 10, 150, "left");
+                        composite_switch temp3 = new composite_switch(group3, 570, 2, 150, "left");
                         List<Keys> list4 = new List<Keys>();
                         list4.Add(Keys.S);
                         KeyGroup group4 = new KeyGroup(KDELEGATOR, list4);
-                        composite_switch temp4 = new composite_switch(group4, 850, 10, 140, "down");
+                        composite_switch temp4 = new composite_switch(group4, 850, 2, 140, "down");
 
                         List<Keys> listUL = new List<Keys>();
                         listUL.Add(Keys.D);
                         listUL.Add(Keys.W);
                         KeyGroup groupUL = new KeyGroup(KDELEGATOR, listUL);
-                        composite_switch temp1x5 = new composite_switch(groupUL, 150, 10, 140, "upleft");
+                        composite_switch temp1x5 = new composite_switch(groupUL, 150, 2, 140, "upleft");
                         List<Keys> listUR = new List<Keys>();
                         listUR.Add(Keys.W);
                         listUR.Add(Keys.A);
                         KeyGroup groupUR = new KeyGroup(KDELEGATOR, listUR);
-                        composite_switch temp2x5 = new composite_switch(groupUR, 430, 10, 140, "upright");
+                        composite_switch temp2x5 = new composite_switch(groupUR, 430, 2, 140, "upright");
                         List<Keys> listRD = new List<Keys>();
                         listRD.Add(Keys.A);
                         listRD.Add(Keys.S);
                         KeyGroup groupRD = new KeyGroup(KDELEGATOR, listRD);
-                        composite_switch temp3x5 = new composite_switch(groupRD, 710, 10, 140, "downright");
+                        composite_switch temp3x5 = new composite_switch(groupRD, 710, 2, 140, "downright");
                         List<Keys> listRL = new List<Keys>();
                         listRL.Add(Keys.S);
                         listRL.Add(Keys.D);
                         KeyGroup groupRL = new KeyGroup(KDELEGATOR, listRL);
-                        composite_switch temp4x5_0x5 = new composite_switch(groupRL, 990, 10, 140, "downleft");
+                        composite_switch temp4x5_0x5 = new composite_switch(groupRL, 990, 2, 140, "downleft");
 
                         //NODES BASE GROUPS AND SWITCHNODES
                         KeyLogicNode noder = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
@@ -388,8 +386,7 @@ namespace monoswitchExample
 
                         if (this.m_params.useMarker)
                         {
-                            Console.WriteLine("setting marker");
-                            this.m_selectSet.marker = new marker(beaker, 0f, 1f, 60f);
+                            this.m_selectSet.marker = new marker(beaker, 0f, 1f, 33f);
                         }
                     }
                     else if(this.m_params.discrete && this.m_params.composite)
@@ -397,40 +394,40 @@ namespace monoswitchExample
                         List<Keys> list1 = new List<Keys>();
                         list1.Add(Keys.D);
                         KeyGroup group1 = new KeyGroup(KDELEGATOR, list1);
-                        discretecomposite_switch temp1 = new discretecomposite_switch(group1, 10, 10, 140, "right", 500000f);
+                        discretecomposite_switch temp1 = new discretecomposite_switch(group1, 10, 2, 140, "right", discSpeed);
                         List<Keys> list2 = new List<Keys>();
                         list2.Add(Keys.W);
                         KeyGroup group2 = new KeyGroup(KDELEGATOR, list2);
-                        discretecomposite_switch temp2 = new discretecomposite_switch(group2, 290, 10, 140, "up", 500000f);
+                        discretecomposite_switch temp2 = new discretecomposite_switch(group2, 290, 2, 140, "up", discSpeed);
                         List<Keys> list3 = new List<Keys>();
                         list3.Add(Keys.A);
                         KeyGroup group3 = new KeyGroup(KDELEGATOR, list3);
-                        discretecomposite_switch temp3 = new discretecomposite_switch(group3, 570, 10, 150, "left", 500000f);
+                        discretecomposite_switch temp3 = new discretecomposite_switch(group3, 570, 2, 140, "left", discSpeed);
                         List<Keys> list4 = new List<Keys>();
                         list4.Add(Keys.S);
                         KeyGroup group4 = new KeyGroup(KDELEGATOR, list4);
-                        discretecomposite_switch temp4 = new discretecomposite_switch(group4, 850, 10, 140, "down", 500000f);
+                        discretecomposite_switch temp4 = new discretecomposite_switch(group4, 850, 2, 140, "down", discSpeed);
 
                         List<Keys> listUL = new List<Keys>();
                         listUL.Add(Keys.D);
                         listUL.Add(Keys.W);
                         KeyGroup groupUL = new KeyGroup(KDELEGATOR, listUL);
-                        discretecomposite_switch temp1x5 = new discretecomposite_switch(groupUL, 150, 10, 140, "upleft", 500000f);
+                        discretecomposite_switch temp1x5 = new discretecomposite_switch(groupUL, 150, 2, 140, "upleft", 500000f);
                         List<Keys> listUR = new List<Keys>();
                         listUR.Add(Keys.W);
                         listUR.Add(Keys.A);
                         KeyGroup groupUR = new KeyGroup(KDELEGATOR, listUR);
-                        discretecomposite_switch temp2x5 = new discretecomposite_switch(groupUR, 430, 10, 140, "upright", 500000f);
+                        discretecomposite_switch temp2x5 = new discretecomposite_switch(groupUR, 430, 2, 140, "upright", 500000f);
                         List<Keys> listRD = new List<Keys>();
                         listRD.Add(Keys.A);
                         listRD.Add(Keys.S);
                         KeyGroup groupRD = new KeyGroup(KDELEGATOR, listRD);
-                        discretecomposite_switch temp3x5 = new discretecomposite_switch(groupRD, 710, 10, 140, "downright", 500000f);
+                        discretecomposite_switch temp3x5 = new discretecomposite_switch(groupRD, 710, 2, 140, "downright", 500000f);
                         List<Keys> listRL = new List<Keys>();
                         listRL.Add(Keys.S);
                         listRL.Add(Keys.D);
                         KeyGroup groupRL = new KeyGroup(KDELEGATOR, listRL);
-                        discretecomposite_switch temp4x5_0x5 = new discretecomposite_switch(groupRL, 990, 10, 140, "downleft", 500000f);
+                        discretecomposite_switch temp4x5_0x5 = new discretecomposite_switch(groupRL, 990, 2, 140, "downleft", 500000f);
 
                         //NODES BASE GROUPS AND SWITCHNODES
                         KeyLogicNode noder = new KeyLogicNode(KDELEGATOR, 2, true, true, true);
@@ -480,8 +477,7 @@ namespace monoswitchExample
 
                         if (this.m_params.useMarker)
                         {
-                            Console.WriteLine("setting marker");
-                            this.m_selectSet.marker = new marker(beaker, 0f, 1f, 60f);
+                            this.m_selectSet.marker = new marker(beaker, 0f, 1f, 33f);
                         }
                     }
                     this.m_selectSet.sendKeyDown += this.kdown;
@@ -617,10 +613,12 @@ namespace monoswitchExample
                 {
                     // This game has a blue background. Why? Because!
                     ScreenManager.GraphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
+                    
                     // Our player and enemy are both actually just text strings.
                     SpriteBatch spriteBatch = ScreenManager.spriteBatch;
                     //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
                     spriteBatch.Begin();
+                    
                     this.m_player.Draw(spriteBatch);
                     foreach (star sVal in this.m_stars)//draw the stars
                     {
@@ -629,7 +627,7 @@ namespace monoswitchExample
                     //draw your timer
                     if (this.m_timer != null && this.m_timer.isActive)
                     {
-                        spriteBatch.DrawString(this.m_gameFont, this.m_timer.displayValue, new Vector2(this.ScreenManager.GraphicsDevice.Viewport.X, this.ScreenManager.GraphicsDevice.Viewport.Y +100), Color.Red);
+                        spriteBatch.DrawString(this.m_gameFont, this.m_timer.displayValue, new Vector2(this.m_menuView.X, this.m_menuView.Y +100), Color.Red);
                     }
                     spriteBatch.End();
                     // If the game is transitioning on or off, fade it out to black.
@@ -675,12 +673,12 @@ namespace monoswitchExample
 
                 protected bool reroll(ref star sVal)
                 {
-                    float xloc = this.m_random.Next(this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width) + this.ScreenManager.GraphicsDevice.Viewport.X;
-                    float yloc = this.m_random.Next(this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height) + this.ScreenManager.GraphicsDevice.Viewport.Y;
+                    float xloc = this.m_random.Next(this.m_mainView.TitleSafeArea.Width) + this.m_mainView.TitleSafeArea.X;//(this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Width) + this.ScreenManager.GraphicsDevice.Viewport.X;
+                    float yloc = this.m_random.Next(this.m_mainView.TitleSafeArea.Height) + this.m_mainView.TitleSafeArea.Y;//(this.ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Height) + this.ScreenManager.GraphicsDevice.Viewport.Y;
                     Vector2 loc = new Vector2(xloc, yloc);
                     Animation anim = new Animation();
                     anim.Initialize(this.m_starTexture, loc, 47, 61, 8, 30,Color.White, 1f, true);
-                    sVal.Initialize(anim, loc, this.ScreenManager.GraphicsDevice.Viewport);
+                    sVal.Initialize(anim, loc, this.m_mainView);//this.ScreenManager.GraphicsDevice.Viewport);
                     foreach (star sVal2 in this.m_stars)
                     {
                         if(safeCircleIntersects(sVal2, sVal))

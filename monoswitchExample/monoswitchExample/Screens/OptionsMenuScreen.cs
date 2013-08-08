@@ -94,7 +94,7 @@ namespace monoswitchExample
                     }
                     else
                     {
-                        this.m_params = new gameParams(gameParams.DEF_SCAN_RATE, gameParams.DEF_REFACTORY_PERIOD, gameParams.DEF_DISCRETE, gameParams.DEF_COMPOSITE, gameParams.DEF_MARKER);
+                        this.m_params = new gameParams(gameParams.DEF_SCAN_RATE, gameParams.DEF_REFACTORY_PERIOD, gameParams.DEF_DISCRETE_HOLD, gameParams.DEF_GAME_TIME, gameParams.DEF_GOAL, gameParams.DEF_DISCRETE, gameParams.DEF_COMPOSITE, gameParams.DEF_MARKER);
                     }
                     int midPoint = this.m_game.GraphicsDevice.Viewport.X + this.m_game.GraphicsDevice.Viewport.Width / 2;
                     int vert = this.m_game.GraphicsDevice.Viewport.Y + this.m_game.GraphicsDevice.Viewport.Height / 12;

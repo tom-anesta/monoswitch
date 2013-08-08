@@ -21,8 +21,8 @@ namespace monoswitch.containers
             #region public
 
                 //static const
-                public const int DEFAULT_SCANNINGRATE = 666;//2/3 of a second
-                public const int DEFAULT_MIN_SCANNINGRATE = 20;//minimum 1/50th of a second
+                public const int DEFAULT_SCANNINGRATE = 6666680;//2/3 of a second
+                public const int DEFAULT_MIN_SCANNINGRATE = 200000;//minimum 1/50th of a second
                 public const int DEFAULT_PREF_BEGINNINGS = 1;//the default number of preferred beginnings
                 public const int DEFAULT_PREF_ENDINGS = 1;//the default number of preferred endings
                 public const int DEFAULT_MAX_WIDTH = 300;//the default maximum width
@@ -301,11 +301,11 @@ namespace monoswitch.containers
                     this.m_msInMan = new msInputManager(p_game, this.Dom, p_activatorKey);
                     this.InputManager = null;//remove the input manager
 
-                    this.m_scanningRate = new TimeSpan(0, 0, 0, 0, selectionSet.DEFAULT_SCANNINGRATE);
-                    this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
+                    this.m_scanningRate = new TimeSpan(selectionSet.DEFAULT_SCANNINGRATE);
+                    this.m_timeToAdvance = new TimeSpan(0);
                     this.m_cutoffTime = int.MaxValue;
-                    this.m_refractoryPeriod = new TimeSpan(0, 0, 0, 0, 0);
-                    this.m_timeToRefract = new TimeSpan(0, 0, 0, 0, 0);
+                    this.m_refractoryPeriod = new TimeSpan(0);
+                    this.m_timeToRefract = new TimeSpan(0);
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
                     this.m_commited = false;
@@ -325,19 +325,18 @@ namespace monoswitch.containers
                     //handle fixing the input
                     this.m_msInMan = new msInputManager(p_game, this.Dom, p_activatorKey);
                     this.InputManager = null;//remove the input manager
-                    
                     if((int)p_scanR.TotalMilliseconds >= selectionSet.DEFAULT_MIN_SCANNINGRATE)
                     {
                         this.m_scanningRate = p_scanR;
                     }
                     else
                     {
-                        this.m_scanningRate = new TimeSpan(0, 0, 0, 0, selectionSet.DEFAULT_SCANNINGRATE);
+                        this.m_scanningRate = new TimeSpan(selectionSet.DEFAULT_SCANNINGRATE);
                     }
-                    this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
+                    this.m_timeToAdvance = new TimeSpan(0);
                     this.m_cutoffTime = int.MaxValue;
-                    this.m_refractoryPeriod = new TimeSpan(0, 0, 0, 0, 0);
-                    this.m_timeToRefract = new TimeSpan(0, 0, 0, 0, 0);
+                    this.m_refractoryPeriod = new TimeSpan(0);
+                    this.m_timeToRefract = new TimeSpan(0);
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
                     this.m_commited = false;
@@ -362,9 +361,9 @@ namespace monoswitch.containers
 
                     if (p_scanR >= selectionSet.DEFAULT_MIN_SCANNINGRATE)
                     {
-                        this.m_scanningRate = new TimeSpan(0, 0, 0, 0, p_scanR);
+                        this.m_scanningRate = new TimeSpan(p_scanR);
                     }
-                    this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
+                    this.m_timeToAdvance = new TimeSpan(0);
                     this.m_cutoffTime = int.MaxValue;
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
@@ -426,12 +425,12 @@ namespace monoswitch.containers
 
                     if (p_scanR >= selectionSet.DEFAULT_MIN_SCANNINGRATE)
                     {
-                        this.m_scanningRate = new TimeSpan(0, 0, 0, 0, p_scanR);
+                        this.m_scanningRate = new TimeSpan(p_scanR);
                     }
-                    this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
+                    this.m_timeToAdvance = new TimeSpan(0);
                     this.m_cutoffTime = int.MaxValue;
-                    this.m_refractoryPeriod = new TimeSpan(0, 0, 0, 0, 0);
-                    this.m_timeToRefract = new TimeSpan(0, 0, 0, 0, 0);
+                    this.m_refractoryPeriod = new TimeSpan(0);
+                    this.m_timeToRefract = new TimeSpan(0);
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
                     if (this.isValidList(p_intendedNodes, this.m_keyDelegator))
@@ -463,15 +462,14 @@ namespace monoswitch.containers
                     //handle fixing the input
                     this.m_msInMan = new msInputManager(p_game, this.Dom, p_activatorKey);
                     this.InputManager = null;//remove the input manager
-
                     if ((int)p_scanR.TotalMilliseconds >= selectionSet.DEFAULT_MIN_SCANNINGRATE)
                     {
                         this.m_scanningRate = p_scanR;
                     }
-                    this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
+                    this.m_timeToAdvance = new TimeSpan(0);
                     this.m_cutoffTime = int.MaxValue;
-                    this.m_refractoryPeriod = new TimeSpan(0, 0, 0, 0, 0);
-                    this.m_timeToRefract = new TimeSpan(0, 0, 0, 0, 0);
+                    this.m_refractoryPeriod = new TimeSpan(0);
+                    this.m_timeToRefract = new TimeSpan(0);
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();
                     if (this.isValidList(p_intendedNodes, this.m_keyDelegator))
@@ -521,7 +519,6 @@ namespace monoswitch.containers
                             return false;
                         }
                     }
-
                     Widget[] itemsToAdd = itemsToCommit.Select(x=>x.child).ToArray();
                     if (p_width.HasValue)
                     {
@@ -580,7 +577,7 @@ namespace monoswitch.containers
                         return;
                     }
                     int pref_time = Math.Min(this.m_cutoffTime, ((int)this.m_currentNode.child.scanningRate.TotalMilliseconds > selectionSet.DEFAULT_MIN_SCANNINGRATE) ? (int)this.m_currentNode.child.scanningRate.TotalMilliseconds : (int)this.m_scanningRate.TotalMilliseconds);
-                    this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, pref_time);
+                    this.m_timeToAdvance = new TimeSpan(pref_time);
                 }
 
                 public void Stop()
@@ -590,7 +587,7 @@ namespace monoswitch.containers
                         return;//can't stop if it's not going
                     }
                     this.m_cutoffTime = (int)this.m_timeToAdvance.TotalMilliseconds;
-                    this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
+                    this.m_timeToAdvance = new TimeSpan(0);
                 }
                 public void Reset()
                 {
@@ -600,7 +597,7 @@ namespace monoswitch.containers
                     }
                     this.m_currentNode = this.m_startingNode;
                     this.m_cutoffTime = int.MaxValue;
-                    this.m_timeToAdvance = new TimeSpan(0, 0, 0, 0, 0);
+                    this.m_timeToAdvance = new TimeSpan(0);
                 }
 
                 public void Restart()
@@ -851,7 +848,7 @@ namespace monoswitch.containers
 
                     if (p_scanR >= selectionSet.DEFAULT_MIN_SCANNINGRATE)
                     {
-                        this.m_scanningRate = new TimeSpan(0, 0, 0, 0, p_scanR);
+                        this.m_scanningRate = new TimeSpan(p_scanR);
                     }
                     this.m_beginnings = new List<switchNode>();
                     this.m_endings = new List<switchNode>();

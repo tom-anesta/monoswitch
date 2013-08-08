@@ -48,6 +48,7 @@ namespace monoswitchExample
                 protected Texture2D m_GreyImageMap;
                 protected string m_GreyMap;
                 
+                
 
             #endregion
 
@@ -137,11 +138,13 @@ namespace monoswitchExample
 
                 protected override void Initialize()
                 {
-                    this.graphics.PreferredBackBufferWidth = 1200;
-                    this.graphics.PreferredBackBufferHeight = 800;
+                    this.graphics.PreferredBackBufferWidth = 900;
+                    this.graphics.PreferredBackBufferHeight = 900;
                     this.graphics.ApplyChanges();
                     IsMouseVisible = true;
                     base.Initialize();
+                    var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(this.Window.Handle);
+                    form.Location = new System.Drawing.Point(0, 0);
                 }
 
                 /// <summary>
