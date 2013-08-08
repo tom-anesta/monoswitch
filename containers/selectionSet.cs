@@ -61,6 +61,7 @@ namespace monoswitch.containers
                 protected KeyDelegator m_keyDelegator;
                 protected KeyLogicRoot m_keyRoot;
                 protected List<discreteTimer> m_discreteList;
+                protected marker m_marker;
 
             #endregion
 
@@ -157,6 +158,31 @@ namespace monoswitch.containers
                     get
                     {
                         return this.m_keyRoot;
+                    }
+                }
+
+                public marker marker
+                {
+                    get
+                    {
+                        return this.m_marker;
+                    }
+                    set
+                    {
+                        if (this.m_marker != null)
+                        {
+                            this.RemoveWidget(this.m_marker);
+                        }
+                        this.m_marker = value;
+                        if(this.m_marker != null)
+                        {
+                            this.AddWidget(this.m_marker);
+                        }
+                        if (value != null && this.m_msInMan.HoverWidget != null)
+                        {
+                            Widget val = this.m_msInMan.HoverWidget;
+                            this.m_marker.moveTo(val.AbsoluteArea.X + val.AbsoluteArea.Width / 2, val.AbsoluteArea.Y + val.AbsoluteArea.Height / 2);
+                        }
                     }
                 }
 
@@ -267,6 +293,7 @@ namespace monoswitch.containers
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_marker = null;
                     this.m_discreteList = new List<discreteTimer>();
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
@@ -291,6 +318,7 @@ namespace monoswitch.containers
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_marker = null;
                     this.m_discreteList = new List<discreteTimer>();
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
@@ -324,6 +352,7 @@ namespace monoswitch.containers
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, int p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_marker = null;
                     this.m_discreteList = new List<discreteTimer>();
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
@@ -387,6 +416,7 @@ namespace monoswitch.containers
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, switchNode[] p_intendedNodes, int p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_marker = null;
                     this.m_discreteList = new List<discreteTimer>();
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
@@ -426,6 +456,7 @@ namespace monoswitch.containers
                 public selectionSet(Game p_game, Skin p_defaultSkin, Text p_defaultText, IKeyObject p_activatorKey, switchNode[] p_intendedNodes, TimeSpan p_scanR, KeyDelegator kDel, IEnumerable<Tuple<string, Skin>> p_skins = null, IEnumerable<Tuple<string, Text>> p_textRenderers = null)
                     : base(p_game, p_defaultSkin, p_defaultText, p_skins, p_textRenderers)
                 {
+                    this.m_marker = null;
                     this.m_discreteList = new List<discreteTimer>();
                     this.m_keyDelegator = kDel;
                     this.InitRoot();
@@ -812,6 +843,7 @@ namespace monoswitch.containers
 
                 protected void delayedArrayConstructor(Game p_game, IKeyObject p_activatorKey, switchNode[] p_intendedNodes, int p_scanR)
                 {
+                    this.m_marker = null;
                     this.m_discreteList = new List<discreteTimer>();
                     //handle fixing the input
                     this.m_msInMan = new msInputManager(p_game, this.Dom, p_activatorKey);
@@ -842,6 +874,7 @@ namespace monoswitch.containers
 
                 protected void delayedArrayConstructor(Game p_game, IKeyObject p_activatorKey, switchNode[] p_intendedNodes, TimeSpan p_scanR)
                 {
+                    this.m_marker = null;
                     this.m_discreteList = new List<discreteTimer>();
                     //handle fixing the input
                     this.m_msInMan = new msInputManager(p_game, this.Dom, p_activatorKey);
@@ -872,8 +905,13 @@ namespace monoswitch.containers
 
                 protected void advance()//int sliced
                 {
-                        this.m_currentNode = this.m_currentNode.intendedSuccessor;
-                        this.m_msInMan.HoverWidget = this.m_currentNode.child;
+                    this.m_currentNode = this.m_currentNode.intendedSuccessor;
+                    this.m_msInMan.HoverWidget = this.m_currentNode.child;
+                    if (this.m_msInMan.HoverWidget != null && this.m_marker != null)
+                    {
+                        Widget val = this.m_msInMan.HoverWidget;
+                        this.m_marker.moveTo(val.AbsoluteArea.X + val.AbsoluteArea.Width / 2, val.AbsoluteArea.Y + val.AbsoluteArea.Height / 2);
+                    }
                 }
 
                 protected void InitRoot()

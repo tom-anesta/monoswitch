@@ -63,6 +63,7 @@
     <Compile Include="content\discrete_switch.cs" />
     <Compile Include="interfaces\IKeyObject.cs" />
     <Compile Include="misc\discreteTimer.cs" />
+    <Compile Include="misc\marker.cs" />
     <Compile Include="singletons\KeyDelegator.cs" />
     <Compile Include="singletons\KeyLogicManager.cs" />
     <Compile Include="misc\goalDetermineObj.cs" />

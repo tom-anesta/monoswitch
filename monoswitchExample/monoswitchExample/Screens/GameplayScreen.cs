@@ -22,6 +22,7 @@ using monoswitch.containers;
 using monoswitch.content;
 using monoswitch.misc;
 using monoswitch.singletons;
+using Ruminate.GUI.Content;
 #endregion
 
 namespace monoswitchExample
@@ -140,6 +141,8 @@ namespace monoswitchExample
                 /// </summary>
                 public override void LoadContent()
                 {
+                    var beaker = m_game.Content.Load<Texture2D>("beaker");
+
                     if (!this.m_inited)
                     {
                         this.Initialize();
@@ -226,42 +229,12 @@ namespace monoswitchExample
                         this.m_selectSet.addLogic(udxor);
                         this.m_selectSet.assignNodes(nodeArr, KDELEGATOR);
                         this.m_selectSet.Commit(0, 0);
-                        /*
-                        //debug
-                        Console.WriteLine("state in noder is " + noder.state);
-                        Console.WriteLine("state in nodeu is " + nodeu.state);
-                        Console.WriteLine("state in nodel is " + nodel.state);
-                        Console.WriteLine("state in noded is " + noded.state);
-                        Console.WriteLine("state in lrxor is " + lrxor.state);
-                        Console.WriteLine("the number of children in lrxor is " + lrxor.Children.Count);
-                        Console.WriteLine("the parents of the children in lrxor are ");
-                        foreach (var child in lrxor.Children)
+                        //marker
+                        if (this.m_params.useMarker)
                         {
-                            Console.WriteLine(child.Parent.ToString());
+                            this.m_selectSet.marker = new marker(beaker, 0f, 1f, 60f);
+                            this.m_selectSet.marker.Visible = true;
                         }
-                        Console.WriteLine("state in udxor is " + udxor.state);
-                        Console.WriteLine("the number of children in udxor is " + udxor.Children.Count);
-                        Console.WriteLine("the parents of the children in udxor are ");
-                        foreach (var child in udxor.Children)
-                        {
-                            Console.WriteLine(child.Parent.ToString());
-                        }
-                        
-                        Console.WriteLine("the number of children in root is " + this.m_selectSet.root.Children.Count);
-                        Console.WriteLine("the parents of the children in root are ");
-                        foreach (var child in this.m_selectSet.root.Children)
-                        {
-                            Console.WriteLine(child.Parent.ToString());
-                        }
-                        Console.WriteLine("the roots of all items are ");
-                        Console.WriteLine("root: " + this.m_selectSet.root.KRoot.ToString());
-                        Console.WriteLine("level 1 item 1: " + lrxor.KRoot);
-                        Console.WriteLine("level 1 item 2: " + udxor.KRoot);
-                        Console.WriteLine("level 2 item 1: " + noder.KRoot);
-                        Console.WriteLine("level 2 item 2: " + nodeu.KRoot);
-                        Console.WriteLine("level 2 item 3: " + nodel.KRoot);
-                        Console.WriteLine("level 2 item 4: " + noded.KRoot);
-                        */
 
                     }
                     else if(this.m_params.discrete && !this.m_params.composite)
@@ -320,6 +293,12 @@ namespace monoswitchExample
                         this.m_selectSet.addLogic(udxor);
                         this.m_selectSet.assignNodes(nodeArr, KDELEGATOR);
                         this.m_selectSet.Commit(0, 0);
+
+                        if (this.m_params.useMarker)
+                        {
+                            Console.WriteLine("setting marker");
+                            this.m_selectSet.marker = new marker(beaker, 0f, 1f, 60f);
+                        }
                     }
                     else if(!this.m_params.discrete && this.m_params.composite)
                     {
@@ -406,6 +385,12 @@ namespace monoswitchExample
                         this.m_selectSet.addLogic(udxor);
                         this.m_selectSet.assignNodes(nodeArr, KDELEGATOR);
                         this.m_selectSet.Commit(0, 0);
+
+                        if (this.m_params.useMarker)
+                        {
+                            Console.WriteLine("setting marker");
+                            this.m_selectSet.marker = new marker(beaker, 0f, 1f, 60f);
+                        }
                     }
                     else if(this.m_params.discrete && this.m_params.composite)
                     {
@@ -492,6 +477,12 @@ namespace monoswitchExample
                         this.m_selectSet.addLogic(udxor);
                         this.m_selectSet.assignNodes(nodeArr, KDELEGATOR);
                         this.m_selectSet.Commit(0, 0);
+
+                        if (this.m_params.useMarker)
+                        {
+                            Console.WriteLine("setting marker");
+                            this.m_selectSet.marker = new marker(beaker, 0f, 1f, 60f);
+                        }
                     }
                     this.m_selectSet.sendKeyDown += this.kdown;
                     this.m_selectSet.sendKeyUp += this.kup;
