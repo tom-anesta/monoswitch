@@ -122,7 +122,6 @@ namespace monoswitchExample
                 /// </summary>
                 public GameplayScreen(exampleGame game, gameParams gparams)
                 {
-                    
                     this.m_transitionOnTime = TimeSpan.FromSeconds(1.5);
                     this.m_transitionOffTime = TimeSpan.FromSeconds(0.5);
                     this.m_inited = false;
@@ -138,8 +137,9 @@ namespace monoswitchExample
                     {
                         this.m_params = gparams;
                     }
+                    Console.WriteLine("the current goal is " + this.m_params.goal);
                     this.m_defViewPort = this.m_game.GraphicsDevice.Viewport;
-                    this.m_menuView = new Viewport(this.m_defViewPort.X, this.m_defViewPort.Y, this.m_defViewPort.Width, 160);
+                    this.m_menuView = new Viewport(this.m_defViewPort.X, this.m_defViewPort.Y, this.m_defViewPort.Width, 125);
                     this.m_mainView = new Viewport(this.m_defViewPort.X, this.m_defViewPort.Y + this.m_menuView.Height, this.m_defViewPort.Width, this.m_defViewPort.Height - this.m_menuView.Height);
                     //debg
                     Console.WriteLine("the status of menu view is " + this.m_menuView.Bounds);
@@ -543,7 +543,7 @@ namespace monoswitchExample
                     if (this.m_timer == null)
                     {
                         this.m_timer = new gameTimer();
-                        this.m_timer.set(gameTime, 65);//switch to params
+                        this.m_timer.set(gameTime, this.m_params.gameTime);//switch to params
                         //add your event handler
                         this.m_timer.timerComplete += this.respondTimerComplete;
                     }
@@ -587,11 +587,6 @@ namespace monoswitchExample
                 private void UpdatePlayer(GameTime gameTime)
                 {
                     this.m_player.Update(gameTime);
-                    if (this.m_player.health <= 0)
-                    {
-                        this.m_player.health = 100;
-                        this.m_score = 0;
-                    }
                 }
 
                 private void UpdateStars(GameTime gameTime)
@@ -622,7 +617,6 @@ namespace monoswitchExample
                 public override void Draw(GameTime gameTime)
                 {
                     ScreenManager.GraphicsDevice.Clear(ClearOptions.Target, Color.Black, 0, 0);
-
                     //after clearing the background, switch to the game viewport and draw
                     ScreenManager.GraphicsDevice.Viewport = this.m_mainView;
                     SpriteBatch spriteBatch = ScreenManager.spriteBatch;
@@ -636,14 +630,17 @@ namespace monoswitchExample
                     //switch ports again
                     ScreenManager.GraphicsDevice.Viewport = this.m_menuView;
                     //fill in a rectangle
-                    this.m_menuTexture.SetData(new Color[] { Color.Red });
+                    this.m_menuTexture.SetData(new Color[] { Color.Blue });
                     //draw your timer
                     spriteBatch = ScreenManager.spriteBatch;
                     spriteBatch.Begin();
-                    spriteBatch.Draw(this.m_menuTexture, ScreenManager.GraphicsDevice.Viewport.TitleSafeArea, Color.Red);
+                    spriteBatch.Draw(this.m_menuTexture, ScreenManager.GraphicsDevice.Viewport.TitleSafeArea, Color.Blue);
                     if (this.m_timer != null && this.m_timer.isActive)
                     {
-                        spriteBatch.DrawString(this.m_gameFont, this.m_timer.displayValue, new Vector2(this.m_menuView.X, this.m_menuView.Y +100), Color.Blue);
+                        string tString = "Time: " + this.m_timer.displayValue;
+                        string gString = ("Progresss: " + this.m_player.score + "\\" + this.m_params.goal);
+                        spriteBatch.DrawString(this.m_gameFont, tString, new Vector2(this.m_menuView.X, this.m_menuView.Y +65), Color.Red);
+                        spriteBatch.DrawString(this.m_gameFont, gString, new Vector2(this.m_menuView.X + 200, this.m_menuView.Y + 65), Color.White);
                     }
                     spriteBatch.End();
                     // If the game is transitioning on or off, fade it out to black.
@@ -919,7 +916,7 @@ namespace monoswitchExample
                 }
 
                 protected void respondTimerComplete(object sender, EventArgs e)
-                {
+                {//also use for achieve score
                     ScreenManager.AddScreen(new BackgroundScreen(), this.controllingPlayer);
                     ScreenManager.AddScreen(new MainMenuScreen(this.m_game), this.controllingPlayer);
                     this.ExitScreen();
@@ -938,6 +935,11 @@ namespace monoswitchExample
                         if (closeCircleIntersects(this.m_stars[i], this.m_player))
                         {
                             this.m_stars[i].active = false;
+                            this.m_player.addScore();
+                            if (this.m_player.score >= this.m_params.goal)
+                            {
+                                this.respondTimerComplete(null, new EventArgs());
+                            }
                         }
                     }
                 }

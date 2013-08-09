@@ -216,10 +216,18 @@ namespace monoswitchExample
                     {
                         this.m_gameTime = gt - gt % 5;
                     }
-                    //if (gl < gameParams.DEF_MIN_GOAL)
-                    //{
-
-                    //}
+                    if (gl < gameParams.DEF_MIN_GOAL)
+                    {
+                        this.m_goal = gameParams.DEF_MIN_GOAL;
+                    }
+                    else if (gl > gameParams.DEF_MAX_GOAL)
+                    {
+                        this.m_goal = gameParams.DEF_MAX_GOAL;
+                    }
+                    else
+                    {
+                        this.m_goal = gl;
+                    }
 
                 }
 

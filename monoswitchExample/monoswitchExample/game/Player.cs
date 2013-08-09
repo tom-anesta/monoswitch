@@ -35,7 +35,7 @@ namespace monoswitchExample.game
                 // State of the player
                 protected bool m_active;
                 // Amount of hit points that player has
-                protected int m_health;
+                protected int m_score;
                 // Animation representing the player
                 protected Animation m_playerAnimation;
                 protected Animation m_altPlayerAnimation;//the position outside of the screen
@@ -76,15 +76,15 @@ namespace monoswitchExample.game
                     get { return this.m_playerAnimation.frameHeight; }
                 }
 
-                public int health
+                public int score
                 {
                     get
                     {
-                        return this.m_health;
+                        return this.m_score;
                     }
                     set
                     {
-                        this.m_health = value;
+                        this.m_score = value;
                     }
                 }
 
@@ -237,6 +237,7 @@ namespace monoswitchExample.game
 
                 public void Initialize(Animation animation, Vector2 position, Viewport port)
                 {
+                    this.m_score = 0;
                     this.m_speed = Player.DEFAULT_SPEED;
                     this.m_port = port;
                     // Set the starting position of the player around the middle of the screen and to the back
@@ -255,7 +256,6 @@ namespace monoswitchExample.game
                     // Set the player to be active
                     this.m_active = true;
                     // Set the player health
-                    this.m_health = 100;
                     this.m_playerDirection = directions.right;
                     this.m_rotationAngle = 0;
                     this.m_radius = (int) (Math.Sqrt(Math.Pow(this.Height, 2) + Math.Pow(this.Width, 2)) / 2);
@@ -263,6 +263,11 @@ namespace monoswitchExample.game
                     this.m_wpressed = false;
                     this.m_apressed = false;
                     this.m_spressed = false;
+                }
+
+                public void addScore()
+                {
+                    this.m_score ++;
                 }
 
                 public void Update(GameTime gameTime)
