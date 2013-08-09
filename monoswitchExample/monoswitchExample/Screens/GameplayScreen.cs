@@ -67,6 +67,8 @@ namespace monoswitchExample
                 protected gameParams m_params;
                 protected Viewport m_mainView;
                 protected Viewport m_menuView;
+                protected Viewport m_defViewPort;
+                protected Texture2D m_menuTexture;
                 
             #endregion
 
@@ -120,12 +122,14 @@ namespace monoswitchExample
                 /// </summary>
                 public GameplayScreen(exampleGame game, gameParams gparams)
                 {
+                    
                     this.m_transitionOnTime = TimeSpan.FromSeconds(1.5);
                     this.m_transitionOffTime = TimeSpan.FromSeconds(0.5);
                     this.m_inited = false;
                     this.m_timer = null;
                     this.m_selectSet = null;
                     this.m_game = game;
+                    this.m_menuTexture = new Texture2D(this.m_game.GraphicsDevice, 1, 1);
                     if (gparams == null)
                     {
                         this.m_params = new gameParams(gameParams.DEF_SCAN_RATE, gameParams.DEF_REFACTORY_PERIOD, gameParams.DEF_DISCRETE_HOLD, gameParams.DEF_GAME_TIME, gameParams.DEF_GOAL, gameParams.DEF_DISCRETE, gameParams.DEF_COMPOSITE, gameParams.DEF_MARKER);
@@ -134,6 +138,7 @@ namespace monoswitchExample
                     {
                         this.m_params = gparams;
                     }
+                    this.m_defViewPort = this.m_game.GraphicsDevice.Viewport;
                     this.m_menuView = new Viewport(this.m_game.GraphicsDevice.Viewport.X, this.m_game.GraphicsDevice.Viewport.Y, this.m_game.GraphicsDevice.Viewport.Width, 200);
                     this.m_mainView = new Viewport(this.m_game.GraphicsDevice.Viewport.X, this.m_game.GraphicsDevice.Viewport.Y + this.m_menuView.Height, this.m_game.GraphicsDevice.Viewport.Width, this.m_game.GraphicsDevice.Viewport.Height - this.m_menuView.Height);
                 }
@@ -611,23 +616,29 @@ namespace monoswitchExample
                 /// </summary>
                 public override void Draw(GameTime gameTime)
                 {
-                    // This game has a blue background. Why? Because!
-                    ScreenManager.GraphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
-                    
-                    // Our player and enemy are both actually just text strings.
+                    ScreenManager.GraphicsDevice.Clear(ClearOptions.Target, Color.Black, 0, 0);
+
+                    //after clearing the background, switch to the game viewport and draw
+                    ScreenManager.GraphicsDevice.Viewport = this.m_mainView;
                     SpriteBatch spriteBatch = ScreenManager.spriteBatch;
-                    //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
                     spriteBatch.Begin();
-                    
                     this.m_player.Draw(spriteBatch);
                     foreach (star sVal in this.m_stars)//draw the stars
                     {
                         sVal.Draw(spriteBatch);
                     }
+                    spriteBatch.End();
+                    //switch ports again
+                    ScreenManager.GraphicsDevice.Viewport = this.m_menuView;
+                    //fill in a rectangle
+                    this.m_menuTexture.SetData(new Color[] { Color.Red });
                     //draw your timer
+                    spriteBatch = ScreenManager.spriteBatch;
+                    spriteBatch.Begin();
+                    spriteBatch.Draw(this.m_menuTexture, ScreenManager.GraphicsDevice.Viewport.TitleSafeArea, Color.Red);
                     if (this.m_timer != null && this.m_timer.isActive)
                     {
-                        spriteBatch.DrawString(this.m_gameFont, this.m_timer.displayValue, new Vector2(this.m_menuView.X, this.m_menuView.Y +100), Color.Red);
+                        spriteBatch.DrawString(this.m_gameFont, this.m_timer.displayValue, new Vector2(this.m_menuView.X, this.m_menuView.Y +100), Color.Blue);
                     }
                     spriteBatch.End();
                     // If the game is transitioning on or off, fade it out to black.
@@ -636,11 +647,14 @@ namespace monoswitchExample
                     {
                         this.m_selectSet.Draw();
                     }
+                    //reset the viewport to original
+                    ScreenManager.GraphicsDevice.Viewport = this.m_defViewPort;
                     if (this.m_transitionPosition > 0 || this.m_pauseAlpha > 0)
                     {
                         float alpha = MathHelper.Lerp(1f - TransitionAlpha, 1f, this.m_pauseAlpha / 2);
                         ScreenManager.FadeBackBufferToBlack(alpha);
                     }
+                    
                 }
 
             #endregion
