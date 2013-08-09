@@ -533,12 +533,10 @@ namespace monoswitch.content
 
                 public virtual logicStates respondSwitchToggled(ILogicState group, List<ILogicState> oldpairs, List<ILogicState> oldgroups, float interval = 0f)
                 {
-                    Console.WriteLine("responding to switch toggled");
                     if (this.m_group == group)
                     {
                         if (group.state == logicStates.TRUE)
                         {
-                            Console.WriteLine("toggling on");
                             this.m_switchedOn = true;
                             if (OnToggle != null)
                             {
@@ -547,17 +545,12 @@ namespace monoswitch.content
                         }
                         else
                         {
-                            Console.WriteLine("toggling off");
                             this.m_switchedOn = false;
                             if (OffToggle != null)
                             {
                                 OffToggle(this);
                             }
                         }
-                    }
-                    else
-                    {
-                        Console.WriteLine("group does not match");
                     }
                     return logicStates.TRUE;
                 }

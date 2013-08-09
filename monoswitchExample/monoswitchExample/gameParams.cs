@@ -19,9 +19,9 @@ namespace monoswitchExample
                 public static readonly int DEF_MIN_REFACTORY_PERIOD = 100000;//1/100th of second
                 public static readonly int DEF_MAX_REFACTORY_PERIOD = 5000000;//1/2 a second
                 public static readonly int DEF_REFACTORY_PERIOD = 1000000;//1/10th of second
-                public static readonly int DEF_MIN_DISCRETE_HOLD = 250000;//quarter second
+                public static readonly int DEF_MIN_DISCRETE_HOLD = 2500000;//quarter second
                 public static readonly int DEF_MAX_DISCRETE_HOLD = 60000000;//1 minute
-                public static readonly int DEF_DISCRETE_HOLD = 1250000;//1.25 seconds
+                public static readonly int DEF_DISCRETE_HOLD = 12500000;//1.25 seconds
                 //selection set type vars
                 public static readonly bool DEF_DISCRETE = false;
                 public static readonly bool DEF_COMPOSITE = false;
@@ -201,8 +201,8 @@ namespace monoswitchExample
                     else
                     {
                         dischd -= gameParams.DEF_MIN_DISCRETE_HOLD;
-                        this.m_refactoryPeriod = dischd - (dischd % gameParams.DEF_MIN_REFACTORY_PERIOD);
-                        this.m_refactoryPeriod += DEF_MIN_DISCRETE_HOLD;
+                        this.m_discreteHold = dischd - (dischd % gameParams.DEF_MIN_REFACTORY_PERIOD);
+                        this.m_discreteHold += DEF_MIN_DISCRETE_HOLD;
                     }
                     if (gt < gameParams.DEF_MIN_GAME_TIME)
                     {

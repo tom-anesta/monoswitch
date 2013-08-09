@@ -137,15 +137,10 @@ namespace monoswitchExample
                     {
                         this.m_params = gparams;
                     }
-                    Console.WriteLine("the current goal is " + this.m_params.goal);
                     this.m_defViewPort = this.m_game.GraphicsDevice.Viewport;
                     this.m_menuView = new Viewport(this.m_defViewPort.X, this.m_defViewPort.Y, this.m_defViewPort.Width, 125);
                     this.m_mainView = new Viewport(this.m_defViewPort.X, this.m_defViewPort.Y + this.m_menuView.Height, this.m_defViewPort.Width, this.m_defViewPort.Height - this.m_menuView.Height);
                     //debg
-                    Console.WriteLine("the status of menu view is " + this.m_menuView.Bounds);
-                    Console.WriteLine("the status of the title safe area is " + this.m_menuView.TitleSafeArea);
-                    Console.WriteLine("the status of the main area is " + this.m_mainView.Bounds);
-                    Console.WriteLine("the status of the title safe area is " + this.m_mainView.TitleSafeArea);
                 }
 
                 /// <summary>
@@ -182,6 +177,7 @@ namespace monoswitchExample
                     mkey signal = new mkey(MouseButton.Left);
                     signal.state = monoswitch.genericStates.DOWN;
                     this.m_selectSet = new selectionSet(this.m_game, skin, text, signal, KDELEGATOR);
+                    this.m_selectSet.scanningRate = new TimeSpan(this.m_params.scanRate);
                     if(!this.m_params.discrete && !this.m_params.composite)//if using basic switches
                     {
                         //DATA: SWITCHES AND GROUP

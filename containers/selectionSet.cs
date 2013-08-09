@@ -216,7 +216,6 @@ namespace monoswitch.containers
                 {
                     if (((KeyPair)kPair).keyState == KeyState.Up)
                     {
-                        Console.WriteLine("responding key state up");
                         //if we have it in the list of timers we should remove it
                         if (this.m_discreteList.Select(x => x.pair).Contains(kPair))
                         {
@@ -231,7 +230,6 @@ namespace monoswitch.containers
                     }
                     else if (((KeyPair)kPair).keyState == KeyState.Down)
                     {
-                        Console.WriteLine("responding key state down");
                         if (this.m_discreteList.Select(x => x.pair).Contains(kPair))
                         {
                             discreteTimer val = this.m_discreteList.First(x => x.pair == kPair);
@@ -249,7 +247,6 @@ namespace monoswitch.containers
                         {
                             if (interval != 0)
                             {
-                                Console.WriteLine("creating new timer");
                                 discreteTimer val = new discreteTimer((KeyPair)kPair, ((int)Math.Abs(interval)));
                                 this.m_discreteList.Add(val);
                                 val.running = true;
@@ -262,7 +259,6 @@ namespace monoswitch.containers
 
                 public void respTimerUp(discreteTimer val)
                 {
-                    Console.WriteLine("removing timer thing");
                     this.m_discreteList.Remove(val);
                     val.running = false;
                     val.pair.setState(KeyState.Up);
@@ -641,7 +637,6 @@ namespace monoswitch.containers
                     //now lets update the timers
                     for (int i = 0; i < this.m_discreteList.Count; i++ )
                     {
-                        Console.WriteLine("updating timer at " + i);
                         this.m_discreteList[i].UpdateByTime(gametime.ElapsedGameTime);
                     }
                 }

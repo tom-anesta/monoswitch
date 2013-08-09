@@ -253,7 +253,6 @@ namespace monoswitch.containers
                     }
                     if (this.groupAttemptStateChangedFailure != null)
                     {
-                        Console.WriteLine("signaling resolve attempt from group");
                         oldGroupStack.Add(this);
                         result = this.groupAttemptStateChangedFailure(this, oldPairStack, oldGroupStack);
                     }
@@ -267,23 +266,15 @@ namespace monoswitch.containers
                         }
 
                     }
-                    Console.WriteLine("The result of resolve in keygroup is " + result);
                     return result;
                 }
 
                 protected void m_respGroupPairChangeSuccess(ILogicState failedP, float interval = 0f)
                 {
-                    Console.WriteLine("responding to key state success change");
                     this.m_state = this.evaluate();
-                    Console.WriteLine("the state is currently " + this.m_state);
                     if (this.groupAttemptStateChangedSuccess != null)
                     {
-                        Console.WriteLine("sending alert");
                         this.groupAttemptStateChangedSuccess(this, null, null, 0f);
-                    }
-                    else
-                    {
-                        Console.WriteLine("no success signaler found");
                     }
                 }
 
@@ -799,7 +790,6 @@ namespace monoswitch.containers
 
                 public logicStates setState(KeyState sVal, List<ILogicState> oldPairs = null, List<ILogicState> oldGroups = null, float interval = 0f)
                 {
-                    Console.WriteLine("setting state to " + sVal);
                     if(sVal == this.keyState)
                     {
                         return logicStates.TRUE;//well then we succeeded in setting
@@ -821,14 +811,11 @@ namespace monoswitch.containers
                     logicStates result = logicStates.TRUE;
                     if (this.stateChangeAttempt != null)
                     {
-                        Console.WriteLine("attempting state change");
                         result = this.stateChangeAttempt(this, oldPairs, oldGroups);//move oldpairs to below when changing, this should evaluate
-                        Console.WriteLine("state change result was " + result);
                         if (result == logicStates.TRUE && this.m_state == sVal)//later put here to attempt a change if one is needed to resolve
                         {
                             if (this.stateChangeSuccess != null)
                             {
-                                Console.WriteLine("signalling success");
                                 this.stateChangeSuccess(this, interval);//signal the game
                             }
                             oldPairs.Remove(this);
@@ -841,10 +828,8 @@ namespace monoswitch.containers
                     }
                     if (this.stateChangeFailure != null)
                     {
-                        Console.WriteLine("attempting resolve");
                         oldPairs.Add(this);
                         result = this.stateChangeFailure(this, oldPairs, oldGroups);
-                        Console.WriteLine("result following resolve is");
                         if (result == logicStates.TRUE && this.m_state == sVal)//later put here to attempt a change if one is needed to resolve
                         {
                             if (this.stateChangeSuccess != null)
