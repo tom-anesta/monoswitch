@@ -139,8 +139,13 @@ namespace monoswitchExample
                         this.m_params = gparams;
                     }
                     this.m_defViewPort = this.m_game.GraphicsDevice.Viewport;
-                    this.m_menuView = new Viewport(this.m_game.GraphicsDevice.Viewport.X, this.m_game.GraphicsDevice.Viewport.Y, this.m_game.GraphicsDevice.Viewport.Width, 200);
-                    this.m_mainView = new Viewport(this.m_game.GraphicsDevice.Viewport.X, this.m_game.GraphicsDevice.Viewport.Y + this.m_menuView.Height, this.m_game.GraphicsDevice.Viewport.Width, this.m_game.GraphicsDevice.Viewport.Height - this.m_menuView.Height);
+                    this.m_menuView = new Viewport(this.m_defViewPort.X, this.m_defViewPort.Y, this.m_defViewPort.Width, 160);
+                    this.m_mainView = new Viewport(this.m_defViewPort.X, this.m_defViewPort.Y + this.m_menuView.Height, this.m_defViewPort.Width, this.m_defViewPort.Height - this.m_menuView.Height);
+                    //debg
+                    Console.WriteLine("the status of menu view is " + this.m_menuView.Bounds);
+                    Console.WriteLine("the status of the title safe area is " + this.m_menuView.TitleSafeArea);
+                    Console.WriteLine("the status of the main area is " + this.m_mainView.Bounds);
+                    Console.WriteLine("the status of the title safe area is " + this.m_mainView.TitleSafeArea);
                 }
 
                 /// <summary>
@@ -538,7 +543,7 @@ namespace monoswitchExample
                     if (this.m_timer == null)
                     {
                         this.m_timer = new gameTimer();
-                        this.m_timer.set(gameTime, 45);
+                        this.m_timer.set(gameTime, 65);//switch to params
                         //add your event handler
                         this.m_timer.timerComplete += this.respondTimerComplete;
                     }

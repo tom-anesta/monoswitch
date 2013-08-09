@@ -95,7 +95,7 @@ namespace monoswitchExample.game
 
                 public void set(GameTime gameTime, int seconds)
                 {
-                    this.startCount = gameTime.TotalGameTime.Seconds;
+                    this.startCount = (int)gameTime.TotalGameTime.TotalSeconds;
                     this.endCount = seconds;//this.startCount + seconds;
                     this.isActive = true;
                     this.displayValue = this.endCount.ToString();
@@ -105,7 +105,7 @@ namespace monoswitchExample.game
                 {
                     if (this.isActive)
                     {
-                        if(this.checkTimer(gameTime))
+                        if (this.checkTimer(gameTime))
                         {
                             this.isActive = false;
                         }
@@ -115,12 +115,12 @@ namespace monoswitchExample.game
                 {
                     if (this.isComplete == false)
                     {
-                        if (gameTime.TotalGameTime.Seconds > this.startCount)
+                        if ((int)gameTime.TotalGameTime.TotalSeconds > this.startCount)
                         {
-                            this.endCount = this.endCount - (gameTime.TotalGameTime.Seconds - this.startCount);
-                            this.startCount = gameTime.TotalGameTime.Seconds;
+                            this.endCount = this.endCount - ((int)gameTime.TotalGameTime.TotalSeconds - this.startCount);
+                            this.startCount = (int)gameTime.TotalGameTime.TotalSeconds;
                             this.displayValue = this.endCount.ToString();
-                            if (this.endCount < 0)
+                            if (this.endCount <= 0)
                             {
                                 this.endCount = 0;
                                 this.startCount = 0;
